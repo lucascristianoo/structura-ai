@@ -1,0 +1,338 @@
+{% extends "base.html" %}
+
+{% block title %}Studio Interativo • Structura.AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <!-- Breadcrumb & Title -->
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-mono text-slate-400 mb-1">
+        <a href="/" class="hover:text-brand-400">Início</a>
+        <span>/</span>
+        <span class="text-slate-200">Studio Interativo de Validação & Redesign</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+        Studio de Compatibilização Estrutural
+        <span class="text-xs font-mono font-medium px-2.5 py-1 rounded-md bg-brand-500/10 text-brand-400 border border-brand-500/20">
+          NBR 6118:2023
+        </span>
+      </h1>
+    </div>
+
+    <!-- Presets Quick Switcher -->
+    <div class="flex items-center gap-2">
+      <label class="text-xs font-mono text-slate-400 hidden sm:inline">Cenário Rápido:</label>
+      <select onchange="window.location.href='/analyzer?preset=' + this.value" class="bg-slate-900 border border-slate-700 text-xs font-mono rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-500">
+        {% for p in presets %}
+        <option value="{{ p.key }}" {% if p.key == preset_key %}selected{% endif %}>
+          {{ p.title }} ({% if 'FAIL' in p.expected_result %}⚠️ Reprova{% else %}✅ Aprova{% endif %})
+        </option>
+        {% endfor %}
+      </select>
+    </div>
+  </div>
+
+  <!-- STUDIO WORKSPACE GRID: 2 COLUMNS (CONTROLS LEFT, VERDICT & 5 REDESIGNS RIGHT) -->
+  <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+    
+    <!-- LEFT PANEL: ARCHITECT INPUTS, SLIDERS & DRAWING (lg:col-span-4) -->
+    <div class="lg:col-span-4 space-y-6">
+      
+      <!-- Studio Parameters Card -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
+        <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-5">
+          <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-mono">
+            <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
+            Parâmetros do Desenho
+          </h2>
+          <span class="text-[10px] font-mono text-brand-400 animate-pulse">● Live Physics</span>
+        </div>
+
+        <!-- Sliders Form -->
+        <div class="space-y-5 text-xs font-mono">
+          
+          <!-- Span Length -->
+          <div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-slate-300 font-semibold">Vão Livre Principal (L):</span>
+              <span id="val-span" class="text-brand-400 font-bold">{{ selected_preset.span_length_m }} m</span>
+            </div>
+            <input type="range" id="input-span" min="3.0" max="16.0" step="0.5" value="{{ selected_preset.span_length_m }}" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>3.0m</span>
+              <span>Distância entre apoios</span>
+              <span>16.0m</span>
+            </div>
+          </div>
+
+          <!-- Cantilever Length -->
+          <div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-slate-300 font-semibold">Balanço Estrutural (Lc):</span>
+              <span id="val-cantilever" class="text-amber-400 font-bold">{{ selected_preset.cantilever_length_m }} m</span>
+            </div>
+            <input type="range" id="input-cantilever" min="0.0" max="6.0" step="0.2" value="{{ selected_preset.cantilever_length_m }}" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>0m (Sem balanço)</span>
+              <span>Projeção em balanço</span>
+              <span>6.0m</span>
+            </div>
+          </div>
+
+          <!-- Beam Height -->
+          <div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-slate-300 font-semibold">Altura da Viga (h):</span>
+              <span id="val-beam-h" class="text-sky-400 font-bold">{{ selected_preset.beam_height_cm }} cm</span>
+            </div>
+            <input type="range" id="input-beam-h" min="15.0" max="90.0" step="5.0" value="{{ selected_preset.beam_height_cm }}" class="w-full">
+            <div class="flex justify-between text-[10px] text-slate-400 mt-1">
+              <span>15cm (Slim)</span>
+              <span>Inércia da viga</span>
+              <span>90cm</span>
+            </div>
+          </div>
+
+          <!-- Beam Width -->
+          <div>
+            <div class="flex justify-between mb-1.5">
+              <span class="text-slate-300 font-semibold">Largura da Viga (bw):</span>
+              <span id="val-beam-w" class="text-slate-300 font-bold">{{ selected_preset.beam_width_cm }} cm</span>
+            </div>
+            <input type="range" id="input-beam-w" min="12.0" max="40.0" step="2.0" value="{{ selected_preset.beam_width_cm }}" class="w-full">
+          </div>
+
+          <!-- Column Section & Height -->
+          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-slate-300">Pilar (Lado):</span>
+                <span id="val-col-sec" class="text-indigo-400 font-bold">{{ selected_preset.column_section_cm }} cm</span>
+              </div>
+              <input type="range" id="input-col-sec" min="14.0" max="50.0" step="2.0" value="{{ selected_preset.column_section_cm }}" class="w-full">
+            </div>
+            <div>
+              <div class="flex justify-between mb-1">
+                <span class="text-slate-300">Pé-direito:</span>
+                <span id="val-col-h" class="text-indigo-400 font-bold">{{ selected_preset.column_height_m }} m</span>
+              </div>
+              <input type="range" id="input-col-h" min="2.5" max="6.5" step="0.1" value="{{ selected_preset.column_height_m }}" class="w-full">
+            </div>
+          </div>
+
+          <!-- Occupancy & Concreto fck -->
+          <div class="grid grid-cols-2 gap-3 pt-2 border-t border-slate-800/80">
+            <div>
+              <label class="text-slate-300 block mb-1">Uso (NBR 6120):</label>
+              <select id="select-occupancy" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                <option value="Residencial" {% if selected_preset.category == 'Residencial' %}selected{% endif %}>Residencial (2.5 kPa)</option>
+                <option value="Comercial" {% if selected_preset.category == 'Comercial' %}selected{% endif %}>Comercial (3.5 kPa)</option>
+                <option value="Institucional" {% if selected_preset.category == 'Institucional' %}selected{% endif %}>Institucional (4.5 kPa)</option>
+              </select>
+            </div>
+            <div>
+              <label class="text-slate-300 block mb-1">Concreto fck:</label>
+              <select id="select-fck" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
+                <option value="25.0">C25 (25 MPa)</option>
+                <option value="30.0" selected>C30 (30 MPa)</option>
+                <option value="35.0">C35 (35 MPa)</option>
+                <option value="40.0">C40 (40 MPa)</option>
+              </select>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- Upload Drawing & Gemini Save Card -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-200 flex items-center gap-2 font-mono mb-4">
+          <i data-lucide="upload-cloud" class="w-4 h-4 text-purple-400"></i>
+          Subir Desenho do Arquiteto
+        </h2>
+
+        <form id="studio-save-form" class="space-y-4" enctype="multipart/form-data">
+          <div>
+            <label class="block text-xs font-mono text-slate-400 mb-1">Nome do Projeto:</label>
+            <input type="text" name="title" value="{{ selected_preset.title }}" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500 font-mono">
+          </div>
+
+          <div>
+            <label class="block text-xs font-mono text-slate-400 mb-1">Arquiteto Autor:</label>
+            <input type="text" name="author_architect" value="{{ selected_preset.author_architect }}" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-xs text-white focus:outline-none focus:border-brand-500 font-mono">
+          </div>
+
+          <!-- File upload drag drop -->
+          <div>
+            <label class="block text-xs font-mono text-slate-400 mb-1">Arquivo (Planta, Croqui, CAD, PNG, PDF):</label>
+            <div class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-4 text-center cursor-pointer transition-colors bg-slate-950/40">
+              <input type="file" name="file" id="file-upload" accept="image/*,.pdf,.svg" class="hidden" onchange="document.getElementById('file-label').textContent = this.files[0]?.name || 'Selecionar arquivo'">
+              <label for="file-upload" class="cursor-pointer">
+                <i data-lucide="image" class="w-6 h-6 text-slate-500 mx-auto mb-2"></i>
+                <span id="file-label" class="block text-xs text-brand-400 font-mono">Clique para selecionar imagem/planta</span>
+                <span class="block text-[10px] text-slate-500 mt-1">PNG, JPG, SVG ou PDF até 15MB</span>
+              </label>
+            </div>
+          </div>
+
+          <!-- Save and Run Gemini Button -->
+          <button type="submit" id="btn-save-project" class="w-full py-3 px-4 rounded-xl text-xs font-bold text-white bg-gradient-to-r from-purple-600 via-indigo-600 to-brand-600 hover:from-purple-500 hover:to-brand-500 shadow-lg shadow-purple-500/20 flex items-center justify-center gap-2 transition-all duration-200">
+            <i data-lucide="sparkles" class="w-4 h-4"></i>
+            <span>Salvar & Gerar Parecer Gemini</span>
+          </button>
+        </form>
+      </div>
+
+    </div>
+
+    <!-- RIGHT PANEL: VERDICT, METRICS, INTERACTIVE CANVAS & THE 5 REDESIGN PROPOSALS (lg:col-span-8) -->
+    <div class="lg:col-span-8 space-y-6">
+      
+      <!-- GLOBAL VERDICT & SCORE CARD -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 shadow-xl relative overflow-hidden">
+        
+        <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
+          <div class="flex items-center gap-3">
+            <span id="verdict-badge" class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+              REVISÃO MANDATÓRIA (ELS/ELU)
+            </span>
+            <span class="text-xs font-mono text-slate-400">Verificação NBR 6118</span>
+          </div>
+
+          <div class="flex items-center gap-3">
+            <div class="text-right">
+              <div class="text-[10px] font-mono uppercase text-slate-400">Índice de Viabilidade Física</div>
+              <div id="score-val" class="text-xl font-bold font-mono text-white">42/100</div>
+            </div>
+            <div class="w-24 h-2.5 bg-slate-800 rounded-full overflow-hidden">
+              <div id="score-bar" class="h-full bg-rose-500 rounded-full" style="width: 42%;"></div>
+            </div>
+          </div>
+        </div>
+
+        <h2 id="verdict-title" class="text-xl font-bold text-rose-400 mb-2">
+          Reprovado segundo a Física: 5 Redesigns Propostos
+        </h2>
+        
+        <p id="verdict-desc" class="text-xs text-slate-300 leading-relaxed font-sans mb-4">
+          Calculando parâmetros...
+        </p>
+
+        <!-- 4 Key Structural Engineering Indicators -->
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-4 border-t border-slate-800/80 font-mono">
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Flecha Calculada</span>
+            <span id="metric-deflection" class="text-2xl font-bold text-rose-400 font-mono">54.2 mm</span>
+            <span id="metric-allowable" class="text-[10px] text-slate-400 block mt-0.5">≤ 40.0 mm (L/250)</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Momento Fletor</span>
+            <span id="metric-moment" class="text-2xl font-bold text-sky-400 font-mono">312.5 kN.m</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Esforço solicitante</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Esbeltez Pilar</span>
+            <span id="metric-buckling" class="text-2xl font-bold text-indigo-400 font-mono">λ = 55.4</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Limite λ ≤ 140</span>
+          </div>
+          <div class="p-3 rounded-xl bg-slate-950/60 border border-slate-800">
+            <span class="text-[11px] text-slate-400 block">Vão / Altura (L/h)</span>
+            <span class="text-2xl font-bold text-purple-400 font-mono">L/35</span>
+            <span class="text-[10px] text-slate-400 block mt-0.5">Recomendado L/13</span>
+          </div>
+        </div>
+
+        <!-- Failure Reasons Callout Box -->
+        <div id="failures-container" class="mt-4 p-4 rounded-xl bg-rose-950/30 border border-rose-500/20">
+          <div class="text-xs font-mono font-bold text-rose-400 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+            <i data-lucide="alert-triangle" class="w-4 h-4"></i>
+            <span>Não-Conformidades Físicas Identificadas:</span>
+          </div>
+          <ul id="failures-list" class="space-y-1.5">
+            <!-- Dynamically populated -->
+          </ul>
+        </div>
+
+      </div>
+
+      <!-- INTERACTIVE ARCHITECTURAL CANVAS -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3 mb-4">
+          <div class="flex items-center gap-2">
+            <i data-lucide="layout-grid" class="w-4 h-4 text-brand-400"></i>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Croqui Estrutural Interativo</h3>
+          </div>
+          <!-- Canvas Tools -->
+          <div class="flex items-center gap-1.5 font-mono text-xs">
+            <button type="button" data-canvas-tool="column" class="px-2.5 py-1.5 rounded-lg bg-brand-600 text-white font-semibold transition-colors">
+              + Pilar
+            </button>
+            <button type="button" data-canvas-tool="beam" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              + Viga
+            </button>
+            <button type="button" data-canvas-tool="cantilever" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              + Balanço
+            </button>
+            <button type="button" data-canvas-tool="clear" class="px-2 py-1.5 rounded-lg bg-slate-800 text-rose-400 hover:bg-rose-950/50 transition-colors">
+              Limpar
+            </button>
+          </div>
+        </div>
+
+        <!-- Canvas Container -->
+        <div class="relative w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+          <canvas id="structural-canvas" class="w-full block cursor-crosshair"></canvas>
+          <div class="absolute bottom-2 right-2 px-2 py-1 rounded bg-slate-900/80 backdrop-blur text-[10px] font-mono text-slate-400">
+            Escala: 40px = 1.0m • Clique e arraste para desenhar
+          </div>
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- THE 5 VISUAL REDESIGN PROPOSALS (CORE INNOVATION) -->
+      <!-- ========================================================================= -->
+      <div id="variants-section" class="rounded-2xl border border-brand-500/30 bg-slate-900/90 backdrop-blur-md p-6 shadow-2xl relative overflow-hidden">
+        
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+          <div>
+            <div class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-brand-400 uppercase tracking-wider mb-1">
+              <i data-lucide="sparkles" class="w-4 h-4"></i>
+              <span>Adequação Matemática ao Projeto</span>
+            </div>
+            <h2 class="text-xl font-extrabold text-white">5 Alternativas Visuais de Redesign Estrutural</h2>
+            <p class="text-xs text-slate-400 mt-1">
+              Cada proposta transforma a restrição da engenharia em uma nova assinatura plástica para o arquiteto.
+            </p>
+          </div>
+        </div>
+
+        <!-- Horizontal Tabs for the 5 Variants -->
+        <div id="variants-tabs" class="flex gap-2 overflow-x-auto pb-3 mb-6 scrollbar-thin">
+          <!-- Populated dynamically via app.js -->
+        </div>
+
+        <!-- Active Variant Dynamic SVG Blueprint Render -->
+        <div id="variant-svg-container" class="w-full mb-6 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
+          <!-- Populated with SVG Blueprint -->
+        </div>
+
+        <!-- Active Variant Detailed Technical & Architectural Breakdown -->
+        <div id="variant-active-content">
+          <!-- Populated dynamically via app.js -->
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script src="/static/js/canvas_draw.js"></script>
+<script src="/static/js/app.js"></script>
+{% endblock %}

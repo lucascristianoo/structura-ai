@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="pt-BR" class="dark h-full">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>{% block title %}Structura.AI — Ponte Físico-Arquitetônica{% endblock %}</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#f0f9ff',
+              100: '#e0f2fe',
+              400: '#38bdf8',
+              500: '#0ea5e9',
+              600: '#0284c7',
+              700: '#0369a1',
+              800: '#075985',
+              900: '#0c4a6e',
+              950: '#082f49',
+            },
+            arch: {
+              dark: '#030712',
+              card: '#0f172a',
+              border: '#1e293b',
+              accent: '#38bdf8',
+              warn: '#f59e0b',
+              danger: '#ef4444',
+              success: '#10b981'
+            }
+          },
+          fontFamily: {
+            sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
+            mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace']
+          }
+        }
+      }
+    }
+  </script>
+  
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+
+  <!-- NAVBAR -->
+  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Logo & Brand -->
+      <a href="/" class="flex items-center gap-3 group">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-sky-400 p-[1px] shadow-lg shadow-brand-500/20">
+          <div class="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
+            <i data-lucide="compass" class="w-5 h-5 text-brand-400 group-hover:rotate-45 transition-transform duration-300"></i>
+          </div>
+        </div>
+        <div>
+          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-400 bg-clip-text text-transparent">Structura<span class="text-brand-400">.AI</span></span>
+          <span class="block text-[10px] font-mono tracking-wider text-slate-400 uppercase">HackTown 2026 Edition</span>
+        </div>
+      </a>
+
+      <!-- Navigation Links -->
+      <nav class="hidden md:flex items-center gap-1">
+        <a href="/" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors">
+          Início
+        </a>
+        <a href="/analyzer" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors flex items-center gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
+          Studio Interativo
+        </a>
+      </nav>
+
+      <!-- Action & Status -->
+      <div class="flex items-center gap-3">
+        <!-- Gemini status badge -->
+        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-xs font-mono">
+          <span class="w-2 h-2 rounded-full {% if gemini_active %}bg-emerald-400 animate-pulse{% else %}bg-sky-400{% endif %}"></span>
+          <span class="text-slate-400 hidden sm:inline">Google AI:</span>
+          <span class="text-slate-200 font-semibold">Gemini 2.5 Flash</span>
+        </div>
+
+        <!-- New Analysis Button -->
+        <a href="/analyzer" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200">
+          <i data-lucide="plus" class="w-4 h-4"></i>
+          <span>Novo Projeto</span>
+        </a>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN CONTENT -->
+  <main class="flex-1">
+    {% block content %}{% endblock %}
+  </main>
+
+  <!-- FOOTER -->
+  <footer class="border-t border-slate-900 bg-slate-950 py-8 text-xs text-slate-500 font-mono">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
+      <div class="flex items-center gap-2">
+        <i data-lucide="drafting-compass" class="w-4 h-4 text-brand-400"></i>
+        <span>Structura.AI • Intermediário Inteligente entre Arquitetura & Engenharia Civil</span>
+      </div>
+      <div>
+        <span>Normas: ABNT NBR 6118:2023 & NBR 6120 • Desenvolvido para o HackTown</span>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    lucide.createIcons();
+  </script>
+  {% block scripts %}{% endblock %}
+</body>
+</html>

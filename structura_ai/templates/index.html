@@ -1,0 +1,206 @@
+{% extends "base.html" %}
+
+{% block title %}Structura.AI — O Intermediário Inteligente entre Arquitetura e Engenharia{% endblock %}
+
+{% block content %}
+<div class="relative overflow-hidden">
+  
+  <!-- Subtle Blueprint Grid Hero Background -->
+  <div class="absolute inset-0 bg-blueprint-dense pointer-events-none opacity-40"></div>
+  <div class="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[500px] bg-gradient-to-b from-brand-500/10 via-indigo-500/5 to-transparent blur-3xl pointer-events-none"></div>
+
+  <!-- HERO SECTION -->
+  <section class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-16 pb-20 text-center">
+    
+    <div class="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full border border-brand-500/30 bg-brand-500/10 text-brand-400 text-xs font-mono mb-6">
+      <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+      <span>HackTown 2026 Innovation Showcase • Google Gemini 2.5 Flash Inside</span>
+    </div>
+
+    <h1 class="text-4xl sm:text-6xl font-extrabold tracking-tight text-white max-w-4xl mx-auto leading-tight sm:leading-none">
+      A ponte viva entre a <span class="bg-gradient-to-r from-sky-400 via-indigo-400 to-purple-400 bg-clip-text text-transparent">poesia do Arquiteto</span> e o <span class="text-brand-400">cálculo do Engenheiro</span>.
+    </h1>
+
+    <p class="mt-6 text-lg sm:text-xl text-slate-400 max-w-3xl mx-auto leading-relaxed">
+      O arquiteto sobe seu desenho conceitual. O motor físico audita vãos livres, balanços e flambagem segundo a <strong>NBR 6118</strong>. Se a física reprovar o traço, a IA não descarta o projeto: gera <strong>5 propostas visuais alternativas de redesign</strong> que adequam a matemática à beleza da arquitetura.
+    </p>
+
+    <!-- Hero CTA Buttons -->
+    <div class="mt-10 flex flex-wrap items-center justify-center gap-4">
+      <a href="/analyzer" class="inline-flex items-center gap-3 px-6 py-3.5 rounded-xl font-semibold text-white bg-gradient-to-r from-brand-600 via-indigo-600 to-sky-500 hover:from-brand-500 hover:to-sky-400 shadow-xl shadow-brand-500/25 transition-all duration-200 transform hover:-translate-y-0.5">
+        <i data-lucide="play" class="w-5 h-5"></i>
+        <span>Abrir Studio Interativo</span>
+      </a>
+      <a href="#presets" class="inline-flex items-center gap-2 px-6 py-3.5 rounded-xl font-semibold text-slate-300 bg-slate-900 border border-slate-800 hover:bg-slate-800/80 hover:text-white transition-colors">
+        <i data-lucide="layers" class="w-5 h-5 text-brand-400"></i>
+        <span>Ver Demonstrações 1-Click</span>
+      </a>
+    </div>
+
+    <!-- Quick Stats Banner -->
+    <div class="mt-16 grid grid-cols-2 sm:grid-cols-4 gap-4 max-w-4xl mx-auto text-left font-mono">
+      <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm">
+        <div class="text-2xl font-bold text-brand-400">&lt; 50ms</div>
+        <div class="text-xs text-slate-400 mt-1">Tempo de Cálculo Físico</div>
+      </div>
+      <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm">
+        <div class="text-2xl font-bold text-emerald-400">NBR 6118</div>
+        <div class="text-xs text-slate-400 mt-1">Conformidade ELS/ELU</div>
+      </div>
+      <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm">
+        <div class="text-2xl font-bold text-purple-400">5 Visuais</div>
+        <div class="text-xs text-slate-400 mt-1">Alternativas de Redesign</div>
+      </div>
+      <div class="p-4 rounded-xl border border-slate-800 bg-slate-900/60 backdrop-blur-sm">
+        <div class="text-2xl font-bold text-amber-400">$0 Custo</div>
+        <div class="text-xs text-slate-400 mt-1">Google Free Tier Gemini</div>
+      </div>
+    </div>
+
+  </section>
+
+  <!-- 1-CLICK DEMOS (PRESETS FOR HACKTOWN) -->
+  <section id="presets" class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-900">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">Cenários Arquitetônicos Pré-Carregados</h2>
+      <p class="mt-3 text-slate-400 text-sm">
+        Escolha um dos arquétipos reais abaixo para testar instantaneamente a resposta da física e as 5 propostas de redesign.
+      </p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      {% for preset in presets %}
+      <div class="group rounded-2xl border border-slate-800 bg-slate-900/50 hover:bg-slate-900/90 hover:border-slate-700 p-6 flex flex-col justify-between transition-all duration-300">
+        <div>
+          <div class="flex items-center justify-between mb-4">
+            <span class="px-2.5 py-1 rounded-md text-[11px] font-mono font-medium {% if 'FAIL' in preset.expected_result %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% else %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% endif %}">
+              {{ preset.category }}
+            </span>
+            <span class="text-xs font-mono text-slate-400">{{ preset.span_length_m }}m vão</span>
+          </div>
+
+          <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors">
+            {{ preset.title }}
+          </h3>
+
+          <p class="mt-2 text-xs text-slate-400 line-clamp-3 leading-relaxed">
+            {{ preset.description }}
+          </p>
+
+          <div class="mt-4 pt-4 border-t border-slate-800/80 text-[11px] font-mono text-slate-400 space-y-1">
+            <div class="flex justify-between">
+              <span>Balanço:</span>
+              <span class="text-slate-200">{{ preset.cantilever_length_m }}m</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Viga estimada:</span>
+              <span class="text-slate-200">{{ preset.beam_height_cm }}x{{ preset.beam_width_cm }}cm</span>
+            </div>
+            <div class="flex justify-between">
+              <span>Resultado esperado:</span>
+              <span class="{% if 'FAIL' in preset.expected_result %}text-rose-400{% else %}text-emerald-400{% endif %} font-bold">
+                {{ preset.expected_result }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-6">
+          <a href="/analyzer?preset={{ preset.key }}" class="w-full inline-flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl text-xs font-semibold text-white bg-slate-800 hover:bg-brand-600 transition-colors">
+            <i data-lucide="play-circle" class="w-4 h-4"></i>
+            <span>Testar no Studio</span>
+          </a>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  </section>
+
+  <!-- HOW IT WORKS ARCHITECTURE -->
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-900">
+    <div class="text-center max-w-2xl mx-auto mb-12">
+      <h2 class="text-2xl sm:text-3xl font-bold text-white tracking-tight">O Fluxo da Arquitetura à Engenharia</h2>
+      <p class="mt-3 text-slate-400 text-sm">Eliminando atritos e retrabalhos entre o atelier de arquitetura e o escritório de cálculo estrutural.</p>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+      
+      <!-- Step 1 -->
+      <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/40 relative">
+        <div class="w-10 h-10 rounded-xl bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center font-bold text-lg mb-4">
+          1
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Upload ou Croqui Interativo</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          O arquiteto anexa sua planta baixa, croqui, CAD ou desenha pilares e vigas na tela. O sistema lê as dimensões, vãos e cargas de uso da ABNT NBR 6120.
+        </p>
+      </div>
+
+      <!-- Step 2 -->
+      <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/40 relative">
+        <div class="w-10 h-10 rounded-xl bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center font-bold text-lg mb-4">
+          2
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">Auditoria Física NBR 6118</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          O motor analítico calcula momentos fletores, cortantes, deflexões diferidas (fluência do concreto) e estabilidade de Euler contra flambagem em milissegundos.
+        </p>
+      </div>
+
+      <!-- Step 3 -->
+      <div class="p-6 rounded-2xl border border-slate-800 bg-slate-900/40 relative">
+        <div class="w-10 h-10 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-400 flex items-center justify-center font-bold text-lg mb-4">
+          3
+        </div>
+        <h3 class="text-lg font-bold text-white mb-2">5 Redesigns Visuais Instantâneos</h3>
+        <p class="text-sm text-slate-400 leading-relaxed">
+          Se o projeto falhar, o sistema propõe 5 caminhos: Protensão Ativa, Exoesqueleto Vierendeel, Balanço em V, Lajes Waffle ou Arco Catenário Funicular.
+        </p>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- RECENT PROJECTS RECORD -->
+  {% if projects %}
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16 border-t border-slate-900">
+    <div class="flex items-center justify-between mb-8">
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold text-white">Projetos Analisados Recentemente</h2>
+        <p class="text-xs text-slate-400 mt-1">Histórico persistido em banco de dados relacional.</p>
+      </div>
+      <a href="/analyzer" class="text-xs font-mono text-brand-400 hover:text-brand-300">Novo +</a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {% for proj in projects %}
+      <a href="/project/{{ proj.id }}" class="group block p-5 rounded-2xl border border-slate-800 bg-slate-900/40 hover:bg-slate-900 hover:border-slate-700 transition-all">
+        <div class="flex items-center justify-between mb-3">
+          <span class="text-xs font-mono text-slate-400">{{ proj.category }}</span>
+          {% if proj.analyses %}
+            {% set a = proj.analyses[-1] %}
+            <span class="px-2 py-0.5 rounded text-[10px] font-mono font-bold {% if a.is_physically_viable %}bg-emerald-500/10 text-emerald-400 border border-emerald-500/20{% else %}bg-rose-500/10 text-rose-400 border border-rose-500/20{% endif %}">
+              {% if a.is_physically_viable %}APROVADO ({{ a.structural_score }}){% else %}REVISÃO ({{ a.structural_score }}){% endif %}
+            </span>
+          {% else %}
+            <span class="text-[10px] text-slate-500 font-mono">Pendente</span>
+          {% endif %}
+        </div>
+        <h3 class="text-base font-bold text-white group-hover:text-brand-400 transition-colors line-clamp-1">
+          {{ proj.title }}
+        </h3>
+        <p class="text-xs text-slate-400 mt-1 line-clamp-2">
+          {{ proj.description or 'Sem descrição' }}
+        </p>
+        <div class="mt-4 pt-3 border-t border-slate-800/60 flex items-center justify-between text-[11px] font-mono text-slate-500">
+          <span>{{ proj.author_architect }}</span>
+          <span class="text-brand-400 group-hover:translate-x-1 transition-transform">Ver laudo →</span>
+        </div>
+      </a>
+      {% endfor %}
+    </div>
+  </section>
+  {% endif %}
+
+</div>
+{% endblock %}
