@@ -31,7 +31,7 @@ services:
     environment:
       - DATABASE_URL=postgresql+asyncpg://structura_user:structura_secure_pass_2026@db:5432/structura_db
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - GEMINI_MODEL=gemini-2.5-flash
+      - GEMINI_MODEL=gemini-2.0-flash
       - HOST=0.0.0.0
       - PORT=8000
     volumes:

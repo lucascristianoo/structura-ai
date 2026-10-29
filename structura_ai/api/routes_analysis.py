@@ -79,8 +79,16 @@ async def analyze_canvas_drawing(payload: CanvasFloorplanPayload, db: AsyncSessi
                 if 2.0 <= dist_m <= 25.0:
                     max_span_m = max(max_span_m, dist_m)
     
-    # Calculate cantilever length
-    max_cantilever_m = 1.0
+    # Calculate span from drawn beams as well
+    for b in beams:
+        if b.end:
+            dist_px = math.hypot(b.end.x - b.start.x, b.end.y - b.start.y)
+            dist_m = dist_px / scale
+            if 2.0 <= dist_m <= 25.0:
+                max_span_m = max(max_span_m, dist_m)
+
+    # Calculate cantilever length (0.0 if none drawn)
+    max_cantilever_m = 0.0
     for cant in cantilevers:
         if cant.end:
             dist_px = math.hypot(cant.end.x - cant.start.x, cant.end.y - cant.start.y)

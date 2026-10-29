@@ -32,7 +32,7 @@ class Project(Base):
     updated_at = Column(DateTime, default=get_utc_now, onupdate=get_utc_now)
 
     # Relationship to analysis results
-    analyses = relationship("AnalysisResult", back_populates="project", cascade="all, delete-orphan")
+    analyses = relationship("AnalysisResult", back_populates="project", cascade="all, delete-orphan", order_by="AnalysisResult.created_at")
 
 
 class AnalysisResult(Base):
@@ -63,12 +63,12 @@ class AnalysisResult(Base):
     
     # Google Gemini AI Multi-modal review
     ai_gemini_review = Column(Text, nullable=True)
-    ai_model_used = Column(String(100), default="gemini-2.5-flash")
+    ai_model_used = Column(String(100), default="gemini-2.0-flash")
     
     created_at = Column(DateTime, default=get_utc_now)
 
     project = relationship("Project", back_populates="analyses")
-    variants = relationship("RedesignVariant", back_populates="analysis", cascade="all, delete-orphan")
+    variants = relationship("RedesignVariant", back_populates="analysis", cascade="all, delete-orphan", order_by="RedesignVariant.variant_number")
 
 
 class RedesignVariant(Base):

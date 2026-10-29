@@ -130,15 +130,16 @@
                 <option value="Residencial" {% if selected_preset.category == 'Residencial' %}selected{% endif %}>Residencial (2.5 kPa)</option>
                 <option value="Comercial" {% if selected_preset.category == 'Comercial' %}selected{% endif %}>Comercial (3.5 kPa)</option>
                 <option value="Institucional" {% if selected_preset.category == 'Institucional' %}selected{% endif %}>Institucional (4.5 kPa)</option>
+                <option value="Cultural" {% if selected_preset.category == 'Cultural' %}selected{% endif %}>Cultural (2.5 kPa)</option>
               </select>
             </div>
             <div>
               <label class="text-slate-300 block mb-1">Concreto fck:</label>
               <select id="select-fck" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-2 py-1.5 text-slate-200">
-                <option value="25.0">C25 (25 MPa)</option>
-                <option value="30.0" selected>C30 (30 MPa)</option>
-                <option value="35.0">C35 (35 MPa)</option>
-                <option value="40.0">C40 (40 MPa)</option>
+                <option value="25.0" {% if selected_preset.concrete_fck_mpa == 25.0 %}selected{% endif %}>C25 (25 MPa)</option>
+                <option value="30.0" {% if not selected_preset.concrete_fck_mpa or selected_preset.concrete_fck_mpa == 30.0 %}selected{% endif %}>C30 (30 MPa)</option>
+                <option value="35.0" {% if selected_preset.concrete_fck_mpa == 35.0 %}selected{% endif %}>C35 (35 MPa)</option>
+                <option value="40.0" {% if selected_preset.concrete_fck_mpa == 40.0 %}selected{% endif %}>C40 (40 MPa)</option>
               </select>
             </div>
           </div>

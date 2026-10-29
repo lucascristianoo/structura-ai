@@ -47,12 +47,17 @@ class StructuralCoreEngine:
         i_eff = 0.50 * i_gross
         stiffness_ei = e_kpa * i_eff  # kN*m²
 
-        # Load Calculation
+        # Load Calculation with physical safeguards
+        safe_dead_load_kpa = max(dead_load_kpa, 1.5)
+        slab_thickness_m = 0.12
+        slab_self_weight = slab_thickness_m * 25.0  # 3.0 kN/m²
+        finishing_load_kpa = max(safe_dead_load_kpa - slab_self_weight, 0.5)
+
         loads = LoadCalculator.calculate_distributed_load(
             tributary_width_m=tributary_width_m,
-            slab_thickness_m=0.12,
-            finishing_load_kpa=dead_load_kpa - (0.12 * 25.0),
-            live_load_kpa=live_load_kpa,
+            slab_thickness_m=slab_thickness_m,
+            finishing_load_kpa=finishing_load_kpa,
+            live_load_kpa=max(live_load_kpa, 1.0),
             beam_width_m=bw_m,
             beam_height_m=h_m
         )

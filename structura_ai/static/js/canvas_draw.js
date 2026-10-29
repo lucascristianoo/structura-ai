@@ -190,7 +190,7 @@ class ArchitecturalCanvas {
   }
 
   syncWithStudio() {
-    // Computes max span between any 2 columns
+    // Computes max span between any 2 columns or along drawn beams
     const cols = this.elements.filter(e => e.type === 'column');
     let maxDistM = 6.0;
     if (cols.length >= 2) {
@@ -202,11 +202,21 @@ class ArchitecturalCanvas {
       }
     }
 
+    const beams = this.elements.filter(e => e.type === 'beam');
+    beams.forEach(b => {
+      if (b.end) {
+        const d = Math.hypot(b.end.x - b.start.x, b.end.y - b.start.y) / this.scale;
+        if (d >= 2.0) maxDistM = Math.max(maxDistM, d);
+      }
+    });
+
     const cants = this.elements.filter(e => e.type === 'cantilever');
-    let maxCantM = 1.0;
+    let maxCantM = 0.0;
     cants.forEach(c => {
-      const d = Math.hypot(c.end.x - c.start.x, c.end.y - c.start.y) / this.scale;
-      maxCantM = Math.max(maxCantM, d);
+      if (c.end) {
+        const d = Math.hypot(c.end.x - c.start.x, c.end.y - c.start.y) / this.scale;
+        maxCantM = Math.max(maxCantM, d);
+      }
     });
 
     // Update main studio sliders

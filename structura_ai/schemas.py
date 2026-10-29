@@ -57,6 +57,7 @@ class ProjectOut(BaseModel):
     category: str
     description: Optional[str]
     image_filename: Optional[str]
+    image_path: Optional[str] = None
     parameters: Dict[str, Any]
     status: str
     created_at: str

@@ -65,3 +65,39 @@ async def test_preset_load_and_export():
         svg_resp = await client.get(f"/api/export/{project_id}/variant/1/svg")
         assert svg_resp.status_code == 200
         assert "<svg" in svg_resp.text
+
+        # Verify HTML report contains embedded SVGs for the variants
+        assert "<svg" in export_resp.text
+
+@pytest.mark.asyncio
+async def test_preset_not_found_404():
+    """Requesting an unknown preset must return HTTP 404."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        resp = await client.post("/api/projects/preset/inexistent_preset_key_123")
+        assert resp.status_code == 404
+        assert "não encontrado" in resp.json()["detail"]
+
+@pytest.mark.asyncio
+async def test_canvas_base64_upload_flow():
+    """Submitting a base64 canvas drawing saves the image and associates image_path."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        # 1x1 transparent PNG data URL
+        data_url = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNk+M9QDwADhgGAWjR9awAAAABJRU5ErkJggg=="
+        data = {
+            "title": "Projeto Croqui Base64",
+            "author_architect": "Arquiteto Studio",
+            "category": "Residencial",
+            "canvas_image": data_url
+        }
+        resp = await client.post("/api/projects/upload", data=data)
+        assert resp.status_code == 200
+        project_id = resp.json()["project_id"]
+
+        # Fetch project details and verify image_path is populated
+        proj_resp = await client.get(f"/api/projects/{project_id}")
+        assert proj_resp.status_code == 200
+        proj_data = proj_resp.json()
+        assert proj_data["image_path"] is not None
+        assert "croqui_arquiteto.png" in proj_data["image_path"]

@@ -3,6 +3,8 @@ API Routes for Project Management & Creation.
 """
 import os
 import shutil
+import uuid
+import base64
 from typing import List, Optional
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File, Form
 from sqlalchemy.ext.asyncio import AsyncSession
@@ -78,6 +80,7 @@ async def list_projects(db: AsyncSession = Depends(get_db)):
                 category=p.category,
                 description=p.description,
                 image_filename=p.image_filename,
+                image_path=p.image_path,
                 parameters=p.parameters or {},
                 status=p.status,
                 created_at=p.created_at.isoformat() if p.created_at else "",
@@ -96,6 +99,8 @@ async def list_presets():
 @router.post("/preset/{preset_key}")
 async def load_preset_project(preset_key: str, db: AsyncSession = Depends(get_db)):
     """Loads a preset project, immediately executes physics analysis and generates 5 redesigns."""
+    if preset_key not in SAMPLE_PRESETS:
+        raise HTTPException(status_code=404, detail=f"Preset '{preset_key}' não encontrado.")
     project = await AnalyzerService.create_from_preset(db, preset_key)
     analysis = await AnalyzerService.process_project_analysis(db, project.id)
     return {
@@ -167,6 +172,7 @@ async def get_project(project_id: str, db: AsyncSession = Depends(get_db)):
         category=project.category,
         description=project.description,
         image_filename=project.image_filename,
+        image_path=project.image_path,
         parameters=project.parameters or {},
         status=project.status,
         created_at=project.created_at.isoformat() if project.created_at else "",
@@ -190,25 +196,49 @@ async def upload_and_create_project(
     live_load_kpa: float = Form(2.5),
     concrete_fck_mpa: float = Form(30.0),
     file: Optional[UploadFile] = File(None),
+    canvas_image: Optional[str] = Form(None),
     db: AsyncSession = Depends(get_db)
 ):
     """
-    Creates project with file upload (image/blueprint) and runs complete physical & AI analysis.
+    Creates project with file upload (image/blueprint) or interactive canvas drawing,
+    and runs complete physical & AI analysis.
     """
     image_bytes = None
     image_filename = None
+    image_path = None
     mime_type = "image/png"
 
+    base_dir = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    uploads_dir = os.path.abspath(os.path.join(base_dir, "..", "uploads"))
+    os.makedirs(uploads_dir, exist_ok=True)
+
     if file and file.filename:
-        image_filename = file.filename
+        # Sanitize against path traversal attacks (e.g. ../../)
+        raw_basename = os.path.basename(file.filename)
+        safe_name = "".join(c for c in raw_basename if c.isalnum() or c in "._-").strip() or "blueprint.png"
+        image_filename = f"{uuid.uuid4().hex[:8]}_{safe_name}"
         mime_type = file.content_type or "image/png"
         image_bytes = await file.read()
         
-        # Save file to uploads folder
-        os.makedirs("./uploads", exist_ok=True)
-        save_path = os.path.join("./uploads", image_filename)
+        save_path = os.path.join(uploads_dir, image_filename)
         with open(save_path, "wb") as f:
             f.write(image_bytes)
+        image_path = f"/uploads/{image_filename}"
+    elif canvas_image and "base64," in canvas_image:
+        # Save canvas drawing as image
+        try:
+            format_meta, imgstr = canvas_image.split(";base64,")
+            image_bytes = base64.b64decode(imgstr)
+            image_filename = f"{uuid.uuid4().hex[:8]}_croqui_arquiteto.png"
+            mime_type = "image/png"
+            save_path = os.path.join(uploads_dir, image_filename)
+            with open(save_path, "wb") as f:
+                f.write(image_bytes)
+            image_path = f"/uploads/{image_filename}"
+        except Exception:
+            image_bytes = None
+            image_filename = None
+            image_path = None
 
     project = Project(
         title=title,
@@ -216,6 +246,7 @@ async def upload_and_create_project(
         category=category,
         description=description,
         image_filename=image_filename,
+        image_path=image_path,
         parameters={
             "span_length_m": span_length_m,
             "cantilever_length_m": cantilever_length_m,

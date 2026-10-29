@@ -21,7 +21,7 @@ class Settings(BaseSettings):
     # Google AI / Gemini Settings (Free Tier: gemini-2.5-flash / gemini-1.5-flash)
     GEMINI_API_KEY: str = Field(default="", description="Google Gemini API key for multimodal vision")
     GOOGLE_API_KEY: str = Field(default="", description="Alias for Google API key")
-    GEMINI_MODEL: str = Field(default="gemini-2.5-flash", description="Google Gemini model name")
+    GEMINI_MODEL: str = Field(default="gemini-2.0-flash", description="Google Gemini model name (gemini-2.0-flash / gemini-1.5-flash)")
     
     # Upload & Storage Settings
     UPLOAD_DIR: str = "./uploads"

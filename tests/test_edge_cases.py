@@ -84,3 +84,57 @@ async def test_multipart_upload_endpoint():
         res_data = resp.json()
         assert res_data["status"] == "success"
         assert "project_id" in res_data
+
+@pytest.mark.asyncio
+async def test_canvas_zero_cantilever():
+    """When an architect draws a floorplan without cantilevers, cantilever length must be 0.0."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        payload = {
+            "title": "Planta Sem Balanco",
+            "scale_pixels_per_meter": 40.0,
+            "elements": [
+                {"id": "c1", "type": "column", "start": {"x": 100, "y": 100}},
+                {"id": "c2", "type": "column", "start": {"x": 420, "y": 100}},
+                {"id": "b1", "type": "beam", "start": {"x": 100, "y": 100}, "end": {"x": 420, "y": 100}}
+            ]
+        }
+        resp = await client.post("/api/analysis/canvas", json=payload)
+        assert resp.status_code == 200
+        data = resp.json()
+        assert data["extracted_geometry"]["calculated_cantilever_m"] == 0.0
+
+def test_small_dead_load_safety():
+    """Evaluating a structure with very low dead load (1.0 kPa) must maintain physical consistency."""
+    res = StructuralCoreEngine.evaluate_structure(
+        span_length_m=6.0,
+        cantilever_length_m=0.0,
+        beam_height_cm=40.0,
+        beam_width_cm=20.0,
+        dead_load_kpa=1.0,
+        live_load_kpa=1.5
+    )
+    assert res["max_deflection_mm"] > 0
+    assert res["max_bending_moment_knm"] > 0
+    assert res["structural_score"] > 0
+
+@pytest.mark.asyncio
+async def test_upload_filename_traversal_sanitization():
+    """Uploading a file with directory traversal patterns must be safely sanitized."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        files = {
+            "file": ("../../etc/passwd_evil.png", b"fake image bytes", "image/png")
+        }
+        data = {
+            "title": "Sanitization Test",
+            "author_architect": "Studio Safe"
+        }
+        resp = await client.post("/api/projects/upload", data=data, files=files)
+        assert resp.status_code == 200
+        proj_id = resp.json()["project_id"]
+
+        proj_resp = await client.get(f"/api/projects/{proj_id}")
+        proj_data = proj_resp.json()
+        assert ".." not in proj_data["image_filename"]
+        assert "passwd_evil.png" in proj_data["image_filename"]

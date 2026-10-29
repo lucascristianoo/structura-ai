@@ -34,7 +34,8 @@ async def export_html_report(project_id: str, db: AsyncSession = Depends(get_db)
             "strategy_name": v.strategy_name,
             "architectural_concept": v.architectural_concept,
             "engineering_solution": v.engineering_solution,
-            "metrics_delta": v.metrics_delta or {}
+            "metrics_delta": v.metrics_delta or {},
+            "svg_render": v.svg_render
         }
         for v in latest_analysis.variants
     ]
@@ -47,15 +48,19 @@ async def export_html_report(project_id: str, db: AsyncSession = Depends(get_db)
         "max_bending_moment_knm": latest_analysis.max_bending_moment_knm,
         "structural_diagnosis_text": latest_analysis.structural_diagnosis_text,
         "failure_reasons": latest_analysis.failure_reasons or [],
-        "ai_gemini_review": latest_analysis.ai_gemini_review
+        "ai_gemini_review": latest_analysis.ai_gemini_review,
+        "ai_model_used": latest_analysis.ai_model_used or "Google Gemini 2.0 Flash"
     }
+
+    project_image_url = project.image_path or (f"/uploads/{project.image_filename}" if project.image_filename else None)
 
     html_content = ReportGenerator.generate_html_dossier(
         project_title=project.title,
         author=project.author_architect,
         category=project.category,
         analysis_data=analysis_data,
-        variants=variants_list
+        variants=variants_list,
+        project_image_url=project_image_url
     )
     return HTMLResponse(content=html_content)
 

@@ -323,6 +323,33 @@ class StructuraStudio {
       formData.set('column_section_cm', this.colSecSlider ? this.colSecSlider.value : 20.0);
       formData.set('column_height_m', this.colHSlider ? this.colHSlider.value : 3.2);
 
+      const occupancy = this.occupancySelect ? this.occupancySelect.value : 'Residencial';
+      const fck = this.fckSelect ? parseFloat(this.fckSelect.value) : 30.0;
+      formData.set('category', occupancy);
+      formData.set('concrete_fck_mpa', fck);
+      formData.set('dead_load_kpa', 4.5);
+      
+      const liveLoadMap = {
+        'Residencial': 2.5,
+        'Comercial': 3.5,
+        'Institucional': 4.5,
+        'Cultural': 2.5
+      };
+      formData.set('live_load_kpa', liveLoadMap[occupancy] || 2.5);
+
+      // If user did not upload a separate file, capture the interactive canvas drawing!
+      const fileInput = document.getElementById('file-upload');
+      if ((!fileInput || !fileInput.files || fileInput.files.length === 0) && window.archCanvas && window.archCanvas.canvas) {
+        try {
+          const canvasDataUrl = window.archCanvas.canvas.toDataURL('image/png');
+          if (canvasDataUrl && canvasDataUrl.length > 50) {
+            formData.set('canvas_image', canvasDataUrl);
+          }
+        } catch (e) {
+          console.warn('Could not export canvas snapshot:', e);
+        }
+      }
+
       const response = await fetch('/api/projects/upload', {
         method: 'POST',
         body: formData

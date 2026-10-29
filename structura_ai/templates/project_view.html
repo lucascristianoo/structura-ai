@@ -95,7 +95,34 @@
       </div>
     </div>
     {% endif %}
+  <!-- ARCHITECT'S ORIGINAL SUBMITTED DRAWING / CROQUI -->
+  {% if project.image_path or project.image_filename %}
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-xl">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-4 mb-6">
+      <div class="flex items-center gap-3">
+        <div class="w-8 h-8 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center">
+          <i data-lucide="image" class="w-5 h-5"></i>
+        </div>
+        <div>
+          <h2 class="text-base font-bold text-white">Desenho do Arquiteto Submetido</h2>
+          <span class="text-xs font-mono text-slate-400">{{ project.image_filename }}</span>
+        </div>
+      </div>
+      <a href="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" target="_blank" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs font-mono text-brand-400 flex items-center gap-2 transition-colors">
+        <i data-lucide="external-link" class="w-3.5 h-3.5"></i>
+        <span>Ver Original</span>
+      </a>
+    </div>
+
+    <div class="w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center p-4">
+      {% if project.image_filename and (project.image_filename.endswith('.pdf') or project.image_filename.endswith('.PDF')) %}
+        <embed src="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" type="application/pdf" class="w-full h-[500px] rounded-lg" />
+      {% else %}
+        <img src="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" alt="Desenho Original do Arquiteto" class="max-h-[500px] w-auto max-w-full object-contain rounded-lg shadow-lg">
+      {% endif %}
+    </div>
   </div>
+  {% endif %}
 
   <!-- AI SPREAD & CRITIQUE SECTION -->
   {% if analysis and analysis.ai_gemini_review %}
