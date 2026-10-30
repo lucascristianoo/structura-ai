@@ -1,0 +1,159 @@
+/* ==========================================================================
+   Structura.AI — Design Tokens & Theme System
+   Light Theme (:root)  — "Architectural Daylight / Technical Drafting Paper"
+   Dark Theme  (.dark)  — "Architectural Blueprint Night"
+   ========================================================================== */
+
+:root {
+  color-scheme: light;
+
+  /* Surfaces (RGB channels for Tailwind <alpha-value> support) */
+  --surface-base: 241 245 249;      /* #f1f5f9 - Cool architectural paper */
+  --surface-card: 255 255 255;      /* #ffffff - Elevated sheet / card */
+  --surface-elevated: 241 245 249;  /* #f1f5f9 - Secondary buttons & tabs */
+  --surface-hover: 226 232 240;     /* #e2e8f0 - Control hover surface */
+  --surface-inset: 244 247 251;     /* #f4f7fb - Metric wells & form fields */
+
+  /* Borders & Hairlines */
+  --edge-subtle: 226 232 240;       /* #e2e8f0 - Section dividers */
+  --edge-default: 220 228 238;      /* #dce4ee - Card & header borders */
+  --edge-strong: 203 213 225;       /* #cbd5e1 - Inputs, selects & hover edges */
+
+  /* Typography Hierarchy */
+  --ink-strong: 15 23 42;           /* #0f172a - Headings & primary values */
+  --ink-primary: 30 41 59;          /* #1e293b - Body & form controls */
+  --ink-secondary: 51 65 85;        /* #334155 - Descriptions & prose */
+  --ink-muted: 100 116 139;         /* #64748b - Labels, units & captions */
+  --ink-faint: 148 163 184;         /* #94a3b8 - Subtle metadata */
+
+  /* Harmonized Semantic Accents (WCAG-compliant contrast on light surfaces) */
+  --accent-brand: 2 132 199;        /* #0284c7 - Sky / Brand primary */
+  --accent-sky: 2 132 199;          /* #0284c7 - Bending moment / Beam */
+  --accent-emerald: 4 120 87;       /* #047857 - NBR 6118 compliant */
+  --accent-amber: 180 83 9;         /* #b45309 - Structural warning / Cantilever */
+  --accent-rose: 225 29 72;         /* #e11d48 - Critical ELS/ELU failure */
+  --accent-indigo: 79 70 229;       /* #4f46e5 - Engineering mechanics */
+  --accent-purple: 126 34 206;      /* #7e22ce - Generative redesigns */
+
+  /* UI Chrome & Controls */
+  --blueprint-grid-color: rgba(2, 132, 199, 0.075);
+  --scrollbar-track: #f1f5f9;
+  --scrollbar-thumb: #cbd5e1;
+  --scrollbar-thumb-hover: #94a3b8;
+  --slider-track: #cbd5e1;
+  --slider-thumb: #0284c7;
+  --slider-thumb-border: #ffffff;
+  --slider-thumb-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+
+  /* Interactive 2D Structural Canvas */
+  --canvas-bg: #f8fafc;
+  --canvas-grid: #e2e8f0;
+  --canvas-beam: #0284c7;
+  --canvas-cantilever: #d97706;
+  --canvas-col-fill: #0ea5e9;
+  --canvas-col-stroke: #0369a1;
+  --canvas-col-label: #334155;
+  --canvas-tag-bg: #ffffff;
+  --canvas-tag-border: #cbd5e1;
+
+  /* 5-Variant SVG Architectural Blueprints */
+  --bp-bg: #f8fafc;
+  --bp-grid: #e2e8f0;
+  --bp-ground: #64748b;
+  --bp-ground-hatch: #94a3b8;
+  --bp-struct-fill: #e2e8f0;
+  --bp-slab-fill: #ffffff;
+  --bp-slab-stroke: #64748b;
+  --bp-panel-fill: #f1f5f9;
+  --bp-panel-stroke: #cbd5e1;
+  --bp-badge-bg: #d1fae5;
+  --bp-badge-text: #047857;
+  --bp-text-strong: #0f172a;
+  --bp-text-body: #334155;
+  --bp-text-muted: #64748b;
+  --bp-dim-line: #64748b;
+  --bp-vierendeel-chord: #f3e8ff;
+  --bp-vierendeel-post: #ede9fe;
+  --bp-vierendeel-stroke: #9333ea;
+  --bp-waffle-cell: #e0f2fe;
+  --bp-waffle-stroke: #0284c7;
+  --bp-waffle-text: #0369a1;
+  --bp-arch-sub: #be185d;
+}
+
+html.dark {
+  color-scheme: dark;
+
+  /* Surfaces */
+  --surface-base: 2 6 23;           /* #020617 - slate-950 */
+  --surface-card: 15 23 42;         /* #0f172a - slate-900 */
+  --surface-elevated: 30 41 59;     /* #1e293b - slate-800 */
+  --surface-hover: 51 65 85;        /* #334155 - slate-700 */
+  --surface-inset: 2 6 23;          /* #020617 - slate-950 */
+
+  /* Borders & Hairlines */
+  --edge-subtle: 15 23 42;          /* #0f172a - slate-900 */
+  --edge-default: 30 41 59;         /* #1e293b - slate-800 */
+  --edge-strong: 51 65 85;          /* #334155 - slate-700 */
+
+  /* Typography Hierarchy */
+  --ink-strong: 255 255 255;        /* #ffffff - white */
+  --ink-primary: 241 245 249;       /* #f1f5f9 - slate-100 */
+  --ink-secondary: 203 213 225;     /* #cbd5e1 - slate-300 */
+  --ink-muted: 148 163 184;         /* #94a3b8 - slate-400 */
+  --ink-faint: 100 116 139;         /* #64748b - slate-500 */
+
+  /* Harmonized Semantic Accents */
+  --accent-brand: 56 189 248;       /* #38bdf8 - brand-400 */
+  --accent-sky: 56 189 248;         /* #38bdf8 - sky-400 */
+  --accent-emerald: 52 211 153;     /* #34d399 - emerald-400 */
+  --accent-amber: 251 191 36;       /* #fbbf24 - amber-400 */
+  --accent-rose: 251 113 133;       /* #fb7185 - rose-400 */
+  --accent-indigo: 129 140 248;     /* #818cf8 - indigo-400 */
+  --accent-purple: 192 132 252;     /* #c084fc - purple-400 */
+
+  /* UI Chrome & Controls */
+  --blueprint-grid-color: rgba(56, 189, 248, 0.08);
+  --scrollbar-track: #090d16;
+  --scrollbar-thumb: #1e293b;
+  --scrollbar-thumb-hover: #334155;
+  --slider-track: #1e293b;
+  --slider-thumb: #38bdf8;
+  --slider-thumb-border: #0f172a;
+  --slider-thumb-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+
+  /* Interactive 2D Structural Canvas */
+  --canvas-bg: #020617;
+  --canvas-grid: #1e293b;
+  --canvas-beam: #38bdf8;
+  --canvas-cantilever: #f59e0b;
+  --canvas-col-fill: #38bdf8;
+  --canvas-col-stroke: #0284c7;
+  --canvas-col-label: #cbd5e1;
+  --canvas-tag-bg: #0f172a;
+  --canvas-tag-border: #334155;
+
+  /* 5-Variant SVG Architectural Blueprints */
+  --bp-bg: #020617;
+  --bp-grid: #1e293b;
+  --bp-ground: #475569;
+  --bp-ground-hatch: #334155;
+  --bp-struct-fill: #1e293b;
+  --bp-slab-fill: #0f172a;
+  --bp-slab-stroke: #64748b;
+  --bp-panel-fill: #0f172a;
+  --bp-panel-stroke: #334155;
+  --bp-badge-bg: #065f46;
+  --bp-badge-text: #34d399;
+  --bp-text-strong: #f8fafc;
+  --bp-text-body: #cbd5e1;
+  --bp-text-muted: #94a3b8;
+  --bp-dim-line: #94a3b8;
+  --bp-vierendeel-chord: #3b0764;
+  --bp-vierendeel-post: #1e1b4b;
+  --bp-vierendeel-stroke: #c084fc;
+  --bp-waffle-cell: #020617;
+  --bp-waffle-stroke: #0ea5e9;
+  --bp-waffle-text: #7dd3fc;
+  --bp-arch-sub: #fda4af;
+}

@@ -6,50 +6,50 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
 
   <!-- Breadcrumb -->
-  <div class="no-print flex items-center gap-2 text-sm font-mono text-slate-400 mb-4">
-    <a href="/" class="hover:text-brand-400 transition-colors">Início</a>
+  <div class="no-print flex items-center gap-2 text-sm font-mono text-ink-muted mb-4">
+    <a href="/" class="hover:text-accent-brand transition-colors">Início</a>
     <span>/</span>
-    <a href="/analyzer" class="hover:text-brand-400 transition-colors">Studio</a>
+    <a href="/analyzer" class="hover:text-accent-brand transition-colors">Studio</a>
     <span>/</span>
-    <span class="text-slate-200">Laudo Técnico #{{ project.id[:8] }}</span>
+    <span class="text-ink-primary">Laudo Técnico #{{ project.id[:8] }}</span>
   </div>
 
   <!-- Project Header Card -->
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-2xl">
+  <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/80 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-xl shadow-slate-900/5 dark:shadow-2xl">
     <div class="flex flex-wrap items-start justify-between gap-6">
       <div>
         <div class="flex flex-wrap items-center gap-3 mb-2.5">
-          <span class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold {% if analysis and analysis.is_physically_viable %}bg-emerald-500/20 text-emerald-400 border border-emerald-500/30{% else %}bg-rose-500/20 text-rose-400 border border-rose-500/30{% endif %}">
+          <span class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold {% if analysis and analysis.is_physically_viable %}bg-emerald-500/15 text-accent-emerald border border-emerald-500/30{% else %}bg-rose-500/15 text-accent-rose border border-rose-500/30{% endif %}">
             {% if analysis and analysis.is_physically_viable %}
               ✓ APROVADO PARA DETALHAMENTO EXECUTIVO
             {% else %}
               ⚠️ REVISÃO ESTRUTURAL MANDATÓRIA (5 REDESIGNS)
             {% endif %}
           </span>
-          <span class="text-xs sm:text-sm font-mono text-slate-400">{{ project.category }}</span>
+          <span class="text-xs sm:text-sm font-mono text-ink-muted">{{ project.category }}</span>
         </div>
 
-        <h1 class="text-2xl sm:text-4xl font-extrabold text-white tracking-tight">
+        <h1 class="text-2xl sm:text-4xl font-extrabold text-ink-strong tracking-tight">
           {{ project.title }}
         </h1>
 
-        <p class="text-sm sm:text-base text-slate-300 mt-2.5 max-w-3xl leading-relaxed">
+        <p class="text-sm sm:text-base text-ink-secondary mt-2.5 max-w-3xl leading-relaxed">
           {{ project.description or 'Sem descrição fornecida.' }}
         </p>
 
-        <div class="mt-4 flex flex-wrap items-center gap-4 text-xs sm:text-sm font-mono text-slate-400">
-          <div>Autor: <strong class="text-slate-200">{{ project.author_architect }}</strong></div>
+        <div class="mt-4 flex flex-wrap items-center gap-4 text-xs sm:text-sm font-mono text-ink-muted">
+          <div>Autor: <strong class="text-ink-primary">{{ project.author_architect }}</strong></div>
           <div>•</div>
-          <div>Data: <strong class="text-slate-200">{{ project.created_at.strftime('%d/%m/%Y %H:%M') if project.created_at else '' }}</strong></div>
+          <div>Data: <strong class="text-ink-primary">{{ project.created_at.strftime('%d/%m/%Y %H:%M') if project.created_at else '' }}</strong></div>
           <div>•</div>
-          <div>Norma: <strong class="text-brand-400">ABNT NBR 6118 / NBR 6120</strong></div>
+          <div>Norma: <strong class="text-accent-brand">ABNT NBR 6118 / NBR 6120</strong></div>
         </div>
       </div>
 
       <!-- Action Buttons -->
       <div class="no-print flex flex-col sm:flex-row items-center gap-3 w-full sm:w-auto">
-        <a href="/api/export/{{ project.id }}/report.html" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition-colors">
-          <i data-lucide="file-text" class="w-4 h-4 text-brand-400"></i>
+        <a href="/api/export/{{ project.id }}/report.html" target="_blank" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-ink-strong bg-surface-elevated hover:bg-surface-hover border border-edge-strong transition-colors">
+          <i data-lucide="file-text" class="w-4 h-4 text-accent-brand"></i>
           <span>Laudo Imprimível (HTML/PDF)</span>
         </a>
         <a href="/analyzer?project={{ project.id }}" class="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl text-sm font-semibold text-white bg-brand-600 hover:bg-brand-500 transition-colors shadow-lg shadow-brand-500/20">
@@ -61,56 +61,56 @@
 
     <!-- Metrics Strip -->
     {% if analysis %}
-    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-slate-800/80 font-mono">
-      <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-        <span class="text-xs sm:text-sm text-slate-400 block">Índice Viabilidade</span>
-        <span class="text-2xl font-bold mt-1 block {% if analysis.structural_score >= 75 %}text-emerald-400{% elif analysis.structural_score >= 50 %}text-amber-400{% else %}text-rose-400{% endif %}">
+    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8 pt-6 border-t border-edge/80 font-mono">
+      <div class="p-4 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+        <span class="text-xs sm:text-sm text-ink-muted block">Índice Viabilidade</span>
+        <span class="text-2xl font-bold mt-1 block {% if analysis.structural_score >= 75 %}text-accent-emerald{% elif analysis.structural_score >= 50 %}text-accent-amber{% else %}text-accent-rose{% endif %}">
           {{ analysis.structural_score }}/100
         </span>
-        <span class="text-xs text-slate-400 block mt-1">Conformidade mecânica</span>
+        <span class="text-xs text-ink-muted block mt-1">Conformidade mecânica</span>
       </div>
 
-      <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-        <span class="text-xs sm:text-sm text-slate-400 block">Flecha Máxima (ELS)</span>
-        <span class="text-2xl font-bold mt-1 block {% if analysis.deflection_ratio > 1.0 %}text-rose-400{% else %}text-emerald-400{% endif %}">
+      <div class="p-4 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+        <span class="text-xs sm:text-sm text-ink-muted block">Flecha Máxima (ELS)</span>
+        <span class="text-2xl font-bold mt-1 block {% if analysis.deflection_ratio > 1.0 %}text-accent-rose{% else %}text-accent-emerald{% endif %}">
           {{ analysis.max_deflection_mm }} mm
         </span>
-        <span class="text-xs text-slate-400 block mt-1">Limite: {{ analysis.allowable_deflection_mm }} mm</span>
+        <span class="text-xs text-ink-muted block mt-1">Limite: {{ analysis.allowable_deflection_mm }} mm</span>
       </div>
 
-      <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-        <span class="text-xs sm:text-sm text-slate-400 block">Momento Fletor (ELU)</span>
-        <span class="text-2xl font-bold text-sky-400 mt-1 block">
+      <div class="p-4 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+        <span class="text-xs sm:text-sm text-ink-muted block">Momento Fletor (ELU)</span>
+        <span class="text-2xl font-bold text-accent-sky mt-1 block">
           {{ analysis.max_bending_moment_knm }} kN.m
         </span>
-        <span class="text-xs text-slate-400 block mt-1">Esforço solicitante</span>
+        <span class="text-xs text-ink-muted block mt-1">Esforço solicitante</span>
       </div>
 
-      <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
-        <span class="text-xs sm:text-sm text-slate-400 block">Vão Livre Avaliado</span>
-        <span class="text-2xl font-bold text-purple-400 mt-1 block">
+      <div class="p-4 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+        <span class="text-xs sm:text-sm text-ink-muted block">Vão Livre Avaliado</span>
+        <span class="text-2xl font-bold text-accent-purple mt-1 block">
           {{ project.parameters.span_length_m }} m
         </span>
-        <span class="text-xs text-slate-400 block mt-1">Balanço: {{ project.parameters.cantilever_length_m }} m</span>
+        <span class="text-xs text-ink-muted block mt-1">Balanço: {{ project.parameters.cantilever_length_m }} m</span>
       </div>
     </div>
 
     {% if analysis.structural_diagnosis_text or analysis.failure_reasons %}
-    <div class="mt-6 pt-6 border-t border-slate-800/80">
+    <div class="mt-6 pt-6 border-t border-edge/80">
       {% if analysis.structural_diagnosis_text %}
-      <p class="text-sm sm:text-base text-slate-300 leading-relaxed">{{ analysis.structural_diagnosis_text }}</p>
+      <p class="text-sm sm:text-base text-ink-secondary leading-relaxed">{{ analysis.structural_diagnosis_text }}</p>
       {% endif %}
 
       {% if analysis.failure_reasons %}
-      <div class="mt-4 p-4 rounded-xl bg-rose-950/30 border border-rose-500/20">
-        <div class="text-sm font-mono font-bold text-rose-400 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+      <div class="mt-4 p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/25">
+        <div class="text-sm font-mono font-bold text-accent-rose uppercase tracking-wider mb-2.5 flex items-center gap-2">
           <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
           <span>Não-Conformidades Físicas Identificadas:</span>
         </div>
         <ul class="space-y-2">
           {% for reason in analysis.failure_reasons %}
-          <li class="flex items-start gap-2.5 text-rose-200 text-sm leading-relaxed">
-            <span class="text-rose-500 font-bold shrink-0">✕</span>
+          <li class="flex items-start gap-2.5 text-rose-900 dark:text-rose-200 text-sm leading-relaxed">
+            <span class="text-accent-rose font-bold shrink-0">✕</span>
             <span>{{ reason }}</span>
           </li>
           {% endfor %}
@@ -124,28 +124,28 @@
 
   <!-- ARCHITECT'S ORIGINAL SUBMITTED DRAWING / CROQUI -->
   {% if project.image_path or project.image_filename %}
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-xl">
-    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+  <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/80 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-lg shadow-slate-900/5 dark:shadow-xl">
+    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-edge pb-4 mb-6">
       <div class="flex items-center gap-3">
-        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 text-brand-400 flex items-center justify-center">
+        <div class="w-9 h-9 rounded-lg bg-brand-500/10 border border-brand-500/20 text-accent-brand flex items-center justify-center">
           <i data-lucide="image" class="w-5 h-5"></i>
         </div>
         <div>
-          <h2 class="text-base sm:text-lg font-bold text-white">Desenho do Arquiteto Submetido</h2>
-          <span class="text-xs font-mono text-slate-400">{{ project.image_filename }}</span>
+          <h2 class="text-base sm:text-lg font-bold text-ink-strong">Desenho do Arquiteto Submetido</h2>
+          <span class="text-xs font-mono text-ink-muted">{{ project.image_filename }}</span>
         </div>
       </div>
-      <a href="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" target="_blank" class="no-print px-3.5 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-xs sm:text-sm font-mono text-brand-400 flex items-center gap-2 transition-colors">
+      <a href="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" target="_blank" class="no-print px-3.5 py-1.5 rounded-lg bg-surface-elevated hover:bg-surface-hover border border-edge text-xs sm:text-sm font-mono text-accent-brand flex items-center gap-2 transition-colors">
         <i data-lucide="external-link" class="w-4 h-4"></i>
         <span>Ver Original</span>
       </a>
     </div>
 
-    <div class="w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950 flex items-center justify-center p-4">
+    <div class="w-full rounded-xl overflow-hidden border border-edge bg-surface-inset flex items-center justify-center p-4">
       {% if project.image_filename and (project.image_filename.endswith('.pdf') or project.image_filename.endswith('.PDF')) %}
         <embed src="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" type="application/pdf" class="w-full h-[500px] rounded-lg" />
       {% else %}
-        <img src="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" alt="Desenho Original do Arquiteto" class="max-h-[500px] w-auto max-w-full object-contain rounded-lg shadow-lg">
+        <img src="{{ project.image_path or ('/uploads/' ~ project.image_filename) }}" alt="Desenho Original do Arquiteto" class="max-h-[500px] w-auto max-w-full object-contain rounded-lg shadow-md">
       {% endif %}
     </div>
   </div>
@@ -153,18 +153,18 @@
 
   <!-- AI SPREAD & CRITIQUE SECTION -->
   {% if analysis and analysis.ai_gemini_review %}
-  <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-xl">
-    <div class="flex items-center gap-3 border-b border-slate-800 pb-4 mb-6">
-      <div class="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-indigo-400 flex items-center justify-center">
+  <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/70 backdrop-blur-md p-6 sm:p-8 mb-8 shadow-lg shadow-slate-900/5 dark:shadow-xl">
+    <div class="flex items-center gap-3 border-b border-edge pb-4 mb-6">
+      <div class="w-9 h-9 rounded-lg bg-indigo-500/10 border border-indigo-500/20 text-accent-indigo flex items-center justify-center">
         <i data-lucide="bot" class="w-5 h-5"></i>
       </div>
       <div>
-        <h2 class="text-base sm:text-lg font-bold text-white">Parecer Google Gemini Multimodal Vision</h2>
-        <span class="text-xs font-mono text-slate-400">Modelo: {{ analysis.ai_model_used }} • Análise Colaborativa Arquiteto-Engenheiro</span>
+        <h2 class="text-base sm:text-lg font-bold text-ink-strong">Parecer Google Gemini Multimodal Vision</h2>
+        <span class="text-xs font-mono text-ink-muted">Modelo: {{ analysis.ai_model_used }} • Análise Colaborativa Arquiteto-Engenheiro</span>
       </div>
     </div>
 
-    <div id="ai-review-content" class="prose prose-invert prose-slate max-w-none prose-headings:font-bold prose-h3:text-xl prose-h3:text-white prose-h4:text-base prose-h4:text-brand-400 prose-h4:font-mono prose-p:text-slate-200 prose-li:text-slate-200 prose-strong:text-white prose-code:text-brand-400 prose-code:bg-slate-800/80 prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none whitespace-pre-wrap font-sans">{{ analysis.ai_gemini_review }}</div>
+    <div id="ai-review-content" class="prose prose-slate dark:prose-invert max-w-none prose-headings:font-bold prose-h3:text-xl prose-h3:text-ink-strong prose-h4:text-base prose-h4:text-accent-brand prose-h4:font-mono prose-p:text-ink-secondary prose-li:text-ink-secondary prose-strong:text-ink-strong prose-code:text-accent-brand prose-code:bg-surface-elevated prose-code:px-1.5 prose-code:py-0.5 prose-code:rounded prose-code:before:content-none prose-code:after:content-none whitespace-pre-wrap font-sans">{{ analysis.ai_gemini_review }}</div>
   </div>
   {% endif %}
 
@@ -173,27 +173,27 @@
   <div class="mb-12">
     <div class="flex items-center justify-between mb-6">
       <div>
-        <div class="inline-flex items-center gap-2 text-xs sm:text-sm font-mono font-bold text-brand-400 uppercase tracking-wider mb-1">
+        <div class="inline-flex items-center gap-2 text-xs sm:text-sm font-mono font-bold text-accent-brand uppercase tracking-wider mb-1">
           <i data-lucide="sparkles" class="w-4 h-4"></i>
           <span>Engenharia &amp; Plástica Arquitetônica</span>
         </div>
-        <h2 class="text-2xl font-bold text-white">As 5 Propostas Visuais de Redesign Geradas</h2>
+        <h2 class="text-2xl font-bold text-ink-strong">As 5 Propostas Visuais de Redesign Geradas</h2>
       </div>
     </div>
 
     <div class="space-y-8">
       {% for v in analysis.variants %}
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 sm:p-8 shadow-xl">
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-5">
+      <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/80 backdrop-blur-md p-6 sm:p-8 shadow-lg shadow-slate-900/5 dark:shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-edge pb-4 mb-5">
           <div>
-            <span class="text-xs sm:text-sm font-mono text-brand-400 uppercase font-semibold">Proposta {{ '%02d' | format(v.variant_number) }} • {{ v.strategy_name }}</span>
-            <h3 class="text-xl font-bold text-white mt-1">{{ v.title }}</h3>
+            <span class="text-xs sm:text-sm font-mono text-accent-brand uppercase font-semibold">Proposta {{ '%02d' | format(v.variant_number) }} • {{ v.strategy_name }}</span>
+            <h3 class="text-xl font-bold text-ink-strong mt-1">{{ v.title }}</h3>
           </div>
           <div class="flex items-center gap-3">
-            <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="px-3 py-1 rounded-full text-xs font-mono font-bold bg-emerald-500/10 text-accent-emerald border border-emerald-500/25">
               {{ v.metrics_delta.clearance_status or 'APROVADO ELS' }}
             </span>
-            <a href="/api/export/{{ project.id }}/variant/{{ v.variant_number }}/svg" download="variant_{{ v.variant_number }}.svg" class="no-print p-2 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors" title="Baixar Blueprint SVG">
+            <a href="/api/export/{{ project.id }}/variant/{{ v.variant_number }}/svg" download="variant_{{ v.variant_number }}.svg" class="no-print p-2 rounded-lg bg-surface-elevated hover:bg-surface-hover border border-edge text-ink-secondary hover:text-ink-strong transition-colors" title="Baixar Blueprint SVG">
               <i data-lucide="download" class="w-4 h-4"></i>
             </a>
           </div>
@@ -202,8 +202,8 @@
         {% if v.visual_features %}
         <div class="flex flex-wrap gap-2 mb-5">
           {% for feat in v.visual_features %}
-          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-xs font-mono text-slate-300">
-            <span class="text-brand-400">◆</span>{{ feat }}
+          <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-inset border border-edge text-xs font-mono text-ink-secondary">
+            <span class="text-accent-brand">◆</span>{{ feat }}
           </span>
           {% endfor %}
         </div>
@@ -211,58 +211,58 @@
 
         <!-- Blueprint Render -->
         {% if v.svg_render %}
-        <div class="w-full mb-6 rounded-xl overflow-hidden border border-slate-800 shadow-inner">
+        <div class="blueprint-frame w-full mb-6 rounded-xl overflow-hidden border border-edge shadow-inner">
           {{ v.svg_render | safe }}
         </div>
         {% endif %}
 
         <!-- Delta Metrics Strip -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 mb-6 font-mono">
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <span class="text-slate-400 block text-xs sm:text-sm">Flecha Final</span>
-            <span class="text-lg sm:text-xl font-bold text-emerald-400 mt-1 block">{{ v.metrics_delta.deflection_final_mm }} mm</span>
-            <span class="text-xs text-emerald-500 font-semibold">-{{ v.metrics_delta.deflection_reduction_pct }}% redução</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <span class="text-ink-muted block text-xs sm:text-sm">Flecha Final</span>
+            <span class="text-lg sm:text-xl font-bold text-accent-emerald mt-1 block">{{ v.metrics_delta.deflection_final_mm }} mm</span>
+            <span class="text-xs text-accent-emerald font-semibold">-{{ v.metrics_delta.deflection_reduction_pct }}% redução</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <span class="text-slate-400 block text-xs sm:text-sm">Momento Máximo</span>
-            <span class="text-lg sm:text-xl font-bold text-sky-400 mt-1 block">{{ v.metrics_delta.moment_final_knm }} kN.m</span>
-            <span class="text-xs text-slate-400">Alívio flexional</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <span class="text-ink-muted block text-xs sm:text-sm">Momento Máximo</span>
+            <span class="text-lg sm:text-xl font-bold text-accent-sky mt-1 block">{{ v.metrics_delta.moment_final_knm }} kN.m</span>
+            <span class="text-xs text-ink-muted">Alívio flexional</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <span class="text-slate-400 block text-xs sm:text-sm">Alívio de Massa</span>
-            <span class="text-lg sm:text-xl font-bold text-purple-400 mt-1 block">-{{ v.metrics_delta.weight_reduction_pct }}%</span>
-            <span class="text-xs text-purple-400 font-semibold">Menor carga própria</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <span class="text-ink-muted block text-xs sm:text-sm">Alívio de Massa</span>
+            <span class="text-lg sm:text-xl font-bold text-accent-purple mt-1 block">-{{ v.metrics_delta.weight_reduction_pct }}%</span>
+            <span class="text-xs text-accent-purple font-semibold">Menor carga própria</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <span class="text-slate-400 block text-xs sm:text-sm">Fator Segurança</span>
-            <span class="text-lg sm:text-xl font-bold text-amber-400 mt-1 block">FS = {{ v.metrics_delta.safety_factor }}</span>
-            <span class="text-xs text-amber-500 font-semibold">Elevada reserva</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <span class="text-ink-muted block text-xs sm:text-sm">Fator Segurança</span>
+            <span class="text-lg sm:text-xl font-bold text-accent-amber mt-1 block">FS = {{ v.metrics_delta.safety_factor }}</span>
+            <span class="text-xs text-accent-amber font-semibold">Elevada reserva</span>
           </div>
         </div>
 
         <!-- Narrative and Mechanics -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-relaxed">
-          <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-            <h4 class="font-bold text-brand-400 flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
+          <div class="p-4 rounded-xl bg-surface-inset/80 dark:bg-surface-inset/50 border border-edge">
+            <h4 class="font-bold text-accent-brand flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
               <i data-lucide="palette" class="w-4 h-4"></i>
               <span>Conceito Arquitetônico</span>
             </h4>
-            <p class="text-slate-200">{{ v.architectural_concept }}</p>
+            <p class="text-ink-secondary">{{ v.architectural_concept }}</p>
           </div>
-          <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-            <h4 class="font-bold text-indigo-400 flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
+          <div class="p-4 rounded-xl bg-surface-inset/80 dark:bg-surface-inset/50 border border-edge">
+            <h4 class="font-bold text-accent-indigo flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
               <i data-lucide="calculator" class="w-4 h-4"></i>
               <span>Mecânica da Engenharia</span>
             </h4>
-            <p class="text-slate-200">{{ v.engineering_solution }}</p>
+            <p class="text-ink-secondary">{{ v.engineering_solution }}</p>
           </div>
         </div>
 
         <!-- Pitch -->
         {% if v.pitch_narrative %}
-        <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-brand-950/30 to-indigo-950/20 border border-brand-500/20 text-sm leading-relaxed">
-          <span class="font-mono text-brand-400 font-bold block mb-1.5 text-xs sm:text-sm">💬 Argumento para o Arquiteto Apresentar ao Cliente:</span>
-          <p class="text-slate-200 italic">"{{ v.pitch_narrative }}"</p>
+        <div class="mt-4 p-4 rounded-xl bg-gradient-to-r from-sky-500/10 via-indigo-500/5 to-transparent dark:from-brand-950/30 dark:to-indigo-950/20 border border-brand-500/25 text-sm leading-relaxed">
+          <span class="font-mono text-accent-brand font-bold block mb-1.5 text-xs sm:text-sm">💬 Argumento para o Arquiteto Apresentar ao Cliente:</span>
+          <p class="text-ink-primary italic">"{{ v.pitch_narrative }}"</p>
         </div>
         {% endif %}
       </div>

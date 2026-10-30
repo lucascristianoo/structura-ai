@@ -12,29 +12,29 @@
   height: 8px;
 }
 ::-webkit-scrollbar-track {
-  background: #090d16;
+  background: var(--scrollbar-track);
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
+  background: var(--scrollbar-thumb);
   border-radius: 4px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #334155;
+  background: var(--scrollbar-thumb-hover);
 }
 
 /* Architectural Blueprint Grid Background */
 .bg-blueprint-dense {
   background-size: 16px 16px;
   background-image:
-    linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
+    linear-gradient(to right, var(--blueprint-grid-color) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--blueprint-grid-color) 1px, transparent 1px);
 }
 
 /* Range Input Sliders Styling (WebKit & Firefox) */
 input[type=range] {
   -webkit-appearance: none;
   appearance: none;
-  background: #1e293b;
+  background: var(--slider-track);
   border-radius: 9999px;
   height: 7px;
   outline: none;
@@ -47,10 +47,10 @@ input[type=range]::-webkit-slider-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #38bdf8;
+  background: var(--slider-thumb);
   cursor: pointer;
-  border: 2px solid #0f172a;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  border: 2px solid var(--slider-thumb-border);
+  box-shadow: var(--slider-thumb-shadow);
   transition: transform 0.12s ease;
 }
 
@@ -59,7 +59,7 @@ input[type=range]::-webkit-slider-thumb:hover {
 }
 
 input[type=range]::-moz-range-track {
-  background: #1e293b;
+  background: var(--slider-track);
   border-radius: 9999px;
   height: 7px;
 }
@@ -68,10 +68,10 @@ input[type=range]::-moz-range-thumb {
   width: 20px;
   height: 20px;
   border-radius: 50%;
-  background: #38bdf8;
+  background: var(--slider-thumb);
   cursor: pointer;
-  border: 2px solid #0f172a;
-  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  border: 2px solid var(--slider-thumb-border);
+  box-shadow: var(--slider-thumb-shadow);
   transition: transform 0.12s ease;
 }
 
@@ -85,6 +85,9 @@ input[type=range]::-moz-range-thumb:hover {
 }
 .deck-card:hover {
   transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(2, 132, 199, 0.18);
+}
+html.dark .deck-card:hover {
   box-shadow: 0 8px 24px -4px rgba(56, 189, 248, 0.15);
 }
 
@@ -95,7 +98,123 @@ input[type=range]::-moz-range-thumb:hover {
   overflow-y: auto !important;
   padding: 2.5rem !important;
   border-radius: 0 !important;
-  background: #030712 !important;
+  background: rgb(var(--surface-base)) !important;
+}
+
+/* ==========================================================================
+   Dynamic SVG Blueprint Theme Adaptation (Light & Dark)
+   ========================================================================== */
+.bp-svg {
+  background-color: var(--bp-bg);
+  transition: background-color 0.2s ease;
+}
+.bp-svg .bp-grid-line {
+  stroke: var(--bp-grid);
+}
+.bp-svg .bp-ground {
+  stroke: var(--bp-ground);
+}
+.bp-svg .bp-ground-hatch {
+  stroke: var(--bp-ground-hatch);
+}
+.bp-svg .bp-struct {
+  fill: var(--bp-struct-fill);
+}
+.bp-svg .bp-slab {
+  fill: var(--bp-slab-fill);
+  stroke: var(--bp-slab-stroke);
+}
+.bp-svg .bp-panel {
+  fill: var(--bp-panel-fill);
+  stroke: var(--bp-panel-stroke);
+}
+.bp-svg .bp-badge-ok {
+  fill: var(--bp-badge-bg);
+}
+.bp-svg .bp-badge-ok-text {
+  fill: var(--bp-badge-text);
+}
+.bp-svg .bp-text-strong {
+  fill: var(--bp-text-strong);
+}
+.bp-svg .bp-text-body {
+  fill: var(--bp-text-body);
+}
+.bp-svg .bp-text-muted {
+  fill: var(--bp-text-muted);
+}
+.bp-svg .bp-dim-line {
+  stroke: var(--bp-dim-line);
+}
+.bp-svg .bp-dim-arrow {
+  fill: var(--bp-dim-line);
+}
+.bp-svg .bp-accent-brand {
+  fill: rgb(var(--accent-brand));
+}
+.bp-svg .bp-accent-emerald {
+  fill: rgb(var(--accent-emerald));
+}
+.bp-svg .bp-accent-amber {
+  fill: rgb(var(--accent-amber));
+}
+.bp-svg .bp-accent-purple {
+  fill: rgb(var(--accent-purple));
+}
+.bp-svg .bp-accent-rose {
+  fill: rgb(var(--accent-rose));
+}
+.bp-svg .bp-vierendeel-chord {
+  fill: var(--bp-vierendeel-chord);
+  stroke: var(--bp-vierendeel-stroke);
+}
+.bp-svg .bp-vierendeel-post {
+  fill: var(--bp-vierendeel-post);
+  stroke: var(--bp-vierendeel-stroke);
+}
+.bp-svg .bp-waffle-cell {
+  fill: var(--bp-waffle-cell);
+  stroke: var(--bp-waffle-stroke);
+}
+.bp-svg .bp-waffle-text {
+  fill: var(--bp-waffle-text);
+}
+.bp-svg .bp-arch-sub {
+  fill: var(--bp-arch-sub);
+}
+
+/* Graceful fallback for legacy persisted SVG blueprints in Light Mode */
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) {
+  background-color: var(--bp-bg) !important;
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) pattern path[stroke="#1e293b"] {
+  stroke: var(--bp-grid);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) rect[fill="#0f172a"] {
+  fill: var(--bp-panel-fill);
+  stroke: var(--bp-panel-stroke);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) [fill="#1e293b"] {
+  fill: var(--bp-struct-fill);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) rect[fill="#065f46"] {
+  fill: var(--bp-badge-bg);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) text[fill="#34d399"] {
+  fill: var(--bp-badge-text);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) text[fill="#f8fafc"],
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) text[fill="#ffffff"] {
+  fill: var(--bp-text-strong);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) text[fill="#cbd5e1"] {
+  fill: var(--bp-text-body);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) text[fill="#94a3b8"] {
+  fill: var(--bp-text-muted);
+}
+html:not(.dark) .blueprint-frame svg:not(.bp-svg) line[stroke="#ffffff"] {
+  stroke: var(--bp-dim-line);
 }
 
 /* Print Styles */
