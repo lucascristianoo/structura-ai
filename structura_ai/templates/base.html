@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{% block title %}Structura.AI — Ponte Físico-Arquitetônica{% endblock %}</title>
+  <title>{% block title %}Structura.AI — Compatibilização Estrutural{% endblock %}</title>
 
   <!-- Synchronous Theme Bootstrap (prevents flash & defaults to device theme) -->
   <script>
@@ -18,13 +18,13 @@
     })();
   </script>
 
-  <!-- Theme Design Tokens -->
+  <!-- 1. Design Tokens -->
   <link rel="stylesheet" href="/static/css/theme.css">
 
   <!-- Google Fonts (Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
 
   <!-- Tailwind CSS CDN (with Typography plugin for Markdown rendering) -->
   <script src="https://cdn.tailwindcss.com?plugins=typography"></script>
@@ -35,15 +35,15 @@
         extend: {
           colors: {
             brand: {
-              50: '#f0f9ff',
-              100: '#e0f2fe',
-              400: '#38bdf8',
-              500: '#0ea5e9',
-              600: '#0284c7',
-              700: '#0369a1',
-              800: '#075985',
-              900: '#0c4a6e',
-              950: '#082f49',
+              50: '#f4f7fb',
+              100: '#e6edf6',
+              400: '#8ab0de',
+              500: '#3b6ea8',
+              600: '#1e4b85',
+              700: '#173b69',
+              800: '#122e52',
+              900: '#0e233f',
+              950: '#091628',
             },
             surface: {
               base: 'rgb(var(--surface-base) / <alpha-value>)',
@@ -86,101 +86,22 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Custom CSS -->
+  <!-- 2. Reusable UI Primitives & 3. Specialized Interactive Controls -->
+  <link rel="stylesheet" href="/static/css/components.css">
   <link rel="stylesheet" href="/static/css/custom.css">
 
   <!-- Theme Controller -->
   <script src="/static/js/theme.js" defer></script>
 </head>
-<body class="bg-surface-base text-ink-primary min-h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200">
+<body class="bg-surface-base text-ink-primary min-h-full flex flex-col font-sans antialiased selection:bg-ink-strong selection:text-surface-card transition-colors duration-150">
 
-  <!-- NAVBAR -->
-  <header class="border-b border-edge bg-surface-card/85 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+  {% include "partials/navbar.html" %}
 
-      <!-- Logo & Brand -->
-      <a href="/" class="flex items-center gap-3 group shrink-0">
-        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-sky-400 p-[1px] shadow-lg shadow-brand-500/20">
-          <div class="w-full h-full bg-surface-card dark:bg-slate-950 rounded-[11px] flex items-center justify-center transition-colors">
-            <i data-lucide="compass" class="w-5 h-5 text-accent-brand group-hover:rotate-45 transition-transform duration-300"></i>
-          </div>
-        </div>
-        <div>
-          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-brand-600 dark:from-white dark:via-slate-100 dark:to-brand-400 bg-clip-text text-transparent">Structura<span class="text-accent-brand">.AI</span></span>
-          <span class="block text-[10px] font-mono tracking-wider text-ink-muted uppercase">HackTown 2026 Edition</span>
-        </div>
-      </a>
-
-      <!-- Navigation Links -->
-      <nav class="flex items-center gap-1">
-        <a href="/" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated/80 rounded-lg transition-colors">
-          Início
-        </a>
-        <a href="/analyzer" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated/80 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2">
-          <i data-lucide="sliders" class="w-4 h-4 text-accent-brand"></i>
-          <span class="hidden sm:inline">Studio Interativo</span>
-          <span class="sm:hidden">Studio</span>
-        </a>
-        <a href="/viewer" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated/80 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2">
-          <i data-lucide="eye" class="w-4 h-4 text-accent-emerald"></i>
-          <span class="hidden md:inline">Visualizador 3D</span>
-          <span class="md:hidden">3D</span>
-        </a>
-        <a href="/council" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated/80 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2">
-          <i data-lucide="shield-check" class="w-4 h-4 text-accent-purple"></i>
-          <span class="hidden md:inline">Conselho Agentes</span>
-          <span class="md:hidden">Conselho</span>
-        </a>
-      </nav>
-
-      <!-- Action & Status -->
-      <div class="flex items-center gap-2 sm:gap-2.5">
-        <!-- Gemini status badge -->
-        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-surface-inset/80 text-xs font-mono">
-          <span class="w-2 h-2 rounded-full {% if gemini_active %}bg-emerald-500 dark:bg-emerald-400 animate-pulse{% else %}bg-sky-500 dark:bg-sky-400{% endif %}"></span>
-          <span class="text-ink-muted hidden md:inline">Google AI:</span>
-          <span class="text-ink-primary font-semibold">{% if gemini_active %}Gemini Ativo{% else %}Modo Local{% endif %}</span>
-        </div>
-
-        <!-- Compact Theme Toggle -->
-        <button
-          type="button"
-          id="theme-toggle"
-          aria-label="Alternar tema"
-          title="Alternar tema"
-          class="h-9 w-9 inline-flex items-center justify-center rounded-lg border border-edge bg-surface-inset/80 text-ink-secondary hover:text-accent-brand hover:border-brand-500/40 hover:bg-surface-elevated transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 shrink-0"
-        >
-          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
-          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
-        </button>
-
-        <!-- New Analysis Button -->
-        <a href="/analyzer" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200 shrink-0">
-          <i data-lucide="plus" class="w-4 h-4"></i>
-          <span>Novo Projeto</span>
-        </a>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
   <main class="flex-1">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- FOOTER -->
-  <footer class="border-t border-edge bg-surface-card/70 dark:bg-slate-950 py-8 text-xs text-ink-muted font-mono transition-colors duration-200">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
-      <div class="flex items-center gap-2">
-        <i data-lucide="drafting-compass" class="w-4 h-4 text-accent-brand"></i>
-        <span>Structura.AI • Intermediário Inteligente entre Arquitetura & Engenharia Civil</span>
-      </div>
-      <div>
-        <span>Normas: ABNT NBR 6118:2023 & NBR 6120 • Desenvolvido para o HackTown</span>
-      </div>
-    </div>
-  </footer>
+  {% include "partials/footer.html" %}
 
   <script>
     lucide.createIcons();

@@ -101,7 +101,7 @@ class StructuraStudio {
     this.failuresContainer = document.getElementById('failures-container');
     this.failuresList = document.getElementById('failures-list');
 
-    // 5 Variants Section
+    // Legacy Optional Variants Containers
     this.variantsTabs = document.getElementById('variants-tabs');
     this.variantContent = document.getElementById('variant-active-content');
     this.svgContainer = document.getElementById('variant-svg-container');
@@ -122,13 +122,13 @@ class StructuraStudio {
     this.formFeedback = document.getElementById('form-feedback');
     this.btnSave = document.getElementById('btn-save-project');
 
-    // Multi-Format Viewport Switcher & Professional Redesign Deck
+    // Multi-Format Viewport Switcher & Redesign Decision Deck
     if (window.ViewportSwitcher) {
       this.viewportSwitcher = new window.ViewportSwitcher();
     }
     if (window.RedesignDecisionDeck) {
       this.decisionDeck = new window.RedesignDecisionDeck('decision-deck-container', {
-        onVariantSelect: (variantNum, variantData) => {
+        onVariantSelect: (variantNum) => {
           this.activeVariantIndex = variantNum - 1;
           if (this.viewportSwitcher) {
             this.viewportSwitcher.setActiveVariant(variantNum);
@@ -172,7 +172,6 @@ class StructuraStudio {
 
     if (this.occupancySelect) {
       this.occupancySelect.addEventListener('change', () => {
-        // User explicitly switched occupancy class: use standard NBR 6120 live load
         this.overrideLiveLoadKpa = null;
         this.scheduleQuickCalc();
       });
@@ -203,7 +202,6 @@ class StructuraStudio {
       });
     }
 
-    // Save & Gemini Full Analysis Form
     if (this.saveForm) {
       this.saveForm.addEventListener('submit', (e) => this.handleSaveProject(e));
     }
@@ -233,8 +231,7 @@ class StructuraStudio {
       this.dropzone.addEventListener(evtName, (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.dropzone.classList.add('border-brand-400', 'bg-brand-500/10');
-        this.dropzone.classList.remove('border-edge-strong');
+        this.dropzone.classList.add('is-dragover');
       });
     });
 
@@ -242,8 +239,7 @@ class StructuraStudio {
       this.dropzone.addEventListener(evtName, (e) => {
         e.preventDefault();
         e.stopPropagation();
-        this.dropzone.classList.remove('border-brand-400', 'bg-brand-500/10');
-        this.dropzone.classList.add('border-edge-strong');
+        this.dropzone.classList.remove('is-dragover');
       });
     });
 
@@ -271,7 +267,7 @@ class StructuraStudio {
 
     if (file.size > MAX_UPLOAD_BYTES) {
       this.clearSelectedFile();
-      this.showFeedback(`Arquivo excede 25MB (${formatBytes(file.size)}). Escolha um arquivo menor.`, 'error');
+      this.showFeedback(`Arquivo excede 25 MB (${formatBytes(file.size)}). Escolha um arquivo menor.`, 'error');
       return;
     }
 
@@ -279,7 +275,7 @@ class StructuraStudio {
       this.fileLabel.textContent = file.name;
     }
     if (this.fileSublabel) {
-      this.fileSublabel.textContent = `Selecionado • ${formatBytes(file.size)}`;
+      this.fileSublabel.textContent = `Selecionado · ${formatBytes(file.size)}`;
     }
     if (this.btnClearFile) {
       this.btnClearFile.classList.remove('hidden');
@@ -291,10 +287,10 @@ class StructuraStudio {
       this.fileInput.value = '';
     }
     if (this.fileLabel) {
-      this.fileLabel.textContent = 'Arraste CAD, BIM ou planta aqui ou clique para selecionar';
+      this.fileLabel.textContent = 'Arraste um arquivo ou clique para selecionar';
     }
     if (this.fileSublabel) {
-      this.fileSublabel.textContent = 'DXF, IFC, OBJ, glTF, SVG, PNG, JPG ou PDF até 25MB';
+      this.fileSublabel.textContent = 'DXF, IFC, OBJ, glTF, SVG, PNG, JPG ou PDF até 25 MB';
     }
     if (this.btnClearFile) {
       this.btnClearFile.classList.add('hidden');
@@ -306,8 +302,8 @@ class StructuraStudio {
     this.formFeedback.textContent = message;
     this.formFeedback.className =
       type === 'error'
-        ? 'p-3 rounded-xl text-sm font-mono border bg-rose-500/10 dark:bg-rose-950/40 border-rose-500/30 text-accent-rose'
-        : 'p-3 rounded-xl text-sm font-mono border bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-500/30 text-accent-emerald';
+        ? 'ui-alert-fail text-xs font-mono text-accent-rose'
+        : 'ui-alert-ok text-xs font-mono text-accent-emerald';
   }
 
   hideFeedback() {
@@ -388,7 +384,7 @@ class StructuraStudio {
       if (this.presetSelect) {
         const customOpt = document.createElement('option');
         customOpt.value = '';
-        customOpt.textContent = `📂 Projeto: ${project.title}`;
+        customOpt.textContent = `Projeto: ${project.title}`;
         customOpt.selected = true;
         this.presetSelect.prepend(customOpt);
       }
@@ -475,28 +471,26 @@ class StructuraStudio {
     if (this.scoreBar) {
       this.scoreBar.style.width = `${score}%`;
       this.scoreBar.className = isViable
-        ? 'h-full bg-emerald-500 rounded-full transition-all duration-300'
+        ? 'h-full bg-accent-emerald rounded-full transition-all duration-300'
         : isWarning
-          ? 'h-full bg-amber-500 rounded-full transition-all duration-300'
-          : 'h-full bg-rose-500 rounded-full transition-all duration-300';
+          ? 'h-full bg-accent-amber rounded-full transition-all duration-300'
+          : 'h-full bg-accent-rose rounded-full transition-all duration-300';
     }
 
     if (this.verdictBadge && this.verdictTitle) {
+      this.verdictTitle.className = 'text-base sm:text-lg font-semibold text-ink-strong';
       if (isViable) {
-        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-emerald-500/15 text-accent-emerald border border-emerald-500/30';
-        this.verdictBadge.textContent = 'CONFORME NBR 6118';
-        this.verdictTitle.textContent = evaluation.compliance_level || 'Aprovado para Engenharia de Detalhamento';
-        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-accent-emerald mb-2';
+        this.verdictBadge.className = 'ui-badge ui-badge-ok';
+        this.verdictBadge.textContent = 'Conforme NBR 6118';
+        this.verdictTitle.textContent = evaluation.compliance_level || 'Aprovado para detalhamento executivo';
       } else if (isWarning) {
-        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-amber-500/15 text-accent-amber border border-amber-500/30';
-        this.verdictBadge.textContent = 'ALERTA ESTRUTURAL (ELS/ELU)';
-        this.verdictTitle.textContent = `${evaluation.compliance_level || 'Ajustes Recomendados'}: 5 Redesigns Propostos`;
-        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-accent-amber mb-2';
+        this.verdictBadge.className = 'ui-badge ui-badge-warn';
+        this.verdictBadge.textContent = 'Atenção estrutural (ELS/ELU)';
+        this.verdictTitle.textContent = `${evaluation.compliance_level || 'Ajustes recomendados'} — 5 alternativas disponíveis`;
       } else {
-        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-rose-500/15 text-accent-rose border border-rose-500/30';
-        this.verdictBadge.textContent = 'REVISÃO MANDATÓRIA (ELS/ELU)';
-        this.verdictTitle.textContent = 'Reprovado segundo a Física: 5 Redesigns Propostos';
-        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-accent-rose mb-2';
+        this.verdictBadge.className = 'ui-badge ui-badge-fail';
+        this.verdictBadge.textContent = 'Revisão necessária (ELS/ELU)';
+        this.verdictTitle.textContent = 'Parâmetros acima dos limites normativos — 5 alternativas dimensionadas';
       }
     }
 
@@ -509,8 +503,8 @@ class StructuraStudio {
       this.metricDeflection.textContent = `${evaluation.max_deflection_mm} mm`;
       this.metricDeflection.className =
         evaluation.deflection_ratio > 1.0
-          ? 'text-2xl font-bold text-accent-rose font-mono mt-1 block'
-          : 'text-2xl font-bold text-accent-emerald font-mono mt-1 block';
+          ? 'ui-metric-value is-fail'
+          : 'ui-metric-value is-ok';
     }
     if (this.metricAllowable) {
       this.metricAllowable.textContent = `≤ ${evaluation.allowable_deflection_mm} mm (L/250)`;
@@ -518,7 +512,7 @@ class StructuraStudio {
 
     // 2. Bending Moment
     if (this.metricMoment) {
-      this.metricMoment.textContent = `${evaluation.max_bending_moment_knm} kN.m`;
+      this.metricMoment.textContent = `${evaluation.max_bending_moment_knm} kN·m`;
     }
 
     // 3. Column Slenderness & Buckling
@@ -528,10 +522,10 @@ class StructuraStudio {
     if (this.metricBuckling) {
       this.metricBuckling.textContent = `λ = ${lambdaVal}`;
       this.metricBuckling.className = colFailed
-        ? 'text-2xl font-bold text-accent-rose font-mono mt-1 block'
+        ? 'ui-metric-value is-fail'
         : lambdaVal > 90
-          ? 'text-2xl font-bold text-accent-amber font-mono mt-1 block'
-          : 'text-2xl font-bold text-accent-indigo font-mono mt-1 block';
+          ? 'ui-metric-value is-warn'
+          : 'ui-metric-value';
     }
     if (this.metricBucklingHint) {
       this.metricBucklingHint.textContent = colFailed ? 'Acima do limite (λ ≤ 140)' : 'Limite λ ≤ 140';
@@ -548,11 +542,11 @@ class StructuraStudio {
       this.metricSpanDepth.textContent = `L/${spanDepthRatio}`;
       this.metricSpanDepth.className =
         spanDepthRatio > 16
-          ? 'text-2xl font-bold text-accent-amber font-mono mt-1 block'
-          : 'text-2xl font-bold text-accent-purple font-mono mt-1 block';
+          ? 'ui-metric-value is-warn'
+          : 'ui-metric-value';
     }
     if (this.metricSpanDepthHint) {
-      this.metricSpanDepthHint.textContent = `h rec. ≥ ${recMinHCm} cm (L/13)`;
+      this.metricSpanDepthHint.textContent = `h ref. ≥ ${recMinHCm} cm (L/13)`;
     }
 
     // Failures list
@@ -562,7 +556,7 @@ class StructuraStudio {
         this.failuresList.innerHTML = evaluation.failure_reasons
           .map(
             (f) =>
-              `<li class="flex items-start gap-2.5 text-rose-900 dark:text-rose-200 text-sm leading-relaxed"><span class="text-accent-rose font-bold shrink-0">✕</span><span>${escapeHtml(f)}</span></li>`
+              `<li class="flex items-start gap-2 text-ink-primary text-xs leading-relaxed"><span class="text-accent-rose font-mono shrink-0">—</span><span>${escapeHtml(f)}</span></li>`
           )
           .join('');
       } else {
@@ -573,24 +567,22 @@ class StructuraStudio {
 
     this.renderVariantsTabs();
 
-    // Sincronizar com o Viewport Multi-Formato (3D, Blueprint, Corte, Diagramas)
     if (this.viewportSwitcher) {
       this.viewportSwitcher.updateFromParams({
         ...this.getPayload(),
         max_deflection_mm: evaluation.max_deflection_mm,
         allowable_deflection_mm: evaluation.allowable_deflection_mm,
         is_viable: isViable,
-        score: score,
+        score: score
       });
     }
 
-    // Sincronizar com a Matriz de Decisão Executiva (Cards + Radar de Trade-offs)
     if (this.decisionDeck) {
       this.decisionDeck.init(variants, {
         deflection_mm: evaluation.max_deflection_mm,
         allowable_mm: evaluation.allowable_deflection_mm,
         score: score,
-        span_m: parseFloat(this.spanSlider ? this.spanSlider.value : 10.0),
+        span_m: parseFloat(this.spanSlider ? this.spanSlider.value : 10.0)
       });
     }
   }
@@ -607,14 +599,8 @@ class StructuraStudio {
       const btn = document.createElement('button');
       btn.type = 'button';
       const isActive = idx === this.activeVariantIndex;
-      btn.className = `px-4 py-2.5 rounded-xl text-sm font-mono font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
-        isActive
-          ? 'bg-brand-600 dark:bg-brand-500 text-white shadow-lg shadow-brand-500/25 ring-2 ring-brand-400'
-          : 'bg-surface-elevated text-ink-secondary hover:text-ink-strong hover:bg-surface-hover border border-edge'
-      }`;
-      btn.innerHTML = `<span class="w-5 h-5 rounded-full ${
-        isActive ? 'bg-white/20 text-white' : 'bg-surface-card dark:bg-slate-800 text-ink-primary'
-      } flex items-center justify-center text-xs">${escapeHtml(v.variant_number)}</span> <span>${escapeHtml(v.strategy_name)}</span>`;
+      btn.className = `ui-tab ${isActive ? 'is-active' : ''}`;
+      btn.innerHTML = `<span>0${escapeHtml(v.variant_number)} · ${escapeHtml(v.strategy_name)}</span>`;
       btn.addEventListener('click', () => {
         this.activeVariantIndex = idx;
         this.renderVariantsTabs();
@@ -629,79 +615,61 @@ class StructuraStudio {
     const features = Array.isArray(activeV.visual_features) ? activeV.visual_features : [];
     const featuresHtml = features.length
       ? `
-        <div class="flex flex-wrap gap-2 pt-1">
-          ${features
-            .map(
-              (feat) =>
-                `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-inset border border-edge text-xs font-mono text-ink-secondary"><span class="text-accent-brand">◆</span>${escapeHtml(feat)}</span>`
-            )
-            .join('')}
+        <div class="flex flex-wrap gap-1.5">
+          ${features.map((feat) => `<span class="ui-badge">${escapeHtml(feat)}</span>`).join('')}
         </div>
       `
       : '';
 
     this.variantContent.innerHTML = `
-      <div class="space-y-5">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-edge pb-4">
+      <div class="space-y-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-edge pb-3">
           <div>
-            <span class="text-xs sm:text-sm font-mono text-accent-brand uppercase tracking-wider font-semibold">Proposta ${String(activeV.variant_number).padStart(2, '0')} • ${escapeHtml(activeV.strategy_name)}</span>
-            <h3 class="text-xl font-bold text-ink-strong mt-1">${escapeHtml(activeV.title)}</h3>
+            <span class="text-[11px] font-mono text-ink-muted uppercase">Proposta ${String(activeV.variant_number).padStart(2, '0')} · ${escapeHtml(activeV.strategy_name)}</span>
+            <h3 class="text-sm sm:text-base font-semibold text-ink-strong mt-0.5">${escapeHtml(activeV.title)}</h3>
           </div>
-          <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-accent-emerald border border-emerald-500/25">
-              ${escapeHtml(delta.clearance_status || 'APROVADO ELS')}
-            </span>
-          </div>
+          <span class="ui-badge ui-badge-ok">${escapeHtml(delta.clearance_status || 'Conforme ELS')}</span>
         </div>
 
         ${featuresHtml}
 
-        <!-- Quantitative Delta Badges -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 font-mono">
-          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
-            <div class="text-xs sm:text-sm text-ink-muted">Flecha Final</div>
-            <div class="text-xl font-bold text-accent-emerald mt-1">${escapeHtml(delta.deflection_final_mm)} mm</div>
-            <div class="text-xs text-accent-emerald font-semibold mt-0.5">-${escapeHtml(delta.deflection_reduction_pct)}% redução</div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div class="ui-metric">
+            <span class="ui-metric-label">Flecha final</span>
+            <span class="ui-metric-value is-ok">${escapeHtml(delta.deflection_final_mm)} mm</span>
+            <span class="ui-metric-hint">-${escapeHtml(delta.deflection_reduction_pct)}% redução</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
-            <div class="text-xs sm:text-sm text-ink-muted">Momento Máx</div>
-            <div class="text-xl font-bold text-accent-sky mt-1">${escapeHtml(delta.moment_final_knm)} kN.m</div>
-            <div class="text-xs text-ink-muted mt-0.5">Alívio de esforços</div>
+          <div class="ui-metric">
+            <span class="ui-metric-label">Momento máximo</span>
+            <span class="ui-metric-value">${escapeHtml(delta.moment_final_knm)} kN·m</span>
+            <span class="ui-metric-hint">Alívio de esforços</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
-            <div class="text-xs sm:text-sm text-ink-muted">Alívio de Concreto</div>
-            <div class="text-xl font-bold text-accent-purple mt-1">-${escapeHtml(delta.weight_reduction_pct)}%</div>
-            <div class="text-xs text-accent-purple font-semibold mt-0.5">Menor carga morta</div>
+          <div class="ui-metric">
+            <span class="ui-metric-label">Alívio de massa</span>
+            <span class="ui-metric-value">-${escapeHtml(delta.weight_reduction_pct)}%</span>
+            <span class="ui-metric-hint">Menor carga própria</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
-            <div class="text-xs sm:text-sm text-ink-muted">Fator de Segurança</div>
-            <div class="text-xl font-bold text-accent-amber mt-1">FS = ${escapeHtml(delta.safety_factor)}</div>
-            <div class="text-xs text-accent-amber font-semibold mt-0.5">Alta margem</div>
+          <div class="ui-metric">
+            <span class="ui-metric-label">Fator de segurança</span>
+            <span class="ui-metric-value">FS = ${escapeHtml(delta.safety_factor)}</span>
+            <span class="ui-metric-hint">Reserva resistente</span>
           </div>
         </div>
 
-        <!-- Architectural & Engineering Explanations -->
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-relaxed pt-1">
-          <div class="p-4 rounded-xl bg-surface-inset/80 dark:bg-surface-inset/50 border border-edge">
-            <h4 class="font-bold text-accent-brand flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
-              <i data-lucide="palette" class="w-4 h-4"></i>
-              <span>Conceito Arquitetônico</span>
-            </h4>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-xs leading-relaxed">
+          <div class="ui-well">
+            <h4 class="font-mono font-semibold text-ink-strong uppercase text-[11px] mb-1.5">Partido arquitetônico</h4>
             <p class="text-ink-secondary">${escapeHtml(activeV.architectural_concept)}</p>
           </div>
-          <div class="p-4 rounded-xl bg-surface-inset/80 dark:bg-surface-inset/50 border border-edge">
-            <h4 class="font-bold text-accent-indigo flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
-              <i data-lucide="calculator" class="w-4 h-4"></i>
-              <span>Mecânica da Engenharia</span>
-            </h4>
+          <div class="ui-well">
+            <h4 class="font-mono font-semibold text-ink-strong uppercase text-[11px] mb-1.5">Solução estrutural</h4>
             <p class="text-ink-secondary">${escapeHtml(activeV.engineering_solution)}</p>
           </div>
         </div>
 
-        <!-- Pitch for the Client -->
-        <div class="p-4 rounded-xl bg-gradient-to-r from-sky-500/10 via-indigo-500/5 to-transparent dark:from-brand-950/40 dark:via-indigo-950/30 dark:to-slate-950 border border-brand-500/25 text-sm leading-relaxed">
-          <span class="font-mono text-accent-brand font-bold block mb-1.5 text-xs sm:text-sm">💬 Narrativa para o Arquiteto Apresentar ao Cliente:</span>
-          <p class="text-ink-primary italic">"${escapeHtml(activeV.pitch_narrative || '')}"</p>
+        <div class="ui-note text-xs leading-relaxed">
+          <span class="font-mono font-semibold text-ink-strong block mb-1 text-[11px]">Síntese para apresentação ao cliente</span>
+          <p class="text-ink-secondary">"${escapeHtml(activeV.pitch_narrative || '')}"</p>
         </div>
       </div>
     `;
@@ -720,7 +688,7 @@ class StructuraStudio {
     const btn = this.btnSave;
     if (btn) {
       btn.disabled = true;
-      btn.innerHTML = `<span class="animate-spin inline-block mr-2">⚙</span> Salvando &amp; Processando com Gemini...`;
+      btn.textContent = 'Salvando e emitindo parecer...';
     }
 
     try {
@@ -738,7 +706,6 @@ class StructuraStudio {
       formData.set('dead_load_kpa', payload.dead_load_kpa);
       formData.set('live_load_kpa', payload.live_load_kpa);
 
-      // If no file was uploaded, capture the interactive canvas snapshot
       const hasUploadedFile = this.fileInput?.files && this.fileInput.files.length > 0;
       if (!hasUploadedFile && window.archCanvas?.canvas) {
         try {
@@ -769,8 +736,7 @@ class StructuraStudio {
     } finally {
       if (btn) {
         btn.disabled = false;
-        btn.innerHTML = `<i data-lucide="sparkles" class="w-4 h-4"></i><span>Salvar &amp; Gerar Parecer Gemini</span>`;
-        if (window.lucide) lucide.createIcons();
+        btn.innerHTML = '<span>Salvar e emitir parecer técnico</span>';
       }
     }
   }

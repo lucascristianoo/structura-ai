@@ -1,7 +1,6 @@
 /**
  * Structura.AI — Interactive Architectural Floorplan & Structural Grid Canvas
- * Allows architects to sketch columns, beams and cantilevers directly,
- * staying synchronized with Studio sliders in both directions.
+ * Bidirectional sketch pad using theme.css tokens and components.css (.ui-tab) states.
  */
 
 class ArchitecturalCanvas {
@@ -12,8 +11,8 @@ class ArchitecturalCanvas {
     this.ctx = this.canvas.getContext('2d');
     this.scaleLabel = document.getElementById('canvas-scale-label');
     this.elements = [];
-    this.currentTool = 'column'; // 'column' | 'beam' | 'cantilever'
-    this.scale = 40.0; // pixels per meter
+    this.currentTool = 'column';
+    this.scale = 40.0;
     this.isDrawing = false;
     this.startPoint = null;
 
@@ -25,7 +24,7 @@ class ArchitecturalCanvas {
   initCanvasSize(shouldRender = true) {
     const rect = this.canvas.parentElement.getBoundingClientRect();
     this.canvas.width = Math.max(Math.floor(rect.width), 320);
-    this.canvas.height = 360;
+    this.canvas.height = 340;
     if (shouldRender) {
       this.render();
     }
@@ -44,29 +43,22 @@ class ArchitecturalCanvas {
       window.StructuraTheme ? window.StructuraTheme.getCssVar(name, fallback) : fallback;
 
     return {
-      bg: cssVar('--canvas-bg', '#020617'),
-      grid: cssVar('--canvas-grid', '#1e293b'),
-      beam: cssVar('--canvas-beam', '#38bdf8'),
-      cantilever: cssVar('--canvas-cantilever', '#f59e0b'),
-      colFill: cssVar('--canvas-col-fill', '#38bdf8'),
-      colStroke: cssVar('--canvas-col-stroke', '#0284c7'),
-      colLabel: cssVar('--canvas-col-label', '#cbd5e1'),
-      tagBg: cssVar('--canvas-tag-bg', '#0f172a'),
-      tagBorder: cssVar('--canvas-tag-border', '#334155')
+      bg: cssVar('--canvas-bg', '#fafafa'),
+      grid: cssVar('--canvas-grid', '#e4e4e7'),
+      beam: cssVar('--canvas-beam', '#1e4b85'),
+      cantilever: cssVar('--canvas-cantilever', '#a16207'),
+      colFill: cssVar('--canvas-col-fill', '#27272a'),
+      colStroke: cssVar('--canvas-col-stroke', '#111113'),
+      colLabel: cssVar('--canvas-col-label', '#52525b'),
+      tagBg: cssVar('--canvas-tag-bg', '#ffffff'),
+      tagBorder: cssVar('--canvas-tag-border', '#d4d4d8')
     };
   }
 
   setActiveTool(toolName) {
     this.currentTool = toolName;
     document.querySelectorAll('[data-canvas-tool]').forEach((btn) => {
-      const isSelected = btn.getAttribute('data-canvas-tool') === toolName;
-      btn.classList.toggle('bg-brand-600', isSelected);
-      btn.classList.toggle('text-white', isSelected);
-      btn.classList.toggle('font-semibold', isSelected);
-      btn.classList.toggle('bg-surface-elevated', !isSelected);
-      btn.classList.toggle('text-ink-secondary', !isSelected);
-      btn.classList.toggle('hover:text-ink-strong', !isSelected);
-      btn.classList.toggle('hover:bg-surface-hover', !isSelected);
+      btn.classList.toggle('is-active', btn.getAttribute('data-canvas-tool') === toolName);
     });
   }
 
@@ -82,7 +74,6 @@ class ArchitecturalCanvas {
       this.render();
     });
 
-    // Stateful drawing tool buttons
     document.querySelectorAll('[data-canvas-tool]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const tool = btn.getAttribute('data-canvas-tool');
@@ -90,7 +81,6 @@ class ArchitecturalCanvas {
       });
     });
 
-    // One-shot canvas actions (undo / clear)
     document.querySelectorAll('[data-canvas-action]').forEach((btn) => {
       btn.addEventListener('click', () => {
         const action = btn.getAttribute('data-canvas-action');
@@ -151,17 +141,16 @@ class ArchitecturalCanvas {
 
     this.ctx.beginPath();
     this.ctx.strokeStyle = isCant ? palette.cantilever : palette.beam;
-    this.ctx.lineWidth = 3;
-    this.ctx.setLineDash([5, 5]);
+    this.ctx.lineWidth = 2;
+    this.ctx.setLineDash([4, 4]);
     this.ctx.moveTo(this.startPoint.x, this.startPoint.y);
     this.ctx.lineTo(pt.x, pt.y);
     this.ctx.stroke();
     this.ctx.setLineDash([]);
 
-    // Live distance preview badge
     const midX = (this.startPoint.x + pt.x) / 2;
     const midY = (this.startPoint.y + pt.y) / 2;
-    this.drawDimensionTag(midX, midY, `${distM}m`, isCant, palette);
+    this.drawDimensionTag(midX, midY, `${distM} m`, isCant, palette);
   }
 
   onPointerUp(e) {
@@ -188,10 +177,6 @@ class ArchitecturalCanvas {
     this.startPoint = null;
   }
 
-  /**
-   * Builds a clean schematic layout matching given span & cantilever (in meters).
-   * Dynamically adjusts pixel-per-meter scale so large spans never clip off-canvas.
-   */
   setLayoutFromParams(spanM, cantileverM) {
     const safeSpan = Math.max(parseFloat(spanM) || 6.0, 1.0);
     const safeCant = Math.max(parseFloat(cantileverM) || 0.0, 0.0);
@@ -200,7 +185,7 @@ class ArchitecturalCanvas {
     const availableWidth = Math.max(this.canvas.width - 120, 200);
     this.scale = Math.min(40, Math.max(18, Math.floor(availableWidth / Math.max(totalLengthM, 1))));
     if (this.scaleLabel) {
-      this.scaleLabel.textContent = `Escala: ${this.scale}px = 1.0m • Clique ou arraste para desenhar`;
+      this.scaleLabel.textContent = `Escala: ${this.scale} px = 1,0 m · Clique ou arraste para desenhar`;
     }
 
     const totalPx = totalLengthM * this.scale;
@@ -229,19 +214,25 @@ class ArchitecturalCanvas {
 
   drawDimensionTag(midX, midY, label, isCantilever, palette = this.getPalette()) {
     const ctx = this.ctx;
-    const boxW = 58;
-    const boxH = 22;
+    ctx.font = '600 11px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
+    const textW = Math.ceil(ctx.measureText(label).width);
+    const boxW = Math.max(58, textW + 16);
+    const boxH = 20;
+
+    const clampedX = Math.min(Math.max(midX, boxW / 2 + 4), this.canvas.width - boxW / 2 - 4);
+    const boxY = midY < 32 ? midY + 8 : midY - boxH - 6;
 
     ctx.fillStyle = palette.tagBg;
-    ctx.fillRect(midX - boxW / 2, midY - boxH - 6, boxW, boxH);
+    ctx.fillRect(clampedX - boxW / 2, boxY, boxW, boxH);
     ctx.strokeStyle = palette.tagBorder;
     ctx.lineWidth = 1;
-    ctx.strokeRect(midX - boxW / 2, midY - boxH - 6, boxW, boxH);
+    ctx.strokeRect(clampedX - boxW / 2, boxY, boxW, boxH);
 
     ctx.fillStyle = isCantilever ? palette.cantilever : palette.beam;
-    ctx.font = '700 12px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
     ctx.textAlign = 'center';
-    ctx.fillText(label, midX, midY - 11);
+    ctx.textBaseline = 'middle';
+    ctx.fillText(label, clampedX, boxY + boxH / 2);
+    ctx.textBaseline = 'alphabetic';
   }
 
   render() {
@@ -251,10 +242,9 @@ class ArchitecturalCanvas {
     ctx.fillStyle = palette.bg;
     ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
-    // Architectural Grid Background
-    const gridSize = 20;
+    const gridSize = 24;
     ctx.strokeStyle = palette.grid;
-    ctx.lineWidth = 0.6;
+    ctx.lineWidth = 0.5;
     for (let x = 0; x < this.canvas.width; x += gridSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -268,15 +258,14 @@ class ArchitecturalCanvas {
       ctx.stroke();
     }
 
-    // Beams and Cantilevers
     this.elements
       .filter((e) => e.type === 'beam' || e.type === 'cantilever')
       .forEach((e) => {
         const isCant = e.type === 'cantilever';
         ctx.beginPath();
         ctx.strokeStyle = isCant ? palette.cantilever : palette.beam;
-        ctx.lineWidth = isCant ? 4 : 5;
-        ctx.lineCap = 'round';
+        ctx.lineWidth = isCant ? 2.5 : 3.5;
+        ctx.lineCap = 'square';
         ctx.moveTo(e.start.x, e.start.y);
         ctx.lineTo(e.end.x, e.end.y);
         ctx.stroke();
@@ -284,23 +273,23 @@ class ArchitecturalCanvas {
         const midX = (e.start.x + e.end.x) / 2;
         const midY = (e.start.y + e.end.y) / 2;
         const distM = (Math.hypot(e.end.x - e.start.x, e.end.y - e.start.y) / this.scale).toFixed(1);
-        this.drawDimensionTag(midX, midY, `${distM}m`, isCant, palette);
+        this.drawDimensionTag(midX, midY, `${distM} m`, isCant, palette);
       });
 
-    // Columns
     this.elements
       .filter((e) => e.type === 'column')
       .forEach((e) => {
         ctx.fillStyle = palette.colFill;
-        ctx.fillRect(e.start.x - 9, e.start.y - 9, 18, 18);
+        ctx.fillRect(e.start.x - 7, e.start.y - 7, 14, 14);
         ctx.strokeStyle = palette.colStroke;
-        ctx.lineWidth = 2;
-        ctx.strokeRect(e.start.x - 9, e.start.y - 9, 18, 18);
+        ctx.lineWidth = 1.5;
+        ctx.strokeRect(e.start.x - 7, e.start.y - 7, 14, 14);
 
         ctx.fillStyle = palette.colLabel;
-        ctx.font = '600 11px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
+        ctx.font = '500 10px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
         ctx.textAlign = 'center';
-        ctx.fillText('PILAR', e.start.x, e.start.y + 23);
+        const labelY = e.start.y > this.canvas.height - 24 ? e.start.y - 12 : e.start.y + 21;
+        ctx.fillText('P', e.start.x, labelY);
       });
   }
 
