@@ -12,6 +12,10 @@ class RedesignDecisionDeck {
     this.variantsData = [];
     this.originalMetrics = null;
     this.onVariantSelect = options.onVariantSelect || (() => {});
+
+    window.addEventListener('structura:themechange', () => {
+      this.applyRadarTheme();
+    });
   }
 
   init(variants, originalMetrics) {
@@ -29,23 +33,23 @@ class RedesignDecisionDeck {
     if (!this.container) return;
     this.container.innerHTML = `
       <!-- TOP: DECISION HEADER WITH PITCH MODE TOGGLE -->
-      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+      <div class="flex flex-wrap items-center justify-between gap-4 border-b border-edge pb-4 mb-6">
         <div>
-          <div class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-brand-400 uppercase tracking-wider mb-1">
+          <div class="inline-flex items-center gap-1.5 text-xs font-mono font-bold text-accent-brand uppercase tracking-wider mb-1">
             <i data-lucide="compass" class="w-4 h-4"></i>
-            <span>Engenharia de Valor & Compatibilização NBR 6118</span>
+            <span>Engenharia de Valor &amp; Compatibilização NBR 6118</span>
           </div>
-          <h2 class="text-xl sm:text-2xl font-black text-white tracking-tight">
+          <h2 class="text-xl sm:text-2xl font-black text-ink-strong tracking-tight">
             Matriz de Decisão Estrutural: 5 Alternativas de Redesign
           </h2>
-          <p class="text-xs text-slate-400 mt-1 max-w-2xl">
+          <p class="text-xs sm:text-sm text-ink-secondary mt-1 max-w-2xl">
             A física não descarta a intenção do arquiteto: avalie os 5 partidos de engenharia com métricas comparativas, fidelidade estética e impacto orçamentário.
           </p>
         </div>
 
         <div class="flex items-center gap-2">
-          <button id="btn-pitch-mode" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-mono font-bold rounded-lg border border-indigo-500/30 bg-indigo-950/40 hover:bg-indigo-900/60 text-indigo-300 transition-colors shadow-sm">
-            <i data-lucide="presentation" class="w-4 h-4 text-indigo-400"></i>
+          <button id="btn-pitch-mode" type="button" class="inline-flex items-center gap-2 px-3.5 py-2 text-xs font-mono font-bold rounded-lg border border-indigo-500/30 bg-indigo-500/10 dark:bg-indigo-950/40 hover:bg-indigo-500/20 dark:hover:bg-indigo-900/60 text-accent-indigo transition-colors shadow-sm">
+            <i data-lucide="presentation" class="w-4 h-4 text-accent-indigo"></i>
             <span>Modo Apresentação (Cliente)</span>
           </button>
         </div>
@@ -53,7 +57,7 @@ class RedesignDecisionDeck {
 
       <!-- 1. EXECUTIVE VARIANT CARDS DECK (HORIZONTAL GRID) -->
       <div class="mb-8">
-        <label class="block text-xs font-mono text-slate-400 uppercase tracking-wider mb-3">
+        <label class="block text-xs font-mono text-ink-muted uppercase tracking-wider mb-3">
           Selecione a Estratégia Estrutural:
         </label>
         <div id="deck-cards-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
@@ -66,19 +70,19 @@ class RedesignDecisionDeck {
         
         <!-- LEFT: VISUAL BLUEPRINT & A/B CURTAIN SLIDER (lg:col-span-7) -->
         <div class="lg:col-span-7 space-y-4">
-          <div class="rounded-xl border border-slate-800 bg-slate-950 p-4 shadow-xl">
-            <div class="flex items-center justify-between mb-3 border-b border-slate-800/80 pb-2">
-              <span class="text-xs font-mono font-bold text-slate-300 flex items-center gap-2">
-                <i data-lucide="layers" class="w-4 h-4 text-brand-400"></i>
+          <div class="rounded-xl border border-edge bg-surface-inset p-4 shadow-md dark:shadow-xl">
+            <div class="flex items-center justify-between mb-3 border-b border-edge/80 pb-2">
+              <span class="text-xs font-mono font-bold text-ink-primary flex items-center gap-2">
+                <i data-lucide="layers" class="w-4 h-4 text-accent-brand"></i>
                 Prancha Comparativa da Solução
               </span>
-              <span id="deck-strategy-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-500/10 text-brand-400 border border-brand-500/20">
+              <span id="deck-strategy-badge" class="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-brand-500/10 text-accent-brand border border-brand-500/20">
                 PROTENSÃO ATIVA
               </span>
             </div>
 
             <!-- SVG Container -->
-            <div id="deck-svg-viewer" class="w-full rounded-lg overflow-hidden border border-slate-800/60 bg-slate-950">
+            <div id="deck-svg-viewer" class="blueprint-frame w-full rounded-lg overflow-hidden border border-edge bg-surface-card dark:bg-slate-950">
               <!-- Rendered SVG dynamically -->
             </div>
           </div>
@@ -88,13 +92,13 @@ class RedesignDecisionDeck {
         <div class="lg:col-span-5 space-y-4">
           
           <!-- Radar Chart Card -->
-          <div class="rounded-xl border border-slate-800 bg-slate-950 p-4 shadow-xl">
+          <div class="rounded-xl border border-edge bg-surface-inset p-4 shadow-md dark:shadow-xl">
             <div class="flex items-center justify-between mb-2">
-              <span class="text-xs font-mono font-bold text-slate-300 flex items-center gap-2">
-                <i data-lucide="radar" class="w-4 h-4 text-indigo-400"></i>
+              <span class="text-xs font-mono font-bold text-ink-primary flex items-center gap-2">
+                <i data-lucide="radar" class="w-4 h-4 text-accent-indigo"></i>
                 Radar de Trade-offs (5 Eixos)
               </span>
-              <span class="text-[10px] font-mono text-slate-500">Original vs Redesign</span>
+              <span class="text-[10px] font-mono text-ink-muted">Original vs Redesign</span>
             </div>
             <div class="w-full h-56 flex items-center justify-center">
               <canvas id="radar-canvas"></canvas>
@@ -102,9 +106,9 @@ class RedesignDecisionDeck {
           </div>
 
           <!-- Trade-offs Breakdown Box -->
-          <div class="rounded-xl border border-slate-800 bg-slate-950/80 p-4 shadow-xl text-xs font-mono">
-            <div class="text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-2">
-              Impactos Físicos & Orçamentários:
+          <div class="rounded-xl border border-edge bg-surface-inset/90 p-4 shadow-md dark:shadow-xl text-xs font-mono">
+            <div class="text-[11px] font-bold text-ink-primary uppercase tracking-wider mb-2">
+              Impactos Físicos &amp; Orçamentários:
             </div>
             <div id="deck-metrics-list" class="space-y-2">
               <!-- Dynamically populated -->
@@ -116,7 +120,7 @@ class RedesignDecisionDeck {
       </div>
 
       <!-- 3. ARCHITECTURAL PITCH & CLIENT NARRATIVE -->
-      <div id="deck-pitch-narrative" class="rounded-xl border border-brand-500/20 bg-gradient-to-r from-slate-950 via-slate-900 to-slate-950 p-6 shadow-xl">
+      <div id="deck-pitch-narrative" class="rounded-xl border border-brand-500/25 bg-gradient-to-r from-sky-500/10 via-indigo-500/5 to-transparent dark:from-slate-950 dark:via-slate-900 dark:to-slate-950 p-6 shadow-md dark:shadow-xl">
         <!-- Dynamically populated -->
       </div>
     `;
@@ -136,36 +140,39 @@ class RedesignDecisionDeck {
     const cardsHtml = this.variantsData.map((v, idx) => {
       const isSelected = idx === this.activeVariantIndex;
       const borderClass = isSelected
-        ? 'border-brand-500 ring-2 ring-brand-500/20 bg-slate-900'
-        : 'border-slate-800 hover:border-slate-700 bg-slate-950';
+        ? 'border-brand-500 ring-2 ring-brand-500/25 bg-surface-card dark:bg-slate-900'
+        : 'border-edge hover:border-edge-strong bg-surface-inset/80 dark:bg-slate-950';
 
       const delta = v.metrics_delta || {};
-      const deflReduction = delta.flecha_residual || '-70%';
-      const costBadge = delta.custo_estimado || '+10%';
+      const deflReduction =
+        delta.flecha_residual ||
+        (delta.deflection_reduction_pct !== undefined ? `-${delta.deflection_reduction_pct}%` : '-70%');
+      const fsBadge =
+        delta.safety_factor !== undefined ? `FS ${delta.safety_factor}` : (delta.custo_estimado || '+10%');
 
       return `
         <div data-variant-index="${idx}" class="deck-card cursor-pointer rounded-xl border p-3.5 transition-all duration-200 ${borderClass}">
           <div class="flex items-center justify-between mb-2">
-            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-slate-800 text-slate-300">
+            <span class="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-surface-elevated text-ink-secondary">
               OPÇÃO 0${v.variant_number}
             </span>
-            <span class="text-[10px] font-mono font-bold text-emerald-400">
+            <span class="text-[10px] font-mono font-bold text-accent-emerald">
               ${deflReduction}
             </span>
           </div>
 
-          <h3 class="text-xs font-bold text-white mb-1.5 line-clamp-1">
+          <h3 class="text-xs font-bold text-ink-strong mb-1.5 line-clamp-1">
             ${v.strategy_name || v.title}
           </h3>
 
-          <div class="space-y-1 text-[10px] font-mono text-slate-400">
+          <div class="space-y-1 text-[10px] font-mono text-ink-muted">
             <div class="flex justify-between">
-              <span>Pilares:</span>
-              <span class="text-slate-200 font-semibold">${delta.pilares_internos || '0 adicionais'}</span>
+              <span>Flecha:</span>
+              <span class="text-ink-primary font-semibold">${delta.deflection_final_mm !== undefined ? `${delta.deflection_final_mm} mm` : (delta.pilares_internos || '0 adicionais')}</span>
             </div>
             <div class="flex justify-between">
-              <span>Custo:</span>
-              <span class="text-amber-400 font-semibold">${costBadge}</span>
+              <span>Margem:</span>
+              <span class="text-accent-amber font-semibold">${fsBadge}</span>
             </div>
           </div>
         </div>
@@ -190,7 +197,7 @@ class RedesignDecisionDeck {
         svgContainer.innerHTML = v.svg_render;
       } else {
         svgContainer.innerHTML = `
-          <div class="h-48 flex items-center justify-center text-xs font-mono text-slate-500">
+          <div class="h-48 flex items-center justify-center text-xs font-mono text-ink-muted">
             Planta estrutural em vetor carregada
           </div>
         `;
@@ -201,22 +208,39 @@ class RedesignDecisionDeck {
     const metricsContainer = document.getElementById('deck-metrics-list');
     if (metricsContainer) {
       const delta = v.metrics_delta || {};
+      const flechaLabel =
+        delta.deflection_final_mm !== undefined
+          ? `${delta.deflection_final_mm} mm (-${delta.deflection_reduction_pct ?? 0}%)`
+          : (delta.flecha_residual || 'Conforme NBR 6118');
+      const momentLabel =
+        delta.moment_final_knm !== undefined
+          ? `${delta.moment_final_knm} kN.m`
+          : (delta.pe_direito || '100% Preservado');
+      const weightLabel =
+        delta.weight_reduction_pct !== undefined
+          ? `-${delta.weight_reduction_pct}% carga morta`
+          : (delta.pilares_internos || 'Zero (Vão Totalmente Livre)');
+      const fsOrCostLabel =
+        delta.safety_factor !== undefined
+          ? `FS = ${delta.safety_factor} (${delta.clearance_status || 'Aprovado'})`
+          : (delta.custo_estimado || '+10% a +15%');
+
       metricsContainer.innerHTML = `
-        <div class="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-          <span class="text-slate-400">Redução de Flecha:</span>
-          <span class="text-emerald-400 font-bold">${delta.flecha_residual || 'Conforme NBR 6118'}</span>
+        <div class="flex items-center justify-between gap-2 py-1.5 border-b border-edge/70">
+          <span class="text-ink-muted">Flecha Final:</span>
+          <span class="text-accent-emerald font-bold text-right">${flechaLabel}</span>
         </div>
-        <div class="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-          <span class="text-slate-400">Pé-Direito Livre:</span>
-          <span class="text-sky-400 font-bold">${delta.pe_direito || '100% Preservado'}</span>
+        <div class="flex items-center justify-between gap-2 py-1.5 border-b border-edge/70">
+          <span class="text-ink-muted">Momento Máx:</span>
+          <span class="text-accent-sky font-bold text-right">${momentLabel}</span>
         </div>
-        <div class="flex items-center justify-between py-1.5 border-b border-slate-800/60">
-          <span class="text-slate-400">Pilares no Living:</span>
-          <span class="text-slate-200 font-bold">${delta.pilares_internos || 'Zero (Vão Totalmente Livre)'}</span>
+        <div class="flex items-center justify-between gap-2 py-1.5 border-b border-edge/70">
+          <span class="text-ink-muted">Alívio Estrutural:</span>
+          <span class="text-ink-primary font-bold text-right">${weightLabel}</span>
         </div>
-        <div class="flex items-center justify-between py-1.5">
-          <span class="text-slate-400">Impacto Orçamentário:</span>
-          <span class="text-amber-400 font-bold">${delta.custo_estimado || '+10% a +15%'}</span>
+        <div class="flex items-center justify-between gap-2 py-1.5">
+          <span class="text-ink-muted">Segurança / Status:</span>
+          <span class="text-accent-amber font-bold text-right">${fsOrCostLabel}</span>
         </div>
       `;
     }
@@ -225,16 +249,16 @@ class RedesignDecisionDeck {
     const pitchBox = document.getElementById('deck-pitch-narrative');
     if (pitchBox) {
       pitchBox.innerHTML = `
-        <div class="flex items-center gap-2 text-xs font-mono font-bold text-brand-400 uppercase tracking-wider mb-2">
+        <div class="flex items-center gap-2 text-xs font-mono font-bold text-accent-brand uppercase tracking-wider mb-2">
           <i data-lucide="message-square" class="w-4 h-4"></i>
           <span>Argumentação de Vendas para o Arquiteto apresentar ao Cliente:</span>
         </div>
-        <blockquote class="text-xs sm:text-sm text-slate-200 italic leading-relaxed pl-4 border-l-2 border-brand-500 mb-3 font-sans">
+        <blockquote class="text-xs sm:text-sm text-ink-primary italic leading-relaxed pl-4 border-l-2 border-brand-500 mb-3 font-sans">
           "${v.pitch_narrative || v.architectural_concept || 'Esta solução resolve a rigidez estrutural transformando a restrição de cálculo em um elemento escultural contemporâneo.'}"
         </blockquote>
-        <div class="text-[11px] font-mono text-slate-400 flex flex-wrap gap-4 pt-2 border-t border-slate-800">
-          <span><strong>Conceito:</strong> ${v.architectural_concept || 'Preservação da fluidez visual'}</span>
-          <span><strong>Engenharia:</strong> ${v.engineering_solution || 'Aumento de inércia ou protensão ativa'}</span>
+        <div class="text-[11px] font-mono text-ink-secondary flex flex-wrap gap-4 pt-2 border-t border-edge">
+          <span><strong class="text-ink-strong">Conceito:</strong> ${v.architectural_concept || 'Preservação da fluidez visual'}</span>
+          <span><strong class="text-ink-strong">Engenharia:</strong> ${v.engineering_solution || 'Aumento de inércia ou protensão ativa'}</span>
         </div>
       `;
       if (window.lucide) window.lucide.createIcons();
@@ -244,10 +268,44 @@ class RedesignDecisionDeck {
     this.updateRadarChart();
   }
 
+  getRadarColors() {
+    const isDark = document.documentElement.classList.contains('dark');
+    return isDark
+      ? {
+          angleLines: 'rgba(255, 255, 255, 0.1)',
+          grid: 'rgba(255, 255, 255, 0.08)',
+          pointLabels: '#94a3b8',
+          legend: '#e2e8f0',
+          brandBorder: '#38bdf8',
+          brandBg: 'rgba(56, 189, 248, 0.25)',
+        }
+      : {
+          angleLines: 'rgba(15, 23, 42, 0.12)',
+          grid: 'rgba(15, 23, 42, 0.09)',
+          pointLabels: '#475569',
+          legend: '#1e293b',
+          brandBorder: '#0284c7',
+          brandBg: 'rgba(2, 132, 199, 0.2)',
+        };
+  }
+
+  applyRadarTheme() {
+    if (!this.radarChart) return;
+    const c = this.getRadarColors();
+    this.radarChart.options.scales.r.angleLines.color = c.angleLines;
+    this.radarChart.options.scales.r.grid.color = c.grid;
+    this.radarChart.options.scales.r.pointLabels.color = c.pointLabels;
+    this.radarChart.options.plugins.legend.labels.color = c.legend;
+    this.radarChart.data.datasets[1].borderColor = c.brandBorder;
+    this.radarChart.data.datasets[1].backgroundColor = c.brandBg;
+    this.radarChart.update();
+  }
+
   initRadarChart() {
     const canvas = document.getElementById('radar-canvas');
     if (!canvas || typeof Chart === 'undefined') return;
 
+    const c = this.getRadarColors();
     const ctx = canvas.getContext('2d');
     this.radarChart = new Chart(ctx, {
       type: 'radar',
@@ -265,8 +323,8 @@ class RedesignDecisionDeck {
           {
             label: 'Redesign Selecionado',
             data: [95, 90, 70, 65, 95],
-            backgroundColor: 'rgba(56, 189, 248, 0.25)',
-            borderColor: '#38bdf8',
+            backgroundColor: c.brandBg,
+            borderColor: c.brandBorder,
             borderWidth: 2,
             pointRadius: 3,
           }
@@ -277,10 +335,10 @@ class RedesignDecisionDeck {
         maintainAspectRatio: false,
         scales: {
           r: {
-            angleLines: { color: 'rgba(255, 255, 255, 0.1)' },
-            grid: { color: 'rgba(255, 255, 255, 0.08)' },
+            angleLines: { color: c.angleLines },
+            grid: { color: c.grid },
             pointLabels: {
-              color: '#94a3b8',
+              color: c.pointLabels,
               font: { size: 9, family: 'JetBrains Mono' }
             },
             ticks: { display: false, min: 0, max: 100 }
@@ -289,7 +347,7 @@ class RedesignDecisionDeck {
         plugins: {
           legend: {
             labels: {
-              color: '#e2e8f0',
+              color: c.legend,
               font: { size: 10, family: 'JetBrains Mono' }
             }
           }

@@ -28,7 +28,6 @@ class Structura3DViewport {
 
     // Scene
     this.scene = new THREE.Scene();
-    this.scene.background = new THREE.Color(0x030712); // slate-950
 
     // Camera
     this.camera = new THREE.PerspectiveCamera(45, width / height, 0.1, 1000);
@@ -55,13 +54,11 @@ class Structura3DViewport {
       this.controls.target.set(5, 1.8, 0);
     }
 
-    // Grid Floor
-    this.gridHelper = new THREE.GridHelper(30, 30, 0x0284c7, 0x1e293b);
-    this.gridHelper.position.y = 0;
-    this.scene.add(this.gridHelper);
+    // Apply initial theme to scene & floor grid
+    this.applySceneTheme();
 
     // Lights
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.6);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.65);
     this.scene.add(ambientLight);
 
     const dirLight = new THREE.DirectionalLight(0xffffff, 0.9);
@@ -77,11 +74,38 @@ class Structura3DViewport {
 
     this.scene.add(this.meshGroup);
 
-    // Resize Handler
+    // Resize & Theme Handlers
     window.addEventListener('resize', () => this.onResize());
+    window.addEventListener('structura:themechange', () => {
+      this.applySceneTheme();
+      this.rebuildScene();
+    });
 
     // Animation Loop
     this.animate();
+  }
+
+  applySceneTheme() {
+    if (!this.scene) return;
+    const isDark = document.documentElement.classList.contains('dark');
+    this.scene.background = new THREE.Color(isDark ? 0x020617 : 0xf8fafc);
+
+    if (this.gridHelper) {
+      this.scene.remove(this.gridHelper);
+      if (this.gridHelper.geometry) this.gridHelper.geometry.dispose();
+      if (this.gridHelper.material) {
+        if (Array.isArray(this.gridHelper.material)) this.gridHelper.material.forEach(m => m.dispose());
+        else this.gridHelper.material.dispose();
+      }
+    }
+    this.gridHelper = new THREE.GridHelper(
+      30,
+      30,
+      0x0284c7,
+      isDark ? 0x1e293b : 0xcbd5e1
+    );
+    this.gridHelper.position.y = 0;
+    this.scene.add(this.gridHelper);
   }
 
   onResize() {
@@ -151,10 +175,11 @@ class Structura3DViewport {
     }
 
     // Cores e materiais base
-    const colMat = this.createMaterial(0x64748b, 0.9); // slate-500
+    const isDark = document.documentElement.classList.contains('dark');
+    const colMat = this.createMaterial(isDark ? 0x64748b : 0x475569, 0.9);
     const beamBaseColor = p.is_viable ? 0x0ea5e9 : 0xef4444; // sky-500 ou red-500
     const beamMat = this.createMaterial(beamBaseColor, 0.95);
-    const slabMat = this.createMaterial(0x1e293b, 0.85); // slate-800
+    const slabMat = this.createMaterial(isDark ? 0x1e293b : 0xcbd5e1, 0.85);
     const cableMat = new THREE.LineBasicMaterial({ color: 0xf59e0b, linewidth: 3 }); // amber-500
 
     // 1. PILARES

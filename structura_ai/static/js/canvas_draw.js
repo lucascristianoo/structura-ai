@@ -39,6 +39,23 @@ class ArchitecturalCanvas {
     this.setLayoutFromParams(initialSpan, initialCant);
   }
 
+  getPalette() {
+    const cssVar = (name, fallback) =>
+      window.StructuraTheme ? window.StructuraTheme.getCssVar(name, fallback) : fallback;
+
+    return {
+      bg: cssVar('--canvas-bg', '#020617'),
+      grid: cssVar('--canvas-grid', '#1e293b'),
+      beam: cssVar('--canvas-beam', '#38bdf8'),
+      cantilever: cssVar('--canvas-cantilever', '#f59e0b'),
+      colFill: cssVar('--canvas-col-fill', '#38bdf8'),
+      colStroke: cssVar('--canvas-col-stroke', '#0284c7'),
+      colLabel: cssVar('--canvas-col-label', '#cbd5e1'),
+      tagBg: cssVar('--canvas-tag-bg', '#0f172a'),
+      tagBorder: cssVar('--canvas-tag-border', '#334155')
+    };
+  }
+
   setActiveTool(toolName) {
     this.currentTool = toolName;
     document.querySelectorAll('[data-canvas-tool]').forEach((btn) => {
@@ -46,13 +63,16 @@ class ArchitecturalCanvas {
       btn.classList.toggle('bg-brand-600', isSelected);
       btn.classList.toggle('text-white', isSelected);
       btn.classList.toggle('font-semibold', isSelected);
-      btn.classList.toggle('bg-slate-800', !isSelected);
-      btn.classList.toggle('text-slate-300', !isSelected);
+      btn.classList.toggle('bg-surface-elevated', !isSelected);
+      btn.classList.toggle('text-ink-secondary', !isSelected);
+      btn.classList.toggle('hover:text-ink-strong', !isSelected);
+      btn.classList.toggle('hover:bg-surface-hover', !isSelected);
     });
   }
 
   initEventListeners() {
     window.addEventListener('resize', () => this.initCanvasSize(true));
+    window.addEventListener('structura:themechange', () => this.render());
 
     this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
     this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
@@ -125,11 +145,12 @@ class ArchitecturalCanvas {
     const pt = this.getCanvasCoords(e);
     this.render();
 
+    const palette = this.getPalette();
     const isCant = this.currentTool === 'cantilever';
     const distM = (Math.hypot(pt.x - this.startPoint.x, pt.y - this.startPoint.y) / this.scale).toFixed(1);
 
     this.ctx.beginPath();
-    this.ctx.strokeStyle = isCant ? '#f59e0b' : '#38bdf8';
+    this.ctx.strokeStyle = isCant ? palette.cantilever : palette.beam;
     this.ctx.lineWidth = 3;
     this.ctx.setLineDash([5, 5]);
     this.ctx.moveTo(this.startPoint.x, this.startPoint.y);
@@ -140,7 +161,7 @@ class ArchitecturalCanvas {
     // Live distance preview badge
     const midX = (this.startPoint.x + pt.x) / 2;
     const midY = (this.startPoint.y + pt.y) / 2;
-    this.drawDimensionTag(midX, midY, `${distM}m`, isCant);
+    this.drawDimensionTag(midX, midY, `${distM}m`, isCant, palette);
   }
 
   onPointerUp(e) {
@@ -206,18 +227,18 @@ class ArchitecturalCanvas {
     this.render();
   }
 
-  drawDimensionTag(midX, midY, label, isCantilever) {
+  drawDimensionTag(midX, midY, label, isCantilever, palette = this.getPalette()) {
     const ctx = this.ctx;
     const boxW = 58;
     const boxH = 22;
 
-    ctx.fillStyle = '#0f172a';
+    ctx.fillStyle = palette.tagBg;
     ctx.fillRect(midX - boxW / 2, midY - boxH - 6, boxW, boxH);
-    ctx.strokeStyle = '#334155';
+    ctx.strokeStyle = palette.tagBorder;
     ctx.lineWidth = 1;
     ctx.strokeRect(midX - boxW / 2, midY - boxH - 6, boxW, boxH);
 
-    ctx.fillStyle = isCantilever ? '#f59e0b' : '#38bdf8';
+    ctx.fillStyle = isCantilever ? palette.cantilever : palette.beam;
     ctx.font = '700 12px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
     ctx.textAlign = 'center';
     ctx.fillText(label, midX, midY - 11);
@@ -225,12 +246,15 @@ class ArchitecturalCanvas {
 
   render() {
     const ctx = this.ctx;
-    ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+    const palette = this.getPalette();
+
+    ctx.fillStyle = palette.bg;
+    ctx.fillRect(0, 0, this.canvas.width, this.canvas.height);
 
     // Architectural Grid Background
     const gridSize = 20;
-    ctx.strokeStyle = '#1e293b';
-    ctx.lineWidth = 0.5;
+    ctx.strokeStyle = palette.grid;
+    ctx.lineWidth = 0.6;
     for (let x = 0; x < this.canvas.width; x += gridSize) {
       ctx.beginPath();
       ctx.moveTo(x, 0);
@@ -250,7 +274,7 @@ class ArchitecturalCanvas {
       .forEach((e) => {
         const isCant = e.type === 'cantilever';
         ctx.beginPath();
-        ctx.strokeStyle = isCant ? '#f59e0b' : '#38bdf8';
+        ctx.strokeStyle = isCant ? palette.cantilever : palette.beam;
         ctx.lineWidth = isCant ? 4 : 5;
         ctx.lineCap = 'round';
         ctx.moveTo(e.start.x, e.start.y);
@@ -260,20 +284,20 @@ class ArchitecturalCanvas {
         const midX = (e.start.x + e.end.x) / 2;
         const midY = (e.start.y + e.end.y) / 2;
         const distM = (Math.hypot(e.end.x - e.start.x, e.end.y - e.start.y) / this.scale).toFixed(1);
-        this.drawDimensionTag(midX, midY, `${distM}m`, isCant);
+        this.drawDimensionTag(midX, midY, `${distM}m`, isCant, palette);
       });
 
     // Columns
     this.elements
       .filter((e) => e.type === 'column')
       .forEach((e) => {
-        ctx.fillStyle = '#38bdf8';
+        ctx.fillStyle = palette.colFill;
         ctx.fillRect(e.start.x - 9, e.start.y - 9, 18, 18);
-        ctx.strokeStyle = '#0284c7';
+        ctx.strokeStyle = palette.colStroke;
         ctx.lineWidth = 2;
         ctx.strokeRect(e.start.x - 9, e.start.y - 9, 18, 18);
 
-        ctx.fillStyle = '#cbd5e1';
+        ctx.fillStyle = palette.colLabel;
         ctx.font = '600 11px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
         ctx.textAlign = 'center';
         ctx.fillText('PILAR', e.start.x, e.start.y + 23);
