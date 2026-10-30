@@ -12,14 +12,14 @@
   <!-- Breadcrumb & Title -->
   <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
     <div>
-      <div class="flex items-center gap-2 text-sm font-mono text-slate-400 mb-1.5">
-        <a href="/" class="hover:text-brand-400 transition-colors">Início</a>
+      <div class="flex items-center gap-2 text-sm font-mono text-ink-muted mb-1.5">
+        <a href="/" class="hover:text-accent-brand transition-colors">Início</a>
         <span>/</span>
-        <span class="text-slate-200">Studio Interativo de Validação &amp; Redesign</span>
+        <span class="text-ink-primary">Studio Interativo de Validação &amp; Redesign</span>
       </div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex flex-wrap items-center gap-3">
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-ink-strong tracking-tight flex flex-wrap items-center gap-3">
         <span>Studio de Compatibilização Estrutural</span>
-        <span class="text-xs sm:text-sm font-mono font-medium px-2.5 py-1 rounded-md bg-brand-500/10 text-brand-400 border border-brand-500/20">
+        <span class="text-xs sm:text-sm font-mono font-medium px-2.5 py-1 rounded-md bg-brand-500/10 text-accent-brand border border-brand-500/20">
           NBR 6118:2023
         </span>
       </h1>
@@ -27,8 +27,8 @@
 
     <!-- Presets Quick Switcher -->
     <div class="flex items-center gap-2.5">
-      <label for="preset-select" class="text-sm font-mono text-slate-300 hidden sm:inline">Cenário Rápido:</label>
-      <select id="preset-select" class="bg-slate-900 border border-slate-700 text-sm font-mono rounded-lg px-3.5 py-2 text-slate-100 focus:outline-none focus:border-brand-500">
+      <label for="preset-select" class="text-sm font-mono text-ink-secondary hidden sm:inline">Cenário Rápido:</label>
+      <select id="preset-select" class="bg-surface-card border border-edge-strong text-sm font-mono rounded-lg px-3.5 py-2 text-ink-primary shadow-sm dark:shadow-none focus:outline-none focus:border-brand-500 transition-colors">
         {% for p in presets %}
         <option value="{{ p.key }}" {% if p.key == preset_key %}selected{% endif %}>
           {{ p.title }} ({% if 'FAIL' in p.expected_result %}⚠️ Reprova{% else %}✅ Aprova{% endif %})
@@ -45,13 +45,13 @@
     <div class="lg:col-span-4 space-y-6">
 
       <!-- Studio Parameters Card -->
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
-        <div class="flex items-center justify-between border-b border-slate-800 pb-3.5 mb-5">
-          <h2 class="text-base font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2 font-mono">
-            <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
+      <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/70 backdrop-blur-md p-6 shadow-lg shadow-slate-900/5 dark:shadow-xl">
+        <div class="flex items-center justify-between border-b border-edge pb-3.5 mb-5">
+          <h2 class="text-base font-bold uppercase tracking-wider text-ink-strong flex items-center gap-2 font-mono">
+            <i data-lucide="sliders" class="w-4 h-4 text-accent-brand"></i>
             <span>Parâmetros do Desenho</span>
           </h2>
-          <span class="text-xs font-mono text-brand-400 animate-pulse">● Live Physics</span>
+          <span class="text-xs font-mono text-accent-brand animate-pulse">● Live Physics</span>
         </div>
 
         <!-- Sliders Form -->
@@ -60,11 +60,11 @@
           <!-- Span Length -->
           <div>
             <div class="flex justify-between items-baseline mb-2">
-              <label for="input-span" class="text-slate-200 font-semibold">Vão Livre Principal (L):</label>
-              <span id="val-span" class="text-brand-400 font-bold text-base">{{ selected_preset.span_length_m }} m</span>
+              <label for="input-span" class="text-ink-primary font-semibold">Vão Livre Principal (L):</label>
+              <span id="val-span" class="text-accent-brand font-bold text-base">{{ selected_preset.span_length_m }} m</span>
             </div>
             <input type="range" id="input-span" min="3.0" max="16.0" step="0.1" value="{{ selected_preset.span_length_m }}" class="w-full">
-            <div class="flex justify-between text-xs text-slate-400 mt-1.5">
+            <div class="flex justify-between text-xs text-ink-muted mt-1.5">
               <span>3.0m</span>
               <span>Distância entre apoios</span>
               <span>16.0m</span>
@@ -74,11 +74,11 @@
           <!-- Cantilever Length -->
           <div>
             <div class="flex justify-between items-baseline mb-2">
-              <label for="input-cantilever" class="text-slate-200 font-semibold">Balanço Estrutural (Lc):</label>
-              <span id="val-cantilever" class="text-amber-400 font-bold text-base">{{ selected_preset.cantilever_length_m }} m</span>
+              <label for="input-cantilever" class="text-ink-primary font-semibold">Balanço Estrutural (Lc):</label>
+              <span id="val-cantilever" class="text-accent-amber font-bold text-base">{{ selected_preset.cantilever_length_m }} m</span>
             </div>
             <input type="range" id="input-cantilever" min="0.0" max="6.0" step="0.1" value="{{ selected_preset.cantilever_length_m }}" class="w-full">
-            <div class="flex justify-between text-xs text-slate-400 mt-1.5">
+            <div class="flex justify-between text-xs text-ink-muted mt-1.5">
               <span>0m (Sem balanço)</span>
               <span>Projeção livre</span>
               <span>6.0m</span>
@@ -88,11 +88,11 @@
           <!-- Beam Height -->
           <div>
             <div class="flex justify-between items-baseline mb-2">
-              <label for="input-beam-h" class="text-slate-200 font-semibold">Altura da Viga (h):</label>
-              <span id="val-beam-h" class="text-sky-400 font-bold text-base">{{ selected_preset.beam_height_cm | int }} cm</span>
+              <label for="input-beam-h" class="text-ink-primary font-semibold">Altura da Viga (h):</label>
+              <span id="val-beam-h" class="text-accent-sky font-bold text-base">{{ selected_preset.beam_height_cm | int }} cm</span>
             </div>
             <input type="range" id="input-beam-h" min="15.0" max="90.0" step="1.0" value="{{ selected_preset.beam_height_cm }}" class="w-full">
-            <div class="flex justify-between text-xs text-slate-400 mt-1.5">
+            <div class="flex justify-between text-xs text-ink-muted mt-1.5">
               <span>15cm (Slim)</span>
               <span>Inércia da viga</span>
               <span>90cm</span>
@@ -102,35 +102,35 @@
           <!-- Beam Width -->
           <div>
             <div class="flex justify-between items-baseline mb-2">
-              <label for="input-beam-w" class="text-slate-200 font-semibold">Largura da Viga (bw):</label>
-              <span id="val-beam-w" class="text-slate-200 font-bold text-base">{{ selected_preset.beam_width_cm | int }} cm</span>
+              <label for="input-beam-w" class="text-ink-primary font-semibold">Largura da Viga (bw):</label>
+              <span id="val-beam-w" class="text-ink-strong font-bold text-base">{{ selected_preset.beam_width_cm | int }} cm</span>
             </div>
             <input type="range" id="input-beam-w" min="12.0" max="40.0" step="1.0" value="{{ selected_preset.beam_width_cm }}" class="w-full">
           </div>
 
           <!-- Column Section & Height -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 pt-3 border-t border-slate-800/80">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 pt-3 border-t border-edge/80">
             <div>
               <div class="flex justify-between items-baseline mb-1.5">
-                <label for="input-col-sec" class="text-slate-200 font-medium">Pilar (Lado):</label>
-                <span id="val-col-sec" class="text-indigo-400 font-bold">{{ selected_preset.column_section_cm | int }} cm</span>
+                <label for="input-col-sec" class="text-ink-primary font-medium">Pilar (Lado):</label>
+                <span id="val-col-sec" class="text-accent-indigo font-bold">{{ selected_preset.column_section_cm | int }} cm</span>
               </div>
               <input type="range" id="input-col-sec" min="14.0" max="50.0" step="1.0" value="{{ selected_preset.column_section_cm }}" class="w-full">
             </div>
             <div>
               <div class="flex justify-between items-baseline mb-1.5">
-                <label for="input-col-h" class="text-slate-200 font-medium">Pé-direito:</label>
-                <span id="val-col-h" class="text-indigo-400 font-bold">{{ selected_preset.column_height_m }} m</span>
+                <label for="input-col-h" class="text-ink-primary font-medium">Pé-direito:</label>
+                <span id="val-col-h" class="text-accent-indigo font-bold">{{ selected_preset.column_height_m }} m</span>
               </div>
               <input type="range" id="input-col-h" min="2.5" max="6.5" step="0.1" value="{{ selected_preset.column_height_m }}" class="w-full">
             </div>
           </div>
 
           <!-- Occupancy & Concreto fck -->
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 pt-3 border-t border-slate-800/80">
+          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-4 pt-3 border-t border-edge/80">
             <div>
-              <label for="select-occupancy" class="text-slate-200 font-medium block mb-1.5">Uso (NBR 6120):</label>
-              <select id="select-occupancy" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+              <label for="select-occupancy" class="text-ink-primary font-medium block mb-1.5">Uso (NBR 6120):</label>
+              <select id="select-occupancy" class="w-full bg-surface-inset border border-edge-strong rounded-lg px-3 py-2 text-sm text-ink-primary focus:outline-none focus:border-brand-500 transition-colors">
                 <option value="Residencial" {% if selected_preset.category == 'Residencial' %}selected{% endif %}>Residencial (2.5 kPa)</option>
                 <option value="Comercial" {% if selected_preset.category == 'Comercial' %}selected{% endif %}>Comercial (3.5 kPa)</option>
                 <option value="Institucional" {% if selected_preset.category == 'Institucional' %}selected{% endif %}>Institucional (4.5 kPa)</option>
@@ -138,8 +138,8 @@
               </select>
             </div>
             <div>
-              <label for="select-fck" class="text-slate-200 font-medium block mb-1.5">Concreto fck:</label>
-              <select id="select-fck" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-brand-500">
+              <label for="select-fck" class="text-ink-primary font-medium block mb-1.5">Concreto fck:</label>
+              <select id="select-fck" class="w-full bg-surface-inset border border-edge-strong rounded-lg px-3 py-2 text-sm text-ink-primary focus:outline-none focus:border-brand-500 transition-colors">
                 <option value="25.0" {% if selected_preset.concrete_fck_mpa == 25.0 %}selected{% endif %}>C25 (25 MPa)</option>
                 <option value="30.0" {% if not selected_preset.concrete_fck_mpa or selected_preset.concrete_fck_mpa == 30.0 %}selected{% endif %}>C30 (30 MPa)</option>
                 <option value="35.0" {% if selected_preset.concrete_fck_mpa == 35.0 %}selected{% endif %}>C35 (35 MPa)</option>
@@ -152,54 +152,54 @@
       </div>
 
       <!-- Upload Drawing & Gemini Save Card -->
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
-        <h2 class="text-base font-bold uppercase tracking-wider text-slate-100 flex items-center gap-2 font-mono mb-4">
-          <i data-lucide="upload-cloud" class="w-4 h-4 text-purple-400"></i>
+      <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/70 backdrop-blur-md p-6 shadow-lg shadow-slate-900/5 dark:shadow-xl">
+        <h2 class="text-base font-bold uppercase tracking-wider text-ink-strong flex items-center gap-2 font-mono mb-4">
+          <i data-lucide="upload-cloud" class="w-4 h-4 text-accent-purple"></i>
           <span>Subir Desenho do Arquiteto</span>
         </h2>
 
         <form id="studio-save-form" class="space-y-4" enctype="multipart/form-data">
           <div>
-            <label for="input-project-title" class="block text-sm font-mono text-slate-300 mb-1.5">Nome do Projeto:</label>
-            <input type="text" id="input-project-title" name="title" value="{{ selected_preset.title }}" required class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 font-mono">
+            <label for="input-project-title" class="block text-sm font-mono text-ink-secondary mb-1.5">Nome do Projeto:</label>
+            <input type="text" id="input-project-title" name="title" value="{{ selected_preset.title }}" required class="w-full bg-surface-inset border border-edge-strong rounded-lg px-3.5 py-2.5 text-sm text-ink-strong focus:outline-none focus:border-brand-500 font-mono transition-colors">
           </div>
 
           <div>
-            <label for="input-project-author" class="block text-sm font-mono text-slate-300 mb-1.5">Arquiteto Autor:</label>
-            <input type="text" id="input-project-author" name="author_architect" value="{{ selected_preset.author_architect }}" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2.5 text-sm text-white focus:outline-none focus:border-brand-500 font-mono">
+            <label for="input-project-author" class="block text-sm font-mono text-ink-secondary mb-1.5">Arquiteto Autor:</label>
+            <input type="text" id="input-project-author" name="author_architect" value="{{ selected_preset.author_architect }}" class="w-full bg-surface-inset border border-edge-strong rounded-lg px-3.5 py-2.5 text-sm text-ink-strong focus:outline-none focus:border-brand-500 font-mono transition-colors">
           </div>
 
           <div>
-            <label for="input-project-description" class="block text-sm font-mono text-slate-300 mb-1.5">Conceito / Descrição:</label>
-            <textarea id="input-project-description" name="description" rows="2" class="w-full bg-slate-950 border border-slate-700 rounded-lg px-3.5 py-2 text-sm text-slate-200 focus:outline-none focus:border-brand-500 font-sans leading-relaxed resize-y">{{ selected_preset.description }}</textarea>
+            <label for="input-project-description" class="block text-sm font-mono text-ink-secondary mb-1.5">Conceito / Descrição:</label>
+            <textarea id="input-project-description" name="description" rows="2" class="w-full bg-surface-inset border border-edge-strong rounded-lg px-3.5 py-2 text-sm text-ink-primary focus:outline-none focus:border-brand-500 font-sans leading-relaxed resize-y transition-colors">{{ selected_preset.description }}</textarea>
           </div>
 
           <!-- Linked drawing banner when opened via ?project=<id> -->
-          <div id="linked-drawing-banner" class="hidden p-3 rounded-xl bg-slate-950/70 border border-slate-800 text-xs font-mono flex items-center justify-between gap-2">
-            <div class="truncate text-slate-300">
-              <span class="text-slate-400">Arquivo original:</span>
-              <span id="linked-drawing-name" class="text-brand-400 font-semibold"></span>
+          <div id="linked-drawing-banner" class="hidden p-3 rounded-xl bg-surface-inset border border-edge text-xs font-mono flex items-center justify-between gap-2">
+            <div class="truncate text-ink-secondary">
+              <span class="text-ink-muted">Arquivo original:</span>
+              <span id="linked-drawing-name" class="text-accent-brand font-semibold"></span>
             </div>
-            <a id="linked-drawing-link" href="#" target="_blank" class="shrink-0 text-brand-400 hover:text-brand-300 underline">Abrir</a>
+            <a id="linked-drawing-link" href="#" target="_blank" class="shrink-0 text-accent-brand hover:underline">Abrir</a>
           </div>
 
           <!-- File upload drag & drop -->
           <div>
-            <label class="block text-sm font-mono text-slate-300 mb-1.5">Arquivo (Planta, Croqui, PNG, JPG, SVG, PDF):</label>
+            <label class="block text-sm font-mono text-ink-secondary mb-1.5">Arquivo (Planta, Croqui, PNG, JPG, SVG, PDF):</label>
             <div
               id="upload-dropzone"
-              class="border-2 border-dashed border-slate-700 hover:border-brand-500 rounded-xl p-5 text-center cursor-pointer transition-all bg-slate-950/40"
+              class="border-2 border-dashed border-edge-strong hover:border-brand-500 rounded-xl p-5 text-center cursor-pointer transition-all bg-surface-inset/60"
             >
               <input type="file" name="file" id="file-upload" accept="image/*,.pdf,.svg" class="hidden">
               <div class="pointer-events-none">
-                <i data-lucide="image" class="w-7 h-7 text-slate-400 mx-auto mb-2"></i>
-                <span id="file-label" class="block text-sm text-brand-400 font-mono font-medium break-all">Arraste sua planta aqui ou clique para selecionar</span>
-                <span id="file-sublabel" class="block text-xs text-slate-400 mt-1">PNG, JPG, SVG ou PDF até 15MB (ou use o croqui ao lado)</span>
+                <i data-lucide="image" class="w-7 h-7 text-ink-muted mx-auto mb-2"></i>
+                <span id="file-label" class="block text-sm text-accent-brand font-mono font-medium break-all">Arraste sua planta aqui ou clique para selecionar</span>
+                <span id="file-sublabel" class="block text-xs text-ink-muted mt-1">PNG, JPG, SVG ou PDF até 15MB (ou use o croqui ao lado)</span>
               </div>
               <button
                 type="button"
                 id="btn-clear-file"
-                class="hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-800 hover:bg-rose-950/70 text-xs font-mono text-rose-400 border border-rose-500/20 transition-colors"
+                class="hidden mt-3 inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-elevated hover:bg-rose-500/15 text-xs font-mono text-accent-rose border border-rose-500/25 transition-colors"
               >
                 <i data-lucide="x" class="w-3.5 h-3.5"></i>
                 <span>Remover arquivo</span>
@@ -224,62 +224,62 @@
     <div class="lg:col-span-8 space-y-6">
 
       <!-- GLOBAL VERDICT & SCORE CARD -->
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 shadow-xl relative overflow-hidden">
+      <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/80 backdrop-blur-md p-6 shadow-lg shadow-slate-900/5 dark:shadow-xl relative overflow-hidden">
 
         <div class="flex flex-wrap items-center justify-between gap-4 mb-4">
           <div class="flex flex-wrap items-center gap-3">
-            <span id="verdict-badge" class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30">
+            <span id="verdict-badge" class="px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-rose-500/15 text-accent-rose border border-rose-500/30">
               REVISÃO MANDATÓRIA (ELS/ELU)
             </span>
-            <span class="text-xs sm:text-sm font-mono text-slate-400">Verificação NBR 6118</span>
+            <span class="text-xs sm:text-sm font-mono text-ink-muted">Verificação NBR 6118</span>
           </div>
 
           <div class="flex items-center gap-3">
             <div class="text-right">
-              <div class="text-xs font-mono uppercase text-slate-400">Índice de Viabilidade Física</div>
-              <div id="score-val" class="text-2xl font-bold font-mono text-white">--/100</div>
+              <div class="text-xs font-mono uppercase text-ink-muted">Índice de Viabilidade Física</div>
+              <div id="score-val" class="text-2xl font-bold font-mono text-ink-strong">--/100</div>
             </div>
-            <div class="w-24 h-3 bg-slate-800 rounded-full overflow-hidden">
+            <div class="w-24 h-3 bg-surface-elevated rounded-full overflow-hidden">
               <div id="score-bar" class="h-full bg-rose-500 rounded-full transition-all duration-300" style="width: 0%;"></div>
             </div>
           </div>
         </div>
 
-        <h2 id="verdict-title" class="text-xl sm:text-2xl font-bold text-rose-400 mb-2">
+        <h2 id="verdict-title" class="text-xl sm:text-2xl font-bold text-accent-rose mb-2">
           Calculando viabilidade estrutural...
         </h2>
 
-        <p id="verdict-desc" class="text-sm sm:text-base text-slate-300 leading-relaxed font-sans mb-5">
+        <p id="verdict-desc" class="text-sm sm:text-base text-ink-secondary leading-relaxed font-sans mb-5">
           Calculando parâmetros...
         </p>
 
         <!-- 4 Key Structural Engineering Indicators -->
-        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-4 border-t border-slate-800/80 font-mono">
-          <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span class="text-xs sm:text-sm text-slate-400 block">Flecha Calculada</span>
-            <span id="metric-deflection" class="text-2xl font-bold text-rose-400 font-mono mt-1 block">-- mm</span>
-            <span id="metric-allowable" class="text-xs text-slate-400 block mt-1">≤ -- mm (L/250)</span>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 pt-4 border-t border-edge/80 font-mono">
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/60 border border-edge">
+            <span class="text-xs sm:text-sm text-ink-muted block">Flecha Calculada</span>
+            <span id="metric-deflection" class="text-2xl font-bold text-accent-rose font-mono mt-1 block">-- mm</span>
+            <span id="metric-allowable" class="text-xs text-ink-muted block mt-1">≤ -- mm (L/250)</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span class="text-xs sm:text-sm text-slate-400 block">Momento Fletor</span>
-            <span id="metric-moment" class="text-2xl font-bold text-sky-400 font-mono mt-1 block">-- kN.m</span>
-            <span class="text-xs text-slate-400 block mt-1">Esforço solicitante</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/60 border border-edge">
+            <span class="text-xs sm:text-sm text-ink-muted block">Momento Fletor</span>
+            <span id="metric-moment" class="text-2xl font-bold text-accent-sky font-mono mt-1 block">-- kN.m</span>
+            <span class="text-xs text-ink-muted block mt-1">Esforço solicitante</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span class="text-xs sm:text-sm text-slate-400 block">Esbeltez Pilar</span>
-            <span id="metric-buckling" class="text-2xl font-bold text-indigo-400 font-mono mt-1 block">λ = --</span>
-            <span id="metric-buckling-hint" class="text-xs text-slate-400 block mt-1">Limite λ ≤ 140</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/60 border border-edge">
+            <span class="text-xs sm:text-sm text-ink-muted block">Esbeltez Pilar</span>
+            <span id="metric-buckling" class="text-2xl font-bold text-accent-indigo font-mono mt-1 block">λ = --</span>
+            <span id="metric-buckling-hint" class="text-xs text-ink-muted block mt-1">Limite λ ≤ 140</span>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/60 border border-slate-800">
-            <span class="text-xs sm:text-sm text-slate-400 block">Vão / Altura (L/h)</span>
-            <span id="metric-span-depth" class="text-2xl font-bold text-purple-400 font-mono mt-1 block">L/--</span>
-            <span id="metric-span-depth-hint" class="text-xs text-slate-400 block mt-1">Recomendado ≤ L/13</span>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/60 border border-edge">
+            <span class="text-xs sm:text-sm text-ink-muted block">Vão / Altura (L/h)</span>
+            <span id="metric-span-depth" class="text-2xl font-bold text-accent-purple font-mono mt-1 block">L/--</span>
+            <span id="metric-span-depth-hint" class="text-xs text-ink-muted block mt-1">Recomendado ≤ L/13</span>
           </div>
         </div>
 
         <!-- Failure Reasons Callout Box -->
-        <div id="failures-container" class="hidden mt-5 p-4 rounded-xl bg-rose-950/30 border border-rose-500/20">
-          <div class="text-sm font-mono font-bold text-rose-400 uppercase tracking-wider mb-2.5 flex items-center gap-2">
+        <div id="failures-container" class="hidden mt-5 p-4 rounded-xl bg-rose-500/10 dark:bg-rose-950/30 border border-rose-500/25">
+          <div class="text-sm font-mono font-bold text-accent-rose uppercase tracking-wider mb-2.5 flex items-center gap-2">
             <i data-lucide="alert-triangle" class="w-4 h-4 shrink-0"></i>
             <span>Não-Conformidades Físicas Identificadas:</span>
           </div>
@@ -291,52 +291,52 @@
       </div>
 
       <!-- INTERACTIVE ARCHITECTURAL CANVAS -->
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5 mb-4">
+      <div class="rounded-2xl border border-edge bg-surface-card/90 dark:bg-surface-card/70 backdrop-blur-md p-6 shadow-lg shadow-slate-900/5 dark:shadow-xl">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-edge pb-3.5 mb-4">
           <div class="flex items-center gap-2">
-            <i data-lucide="layout-grid" class="w-4 h-4 text-brand-400"></i>
-            <h3 class="text-base font-bold text-white uppercase tracking-wider font-mono">Croqui Estrutural Interativo</h3>
+            <i data-lucide="layout-grid" class="w-4 h-4 text-accent-brand"></i>
+            <h3 class="text-base font-bold text-ink-strong uppercase tracking-wider font-mono">Croqui Estrutural Interativo</h3>
           </div>
           <!-- Canvas Tools -->
           <div class="flex flex-wrap items-center gap-1.5 font-mono text-xs sm:text-sm">
             <button type="button" data-canvas-tool="column" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white font-semibold transition-colors">
               + Pilar
             </button>
-            <button type="button" data-canvas-tool="beam" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors">
+            <button type="button" data-canvas-tool="beam" class="px-3 py-1.5 rounded-lg bg-surface-elevated text-ink-secondary hover:text-ink-strong hover:bg-surface-hover transition-colors">
               + Viga
             </button>
-            <button type="button" data-canvas-tool="cantilever" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors">
+            <button type="button" data-canvas-tool="cantilever" class="px-3 py-1.5 rounded-lg bg-surface-elevated text-ink-secondary hover:text-ink-strong hover:bg-surface-hover transition-colors">
               + Balanço
             </button>
-            <button type="button" data-canvas-action="undo" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors" title="Desfazer último elemento">
+            <button type="button" data-canvas-action="undo" class="px-2.5 py-1.5 rounded-lg bg-surface-elevated text-ink-secondary hover:text-ink-strong hover:bg-surface-hover transition-colors" title="Desfazer último elemento">
               Desfazer
             </button>
-            <button type="button" data-canvas-action="clear" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-rose-400 hover:bg-rose-950/50 transition-colors">
+            <button type="button" data-canvas-action="clear" class="px-2.5 py-1.5 rounded-lg bg-surface-elevated text-accent-rose hover:bg-rose-500/15 transition-colors">
               Limpar
             </button>
           </div>
         </div>
 
         <!-- Canvas Container -->
-        <div class="relative w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+        <div class="relative w-full rounded-xl overflow-hidden border border-edge bg-surface-inset">
           <canvas id="structural-canvas" class="w-full block cursor-crosshair touch-none"></canvas>
-          <div id="canvas-scale-label" class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-900/85 backdrop-blur text-xs font-mono text-slate-300 pointer-events-none">
+          <div id="canvas-scale-label" class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded border border-edge/70 bg-surface-card/90 backdrop-blur text-xs font-mono text-ink-secondary shadow-sm pointer-events-none">
             Escala: 40px = 1.0m • Clique ou arraste para desenhar
           </div>
         </div>
       </div>
 
       <!-- THE 5 VISUAL REDESIGN PROPOSALS -->
-      <div id="variants-section" class="rounded-2xl border border-brand-500/30 bg-slate-900/90 backdrop-blur-md p-6 shadow-2xl relative overflow-hidden">
+      <div id="variants-section" class="rounded-2xl border border-brand-500/30 bg-surface-card/95 dark:bg-surface-card/90 backdrop-blur-md p-6 shadow-xl shadow-slate-900/5 dark:shadow-2xl relative overflow-hidden">
 
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
+        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-edge pb-4 mb-6">
           <div>
-            <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold text-brand-400 uppercase tracking-wider mb-1">
+            <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold text-accent-brand uppercase tracking-wider mb-1">
               <i data-lucide="sparkles" class="w-4 h-4"></i>
               <span>Adequação Matemática ao Projeto</span>
             </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white">5 Alternativas Visuais de Redesign Estrutural</h2>
-            <p class="text-sm text-slate-300 mt-1">
+            <h2 class="text-xl sm:text-2xl font-extrabold text-ink-strong">5 Alternativas Visuais de Redesign Estrutural</h2>
+            <p class="text-sm text-ink-secondary mt-1">
               Cada proposta transforma a restrição da engenharia em uma nova assinatura plástica para o arquiteto.
             </p>
           </div>
@@ -348,7 +348,7 @@
         </div>
 
         <!-- Active Variant Dynamic SVG Blueprint Render -->
-        <div id="variant-svg-container" class="w-full mb-6 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
+        <div id="variant-svg-container" class="blueprint-frame w-full mb-6 rounded-xl overflow-hidden border border-edge shadow-inner dark:shadow-2xl">
           <!-- Populated with SVG Blueprint -->
         </div>
 

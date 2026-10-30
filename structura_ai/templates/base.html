@@ -1,10 +1,26 @@
 <!DOCTYPE html>
-<html lang="pt-BR" class="dark h-full">
+<html lang="pt-BR" class="h-full">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Structura.AI — Ponte Físico-Arquitetônica{% endblock %}</title>
-  
+
+  <!-- Synchronous Theme Bootstrap (prevents flash & defaults to device theme) -->
+  <script>
+    (function () {
+      try {
+        var saved = localStorage.getItem('structura-theme');
+        var prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        var theme = (saved === 'light' || saved === 'dark') ? saved : (prefersDark ? 'dark' : 'light');
+        document.documentElement.classList.toggle('dark', theme === 'dark');
+        document.documentElement.dataset.theme = theme;
+      } catch (e) {}
+    })();
+  </script>
+
+  <!-- Theme Design Tokens -->
+  <link rel="stylesheet" href="/static/css/theme.css">
+
   <!-- Google Fonts (Inter & JetBrains Mono) -->
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -28,6 +44,34 @@
               800: '#075985',
               900: '#0c4a6e',
               950: '#082f49',
+            },
+            surface: {
+              base: 'rgb(var(--surface-base) / <alpha-value>)',
+              card: 'rgb(var(--surface-card) / <alpha-value>)',
+              elevated: 'rgb(var(--surface-elevated) / <alpha-value>)',
+              hover: 'rgb(var(--surface-hover) / <alpha-value>)',
+              inset: 'rgb(var(--surface-inset) / <alpha-value>)',
+            },
+            ink: {
+              strong: 'rgb(var(--ink-strong) / <alpha-value>)',
+              primary: 'rgb(var(--ink-primary) / <alpha-value>)',
+              secondary: 'rgb(var(--ink-secondary) / <alpha-value>)',
+              muted: 'rgb(var(--ink-muted) / <alpha-value>)',
+              faint: 'rgb(var(--ink-faint) / <alpha-value>)',
+            },
+            edge: {
+              subtle: 'rgb(var(--edge-subtle) / <alpha-value>)',
+              DEFAULT: 'rgb(var(--edge-default) / <alpha-value>)',
+              strong: 'rgb(var(--edge-strong) / <alpha-value>)',
+            },
+            accent: {
+              brand: 'rgb(var(--accent-brand) / <alpha-value>)',
+              sky: 'rgb(var(--accent-sky) / <alpha-value>)',
+              emerald: 'rgb(var(--accent-emerald) / <alpha-value>)',
+              amber: 'rgb(var(--accent-amber) / <alpha-value>)',
+              rose: 'rgb(var(--accent-rose) / <alpha-value>)',
+              indigo: 'rgb(var(--accent-indigo) / <alpha-value>)',
+              purple: 'rgb(var(--accent-purple) / <alpha-value>)',
             }
           },
           fontFamily: {
@@ -38,55 +82,70 @@
       }
     }
   </script>
-  
+
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="/static/css/custom.css">
+
+  <!-- Theme Controller -->
+  <script src="/static/js/theme.js" defer></script>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white">
+<body class="bg-surface-base text-ink-primary min-h-full flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white transition-colors duration-200">
 
   <!-- NAVBAR -->
-  <header class="border-b border-slate-800 bg-slate-900/80 backdrop-blur-md sticky top-0 z-50">
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-      
+  <header class="border-b border-edge bg-surface-card/85 backdrop-blur-md sticky top-0 z-50 transition-colors duration-200">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-2">
+
       <!-- Logo & Brand -->
-      <a href="/" class="flex items-center gap-3 group">
+      <a href="/" class="flex items-center gap-3 group shrink-0">
         <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-brand-600 via-indigo-600 to-sky-400 p-[1px] shadow-lg shadow-brand-500/20">
-          <div class="w-full h-full bg-slate-950 rounded-[11px] flex items-center justify-center">
-            <i data-lucide="compass" class="w-5 h-5 text-brand-400 group-hover:rotate-45 transition-transform duration-300"></i>
+          <div class="w-full h-full bg-surface-card dark:bg-slate-950 rounded-[11px] flex items-center justify-center transition-colors">
+            <i data-lucide="compass" class="w-5 h-5 text-accent-brand group-hover:rotate-45 transition-transform duration-300"></i>
           </div>
         </div>
         <div>
-          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-white via-slate-100 to-brand-400 bg-clip-text text-transparent">Structura<span class="text-brand-400">.AI</span></span>
-          <span class="block text-[10px] font-mono tracking-wider text-slate-400 uppercase">HackTown 2026 Edition</span>
+          <span class="text-xl font-bold tracking-tight bg-gradient-to-r from-slate-900 via-slate-800 to-brand-600 dark:from-white dark:via-slate-100 dark:to-brand-400 bg-clip-text text-transparent">Structura<span class="text-accent-brand">.AI</span></span>
+          <span class="block text-[10px] font-mono tracking-wider text-ink-muted uppercase">HackTown 2026 Edition</span>
         </div>
       </a>
 
       <!-- Navigation Links -->
       <nav class="flex items-center gap-1">
-        <a href="/" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors">
+        <a href="/" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated/80 rounded-lg transition-colors">
           Início
         </a>
-        <a href="/analyzer" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2">
-          <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
+        <a href="/analyzer" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated/80 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2">
+          <i data-lucide="sliders" class="w-4 h-4 text-accent-brand"></i>
           <span class="hidden sm:inline">Studio Interativo</span>
           <span class="sm:hidden">Studio</span>
         </a>
       </nav>
 
       <!-- Action & Status -->
-      <div class="flex items-center gap-2 sm:gap-3">
+      <div class="flex items-center gap-2 sm:gap-2.5">
         <!-- Gemini status badge -->
-        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-xs font-mono">
-          <span class="w-2 h-2 rounded-full {% if gemini_active %}bg-emerald-400 animate-pulse{% else %}bg-sky-400{% endif %}"></span>
-          <span class="text-slate-400 hidden md:inline">Google AI:</span>
-          <span class="text-slate-200 font-semibold">{% if gemini_active %}Gemini Ativo{% else %}Modo Local{% endif %}</span>
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-edge bg-surface-inset/80 text-xs font-mono">
+          <span class="w-2 h-2 rounded-full {% if gemini_active %}bg-emerald-500 dark:bg-emerald-400 animate-pulse{% else %}bg-sky-500 dark:bg-sky-400{% endif %}"></span>
+          <span class="text-ink-muted hidden md:inline">Google AI:</span>
+          <span class="text-ink-primary font-semibold">{% if gemini_active %}Gemini Ativo{% else %}Modo Local{% endif %}</span>
         </div>
 
+        <!-- Compact Theme Toggle -->
+        <button
+          type="button"
+          id="theme-toggle"
+          aria-label="Alternar tema"
+          title="Alternar tema"
+          class="h-9 w-9 inline-flex items-center justify-center rounded-lg border border-edge bg-surface-inset/80 text-ink-secondary hover:text-accent-brand hover:border-brand-500/40 hover:bg-surface-elevated transition-all duration-200 focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-500/50 shrink-0"
+        >
+          <i data-lucide="sun" class="w-4 h-4 hidden dark:block text-amber-400"></i>
+          <i data-lucide="moon" class="w-4 h-4 block dark:hidden text-slate-700"></i>
+        </button>
+
         <!-- New Analysis Button -->
-        <a href="/analyzer" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200">
+        <a href="/analyzer" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200 shrink-0">
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span>Novo Projeto</span>
         </a>
@@ -101,10 +160,10 @@
   </main>
 
   <!-- FOOTER -->
-  <footer class="border-t border-slate-900 bg-slate-950 py-8 text-xs text-slate-500 font-mono">
+  <footer class="border-t border-edge bg-surface-card/70 dark:bg-slate-950 py-8 text-xs text-ink-muted font-mono transition-colors duration-200">
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-4">
       <div class="flex items-center gap-2">
-        <i data-lucide="drafting-compass" class="w-4 h-4 text-brand-400"></i>
+        <i data-lucide="drafting-compass" class="w-4 h-4 text-accent-brand"></i>
         <span>Structura.AI • Intermediário Inteligente entre Arquitetura & Engenharia Civil</span>
       </div>
       <div>

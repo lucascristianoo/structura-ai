@@ -195,7 +195,7 @@ class StructuraStudio {
         e.preventDefault();
         e.stopPropagation();
         this.dropzone.classList.add('border-brand-400', 'bg-brand-500/10');
-        this.dropzone.classList.remove('border-slate-700');
+        this.dropzone.classList.remove('border-edge-strong');
       });
     });
 
@@ -204,7 +204,7 @@ class StructuraStudio {
         e.preventDefault();
         e.stopPropagation();
         this.dropzone.classList.remove('border-brand-400', 'bg-brand-500/10');
-        this.dropzone.classList.add('border-slate-700');
+        this.dropzone.classList.add('border-edge-strong');
       });
     });
 
@@ -267,8 +267,8 @@ class StructuraStudio {
     this.formFeedback.textContent = message;
     this.formFeedback.className =
       type === 'error'
-        ? 'p-3 rounded-xl text-sm font-mono border bg-rose-950/40 border-rose-500/30 text-rose-300'
-        : 'p-3 rounded-xl text-sm font-mono border bg-emerald-950/40 border-emerald-500/30 text-emerald-300';
+        ? 'p-3 rounded-xl text-sm font-mono border bg-rose-500/10 dark:bg-rose-950/40 border-rose-500/30 text-accent-rose'
+        : 'p-3 rounded-xl text-sm font-mono border bg-emerald-500/10 dark:bg-emerald-950/40 border-emerald-500/30 text-accent-emerald';
   }
 
   hideFeedback() {
@@ -444,20 +444,20 @@ class StructuraStudio {
 
     if (this.verdictBadge && this.verdictTitle) {
       if (isViable) {
-        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-emerald-500/15 text-accent-emerald border border-emerald-500/30';
         this.verdictBadge.textContent = 'CONFORME NBR 6118';
         this.verdictTitle.textContent = evaluation.compliance_level || 'Aprovado para Engenharia de Detalhamento';
-        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-emerald-400 mb-2';
+        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-accent-emerald mb-2';
       } else if (isWarning) {
-        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-amber-500/20 text-amber-400 border border-amber-500/30';
+        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-amber-500/15 text-accent-amber border border-amber-500/30';
         this.verdictBadge.textContent = 'ALERTA ESTRUTURAL (ELS/ELU)';
         this.verdictTitle.textContent = `${evaluation.compliance_level || 'Ajustes Recomendados'}: 5 Redesigns Propostos`;
-        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-amber-400 mb-2';
+        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-accent-amber mb-2';
       } else {
-        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-rose-500/20 text-rose-400 border border-rose-500/30';
+        this.verdictBadge.className = 'px-3.5 py-1 rounded-full text-xs sm:text-sm font-mono font-bold bg-rose-500/15 text-accent-rose border border-rose-500/30';
         this.verdictBadge.textContent = 'REVISÃO MANDATÓRIA (ELS/ELU)';
         this.verdictTitle.textContent = 'Reprovado segundo a Física: 5 Redesigns Propostos';
-        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-rose-400 mb-2';
+        this.verdictTitle.className = 'text-xl sm:text-2xl font-bold text-accent-rose mb-2';
       }
     }
 
@@ -470,8 +470,8 @@ class StructuraStudio {
       this.metricDeflection.textContent = `${evaluation.max_deflection_mm} mm`;
       this.metricDeflection.className =
         evaluation.deflection_ratio > 1.0
-          ? 'text-2xl font-bold text-rose-400 font-mono mt-1 block'
-          : 'text-2xl font-bold text-emerald-400 font-mono mt-1 block';
+          ? 'text-2xl font-bold text-accent-rose font-mono mt-1 block'
+          : 'text-2xl font-bold text-accent-emerald font-mono mt-1 block';
     }
     if (this.metricAllowable) {
       this.metricAllowable.textContent = `≤ ${evaluation.allowable_deflection_mm} mm (L/250)`;
@@ -489,10 +489,10 @@ class StructuraStudio {
     if (this.metricBuckling) {
       this.metricBuckling.textContent = `λ = ${lambdaVal}`;
       this.metricBuckling.className = colFailed
-        ? 'text-2xl font-bold text-rose-400 font-mono mt-1 block'
+        ? 'text-2xl font-bold text-accent-rose font-mono mt-1 block'
         : lambdaVal > 90
-          ? 'text-2xl font-bold text-amber-400 font-mono mt-1 block'
-          : 'text-2xl font-bold text-indigo-400 font-mono mt-1 block';
+          ? 'text-2xl font-bold text-accent-amber font-mono mt-1 block'
+          : 'text-2xl font-bold text-accent-indigo font-mono mt-1 block';
     }
     if (this.metricBucklingHint) {
       this.metricBucklingHint.textContent = colFailed ? 'Acima do limite (λ ≤ 140)' : 'Limite λ ≤ 140';
@@ -509,8 +509,8 @@ class StructuraStudio {
       this.metricSpanDepth.textContent = `L/${spanDepthRatio}`;
       this.metricSpanDepth.className =
         spanDepthRatio > 16
-          ? 'text-2xl font-bold text-amber-400 font-mono mt-1 block'
-          : 'text-2xl font-bold text-purple-400 font-mono mt-1 block';
+          ? 'text-2xl font-bold text-accent-amber font-mono mt-1 block'
+          : 'text-2xl font-bold text-accent-purple font-mono mt-1 block';
     }
     if (this.metricSpanDepthHint) {
       this.metricSpanDepthHint.textContent = `h rec. ≥ ${recMinHCm} cm (L/13)`;
@@ -523,7 +523,7 @@ class StructuraStudio {
         this.failuresList.innerHTML = evaluation.failure_reasons
           .map(
             (f) =>
-              `<li class="flex items-start gap-2.5 text-rose-200 text-sm leading-relaxed"><span class="text-rose-500 font-bold shrink-0">✕</span><span>${escapeHtml(f)}</span></li>`
+              `<li class="flex items-start gap-2.5 text-rose-900 dark:text-rose-200 text-sm leading-relaxed"><span class="text-accent-rose font-bold shrink-0">✕</span><span>${escapeHtml(f)}</span></li>`
           )
           .join('');
       } else {
@@ -549,11 +549,11 @@ class StructuraStudio {
       const isActive = idx === this.activeVariantIndex;
       btn.className = `px-4 py-2.5 rounded-xl text-sm font-mono font-bold transition-all flex items-center gap-2 whitespace-nowrap ${
         isActive
-          ? 'bg-brand-500 text-white shadow-lg shadow-brand-500/25 ring-2 ring-brand-400'
-          : 'bg-slate-900 text-slate-300 hover:text-white hover:bg-slate-800 border border-slate-800'
+          ? 'bg-brand-600 dark:bg-brand-500 text-white shadow-lg shadow-brand-500/25 ring-2 ring-brand-400'
+          : 'bg-surface-elevated text-ink-secondary hover:text-ink-strong hover:bg-surface-hover border border-edge'
       }`;
       btn.innerHTML = `<span class="w-5 h-5 rounded-full ${
-        isActive ? 'bg-white/20' : 'bg-slate-800'
+        isActive ? 'bg-white/20 text-white' : 'bg-surface-card dark:bg-slate-800 text-ink-primary'
       } flex items-center justify-center text-xs">${escapeHtml(v.variant_number)}</span> <span>${escapeHtml(v.strategy_name)}</span>`;
       btn.addEventListener('click', () => {
         this.activeVariantIndex = idx;
@@ -573,7 +573,7 @@ class StructuraStudio {
           ${features
             .map(
               (feat) =>
-                `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-slate-950/80 border border-slate-800 text-xs font-mono text-slate-300"><span class="text-brand-400">◆</span>${escapeHtml(feat)}</span>`
+                `<span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-lg bg-surface-inset border border-edge text-xs font-mono text-ink-secondary"><span class="text-accent-brand">◆</span>${escapeHtml(feat)}</span>`
             )
             .join('')}
         </div>
@@ -582,13 +582,13 @@ class StructuraStudio {
 
     this.variantContent.innerHTML = `
       <div class="space-y-5">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-edge pb-4">
           <div>
-            <span class="text-xs sm:text-sm font-mono text-brand-400 uppercase tracking-wider font-semibold">Proposta ${String(activeV.variant_number).padStart(2, '0')} • ${escapeHtml(activeV.strategy_name)}</span>
-            <h3 class="text-xl font-bold text-white mt-1">${escapeHtml(activeV.title)}</h3>
+            <span class="text-xs sm:text-sm font-mono text-accent-brand uppercase tracking-wider font-semibold">Proposta ${String(activeV.variant_number).padStart(2, '0')} • ${escapeHtml(activeV.strategy_name)}</span>
+            <h3 class="text-xl font-bold text-ink-strong mt-1">${escapeHtml(activeV.title)}</h3>
           </div>
           <div class="flex items-center gap-2">
-            <span class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+            <span class="px-3 py-1 rounded-md text-xs font-mono font-bold bg-emerald-500/10 text-accent-emerald border border-emerald-500/25">
               ${escapeHtml(delta.clearance_status || 'APROVADO ELS')}
             </span>
           </div>
@@ -598,50 +598,50 @@ class StructuraStudio {
 
         <!-- Quantitative Delta Badges -->
         <div class="grid grid-cols-2 sm:grid-cols-4 gap-3.5 font-mono">
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <div class="text-xs sm:text-sm text-slate-400">Flecha Final</div>
-            <div class="text-xl font-bold text-emerald-400 mt-1">${escapeHtml(delta.deflection_final_mm)} mm</div>
-            <div class="text-xs text-emerald-500 font-semibold mt-0.5">-${escapeHtml(delta.deflection_reduction_pct)}% redução</div>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <div class="text-xs sm:text-sm text-ink-muted">Flecha Final</div>
+            <div class="text-xl font-bold text-accent-emerald mt-1">${escapeHtml(delta.deflection_final_mm)} mm</div>
+            <div class="text-xs text-accent-emerald font-semibold mt-0.5">-${escapeHtml(delta.deflection_reduction_pct)}% redução</div>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <div class="text-xs sm:text-sm text-slate-400">Momento Máx</div>
-            <div class="text-xl font-bold text-sky-400 mt-1">${escapeHtml(delta.moment_final_knm)} kN.m</div>
-            <div class="text-xs text-slate-400 mt-0.5">Alívio de esforços</div>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <div class="text-xs sm:text-sm text-ink-muted">Momento Máx</div>
+            <div class="text-xl font-bold text-accent-sky mt-1">${escapeHtml(delta.moment_final_knm)} kN.m</div>
+            <div class="text-xs text-ink-muted mt-0.5">Alívio de esforços</div>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <div class="text-xs sm:text-sm text-slate-400">Alívio de Concreto</div>
-            <div class="text-xl font-bold text-purple-400 mt-1">-${escapeHtml(delta.weight_reduction_pct)}%</div>
-            <div class="text-xs text-purple-400 font-semibold mt-0.5">Menor carga morta</div>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <div class="text-xs sm:text-sm text-ink-muted">Alívio de Concreto</div>
+            <div class="text-xl font-bold text-accent-purple mt-1">-${escapeHtml(delta.weight_reduction_pct)}%</div>
+            <div class="text-xs text-accent-purple font-semibold mt-0.5">Menor carga morta</div>
           </div>
-          <div class="p-3.5 rounded-xl bg-slate-950/70 border border-slate-800">
-            <div class="text-xs sm:text-sm text-slate-400">Fator de Segurança</div>
-            <div class="text-xl font-bold text-amber-400 mt-1">FS = ${escapeHtml(delta.safety_factor)}</div>
-            <div class="text-xs text-amber-500 font-semibold mt-0.5">Alta margem</div>
+          <div class="p-3.5 rounded-xl bg-surface-inset/90 dark:bg-surface-inset/70 border border-edge">
+            <div class="text-xs sm:text-sm text-ink-muted">Fator de Segurança</div>
+            <div class="text-xl font-bold text-accent-amber mt-1">FS = ${escapeHtml(delta.safety_factor)}</div>
+            <div class="text-xs text-accent-amber font-semibold mt-0.5">Alta margem</div>
           </div>
         </div>
 
         <!-- Architectural & Engineering Explanations -->
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-sm leading-relaxed pt-1">
-          <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-            <h4 class="font-bold text-brand-400 flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
+          <div class="p-4 rounded-xl bg-surface-inset/80 dark:bg-surface-inset/50 border border-edge">
+            <h4 class="font-bold text-accent-brand flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
               <i data-lucide="palette" class="w-4 h-4"></i>
               <span>Conceito Arquitetônico</span>
             </h4>
-            <p class="text-slate-200">${escapeHtml(activeV.architectural_concept)}</p>
+            <p class="text-ink-secondary">${escapeHtml(activeV.architectural_concept)}</p>
           </div>
-          <div class="p-4 rounded-xl bg-slate-950/50 border border-slate-800">
-            <h4 class="font-bold text-indigo-400 flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
+          <div class="p-4 rounded-xl bg-surface-inset/80 dark:bg-surface-inset/50 border border-edge">
+            <h4 class="font-bold text-accent-indigo flex items-center gap-2 mb-2 font-mono uppercase text-xs sm:text-sm">
               <i data-lucide="calculator" class="w-4 h-4"></i>
               <span>Mecânica da Engenharia</span>
             </h4>
-            <p class="text-slate-200">${escapeHtml(activeV.engineering_solution)}</p>
+            <p class="text-ink-secondary">${escapeHtml(activeV.engineering_solution)}</p>
           </div>
         </div>
 
         <!-- Pitch for the Client -->
-        <div class="p-4 rounded-xl bg-gradient-to-r from-brand-950/40 via-indigo-950/30 to-slate-950 border border-brand-500/20 text-sm leading-relaxed">
-          <span class="font-mono text-brand-400 font-bold block mb-1.5 text-xs sm:text-sm">💬 Narrativa para o Arquiteto Apresentar ao Cliente:</span>
-          <p class="text-slate-200 italic">"${escapeHtml(activeV.pitch_narrative || '')}"</p>
+        <div class="p-4 rounded-xl bg-gradient-to-r from-sky-500/10 via-indigo-500/5 to-transparent dark:from-brand-950/40 dark:via-indigo-950/30 dark:to-slate-950 border border-brand-500/25 text-sm leading-relaxed">
+          <span class="font-mono text-accent-brand font-bold block mb-1.5 text-xs sm:text-sm">💬 Narrativa para o Arquiteto Apresentar ao Cliente:</span>
+          <p class="text-ink-primary italic">"${escapeHtml(activeV.pitch_narrative || '')}"</p>
         </div>
       </div>
     `;
