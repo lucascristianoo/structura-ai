@@ -233,6 +233,27 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
         }
     )
 
+    # Parse text entities for explicit cross-section dimensions and cantilever annotations
+    import re
+    suggested_bw = 20.0
+    suggested_bh = round(max(25.0, max_span * 2.8), 1)
+    extracted_cantilever = 0.0
+
+    for t in texts_raw:
+        txt = t.get("text", "")
+        sec_match = re.search(r"\(?(\d{2})\s*[xX]\s*(\d{2})\)?", txt)
+        if sec_match:
+            w_val = float(sec_match.group(1))
+            h_val = float(sec_match.group(2))
+            if 12.0 <= w_val <= 60.0 and 20.0 <= h_val <= 150.0:
+                suggested_bw = w_val
+                suggested_bh = h_val
+        cant_match = re.search(r"BALAN[CÇ]O\s*(?:GOURMET|MARQUISE|CR[IÍ]TICO)?\s*(\d+(?:\.\d+)?)\s*m?", txt, re.IGNORECASE)
+        if cant_match:
+            c_val = float(cant_match.group(1))
+            if 0.5 <= c_val <= 10.0:
+                extracted_cantilever = c_val
+
     return UnifiedProjectData(
         project_name=project_name,
         source_format="dxf",
@@ -245,9 +266,9 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
         ],
         beams=beams or [BeamElement(id="V1", start_point=Point3D(x=0, y=0, z=3.0), end_point=Point3D(x=max_span, y=0, z=3.0), span_m=max_span)],
         max_span_m=max_span,
-        max_cantilever_m=0.0,
-        suggested_beam_width_cm=20.0,
-        suggested_beam_height_cm=round(max(25.0, max_span * 2.8), 1),
+        max_cantilever_m=extracted_cantilever,
+        suggested_beam_width_cm=suggested_bw,
+        suggested_beam_height_cm=suggested_bh,
         suggested_fck_mpa=30.0,
         estimated_dead_load_kn_m=22.0,
         estimated_live_load_kn_m=3.0,

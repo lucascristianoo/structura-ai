@@ -84,3 +84,150 @@ async def export_variant_svg(project_id: str, variant_number: int, db: AsyncSess
         raise HTTPException(status_code=404, detail="Blueprint SVG não encontrado para esta variante")
 
     return Response(content=variant.svg_render, media_type="image/svg+xml")
+
+
+@router.get("/{project_id}/bim.ifc")
+async def export_project_ifc(project_id: str, db: AsyncSession = Depends(get_db)):
+    """Exports project geometry and compliance metadata as standard IFC4."""
+    from structura_ai.cad.bim_exporter import BimExporter
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.analyses).selectinload(AnalysisResult.variants))
+        .where(Project.id == project_id)
+    )
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Projeto não encontrado")
+
+    latest_analysis = project.analyses[-1] if project.analyses else None
+    analysis_dict = {
+        "structural_score": latest_analysis.structural_score,
+        "max_deflection_mm": latest_analysis.max_deflection_mm,
+        "allowable_deflection_mm": latest_analysis.allowable_deflection_mm,
+        "is_physically_viable": latest_analysis.is_physically_viable,
+    } if latest_analysis else None
+
+    ifc_str = BimExporter.export_project_ifc(
+        project_title=project.title,
+        parameters=project.parameters or {},
+        analysis_data=analysis_dict
+    )
+    headers = {"Content-Disposition": f'attachment; filename="{project.id}_structura.ifc"'}
+    return Response(content=ifc_str, media_type="application/x-step", headers=headers)
+
+
+@router.get("/{project_id}/cad.dxf")
+async def export_project_dxf(project_id: str, db: AsyncSession = Depends(get_db)):
+    """Exports project 2D framing blueprint and compliance notes as AutoCAD DXF."""
+    from structura_ai.cad.bim_exporter import BimExporter
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.analyses).selectinload(AnalysisResult.variants))
+        .where(Project.id == project_id)
+    )
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+    if not project:
+        raise HTTPException(status_code=404, detail="Projeto não encontrado")
+
+    latest_analysis = project.analyses[-1] if project.analyses else None
+    analysis_dict = {
+        "structural_score": latest_analysis.structural_score,
+        "max_deflection_mm": latest_analysis.max_deflection_mm,
+        "allowable_deflection_mm": latest_analysis.allowable_deflection_mm,
+        "is_physically_viable": latest_analysis.is_physically_viable,
+    } if latest_analysis else None
+
+    dxf_str = BimExporter.export_project_dxf(
+        project_title=project.title,
+        parameters=project.parameters or {},
+        analysis_data=analysis_dict
+    )
+    headers = {"Content-Disposition": f'attachment; filename="{project.id}_structura.dxf"'}
+    return Response(content=dxf_str, media_type="application/dxf", headers=headers)
+
+
+@router.get("/{project_id}/variant/{variant_number}/bim.ifc")
+async def export_variant_ifc(project_id: str, variant_number: int, db: AsyncSession = Depends(get_db)):
+    """Exports a specific redesign variant as standard IFC4."""
+    from structura_ai.cad.bim_exporter import BimExporter
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.analyses).selectinload(AnalysisResult.variants))
+        .where(Project.id == project_id)
+    )
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+    if not project or not project.analyses:
+        raise HTTPException(status_code=404, detail="Projeto não encontrado")
+
+    latest_analysis = project.analyses[-1]
+    variant = next((v for v in latest_analysis.variants if v.variant_number == variant_number), None)
+    if not variant:
+        raise HTTPException(status_code=404, detail=f"Variante {variant_number} não encontrada")
+
+    variant_dict = {
+        "variant_number": variant.variant_number,
+        "title": variant.title,
+        "strategy_name": variant.strategy_name,
+        "metrics_delta": variant.metrics_delta or {}
+    }
+    analysis_dict = {
+        "structural_score": latest_analysis.structural_score,
+        "max_deflection_mm": latest_analysis.max_deflection_mm,
+        "allowable_deflection_mm": latest_analysis.allowable_deflection_mm,
+        "is_physically_viable": True,
+    }
+
+    ifc_str = BimExporter.export_project_ifc(
+        project_title=project.title,
+        parameters=project.parameters or {},
+        analysis_data=analysis_dict,
+        variant=variant_dict
+    )
+    headers = {"Content-Disposition": f'attachment; filename="{project.id}_variant_{variant_number}.ifc"'}
+    return Response(content=ifc_str, media_type="application/x-step", headers=headers)
+
+
+@router.get("/{project_id}/variant/{variant_number}/cad.dxf")
+async def export_variant_dxf(project_id: str, variant_number: int, db: AsyncSession = Depends(get_db)):
+    """Exports a specific redesign variant as AutoCAD DXF."""
+    from structura_ai.cad.bim_exporter import BimExporter
+    stmt = (
+        select(Project)
+        .options(selectinload(Project.analyses).selectinload(AnalysisResult.variants))
+        .where(Project.id == project_id)
+    )
+    result = await db.execute(stmt)
+    project = result.scalar_one_or_none()
+    if not project or not project.analyses:
+        raise HTTPException(status_code=404, detail="Projeto não encontrado")
+
+    latest_analysis = project.analyses[-1]
+    variant = next((v for v in latest_analysis.variants if v.variant_number == variant_number), None)
+    if not variant:
+        raise HTTPException(status_code=404, detail=f"Variante {variant_number} não encontrada")
+
+    variant_dict = {
+        "variant_number": variant.variant_number,
+        "title": variant.title,
+        "strategy_name": variant.strategy_name,
+        "metrics_delta": variant.metrics_delta or {}
+    }
+    analysis_dict = {
+        "structural_score": latest_analysis.structural_score,
+        "max_deflection_mm": latest_analysis.max_deflection_mm,
+        "allowable_deflection_mm": latest_analysis.allowable_deflection_mm,
+        "is_physically_viable": True,
+    }
+
+    dxf_str = BimExporter.export_project_dxf(
+        project_title=project.title,
+        parameters=project.parameters or {},
+        analysis_data=analysis_dict,
+        variant=variant_dict
+    )
+    headers = {"Content-Disposition": f'attachment; filename="{project.id}_variant_{variant_number}.dxf"'}
+    return Response(content=dxf_str, media_type="application/dxf", headers=headers)
+

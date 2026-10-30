@@ -102,26 +102,44 @@ async def list_cad_samples():
         "residencia_horizon_10m.dxf": {
             "name": "Residência Horizon (Vão 10m - DXF)",
             "format": "DXF",
+            "scenario": 1,
             "desc": "Prancha CAD 2D de residência com vão livre envidraçado de 10m e viga delgada.",
             "expected_verdict": "Reprovado por flecha excessiva (ELS)"
-        },
-        "pavilhao_estrutural_bim.ifc": {
-            "name": "Pavilhão Multiuso BIM (Vão 10.5m - IFC)",
-            "format": "IFC",
-            "desc": "Modelo BIM IFC4 com entidades IfcBeam e IfcColumn prontas para extração.",
-            "expected_verdict": "Requer protensão ou grelha waffle"
-        },
-        "residencia_horizon_3d.obj": {
-            "name": "Residência Horizon 3D (Vão 13m - OBJ)",
-            "format": "OBJ 3D",
-            "desc": "Malha tridimensional volumétrica para renderização direta no Three.js.",
-            "expected_verdict": "Modelo volumétrico conceitual"
         },
         "cobertura_balanco_critico.dxf": {
             "name": "Cobertura em Balanço Crítico (4.5m - DXF)",
             "format": "DXF",
+            "scenario": 1,
             "desc": "Marquise de entrada com balanço longo sob risco de deformação excessiva.",
             "expected_verdict": "Instabilidade de balanço (Requer tirantes em V)"
+        },
+        "residencia_horizon_3d.obj": {
+            "name": "Residência Horizon 3D (Vão 13m - OBJ)",
+            "format": "OBJ 3D",
+            "scenario": 1,
+            "desc": "Malha tridimensional volumétrica para renderização direta no Three.js.",
+            "expected_verdict": "Modelo volumétrico conceitual"
+        },
+        "sobrado_grid_racional_5m.dxf": {
+            "name": "Sobrado Grelha Racional (Vão 5m - DXF)",
+            "format": "DXF",
+            "scenario": 2,
+            "desc": "Prancha CAD 2D de sobrado contemporâneo com modulação racional 5.0m.",
+            "expected_verdict": "100% Conforme NBR 6118 (Folga de 59%)"
+        },
+        "sobrado_conforme_nbr6118.ifc": {
+            "name": "Sobrado Racional BIM (Vão 5m - IFC)",
+            "format": "IFC",
+            "scenario": 2,
+            "desc": "Modelo BIM IFC4 de sobrado estruturado com vigas e pilares em conformidade plena.",
+            "expected_verdict": "Total conformidade ELS e ELU (Score 98.5)"
+        },
+        "pavilhao_estrutural_bim.ifc": {
+            "name": "Pavilhão Multiuso BIM (Vão 10.5m - IFC)",
+            "format": "IFC",
+            "scenario": 1,
+            "desc": "Modelo BIM IFC4 com entidades IfcBeam e IfcColumn prontas para extração.",
+            "expected_verdict": "Requer protensão ou grelha waffle"
         }
     }
 
@@ -134,6 +152,7 @@ async def list_cad_samples():
                     "filename": f,
                     "title": meta["name"],
                     "format": meta["format"],
+                    "scenario": meta.get("scenario", 1),
                     "description": meta["desc"],
                     "expected_verdict": meta["expected_verdict"],
                     "download_url": f"/downloads/samples/{f}"
@@ -184,8 +203,7 @@ async def load_cad_sample(sample_id: str, db: AsyncSession = Depends(get_db)):
         "studio_url": f"/projects/{project.id}",
         "message": f"Amostra {sample_id} carregada e calculada com sucesso!"
     }
-    """Returns curated demo presets for HackTown."""
-    return get_preset_list()
+
 
 
 @router.post("/preset/{preset_key}")
