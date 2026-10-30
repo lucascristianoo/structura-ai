@@ -1,159 +1,159 @@
 /* ==========================================================================
-   Structura.AI — Design Tokens & Theme System
-   Light Theme (:root)  — "Architectural Daylight / Technical Drafting Paper"
-   Dark Theme  (.dark)  — "Architectural Blueprint Night"
+   Structura.AI — Minimalist Architectural Design Tokens
+   Light Theme (:root)  — "Technical Paper & Graphite"
+   Dark Theme  (.dark)  — "Architectural Carbon"
    ========================================================================== */
 
 :root {
   color-scheme: light;
 
   /* Surfaces (RGB channels for Tailwind <alpha-value> support) */
-  --surface-base: 241 245 249;      /* #f1f5f9 - Cool architectural paper */
-  --surface-card: 255 255 255;      /* #ffffff - Elevated sheet / card */
-  --surface-elevated: 241 245 249;  /* #f1f5f9 - Secondary buttons & tabs */
-  --surface-hover: 226 232 240;     /* #e2e8f0 - Control hover surface */
-  --surface-inset: 244 247 251;     /* #f4f7fb - Metric wells & form fields */
+  --surface-base: 250 250 250;      /* #fafafa - Neutral drafting paper */
+  --surface-card: 255 255 255;      /* #ffffff - Clean sheet / card */
+  --surface-elevated: 244 244 245;  /* #f4f4f5 - Subtle control surface */
+  --surface-hover: 228 228 231;     /* #e4e4e7 - Control hover surface */
+  --surface-inset: 244 244 245;     /* #f4f4f5 - Metric wells & inputs */
 
   /* Borders & Hairlines */
-  --edge-subtle: 226 232 240;       /* #e2e8f0 - Section dividers */
-  --edge-default: 220 228 238;      /* #dce4ee - Card & header borders */
-  --edge-strong: 203 213 225;       /* #cbd5e1 - Inputs, selects & hover edges */
+  --edge-subtle: 236 236 238;       /* #ececee - Subtle dividers */
+  --edge-default: 228 228 231;      /* #e4e4e7 - Card & section borders */
+  --edge-strong: 205 205 210;       /* #cdcdd2 - Inputs, selects & active edges */
 
   /* Typography Hierarchy */
-  --ink-strong: 15 23 42;           /* #0f172a - Headings & primary values */
-  --ink-primary: 30 41 59;          /* #1e293b - Body & form controls */
-  --ink-secondary: 51 65 85;        /* #334155 - Descriptions & prose */
-  --ink-muted: 100 116 139;         /* #64748b - Labels, units & captions */
-  --ink-faint: 148 163 184;         /* #94a3b8 - Subtle metadata */
+  --ink-strong: 17 17 19;           /* #111113 - Headings & primary actions */
+  --ink-primary: 39 39 42;          /* #27272a - Body & controls */
+  --ink-secondary: 82 82 91;        /* #52525b - Supporting copy */
+  --ink-muted: 113 113 122;         /* #71717a - Labels, units & captions */
+  --ink-faint: 161 161 170;         /* #a1a1aa - Subtle metadata */
 
-  /* Harmonized Semantic Accents (WCAG-compliant contrast on light surfaces) */
-  --accent-brand: 2 132 199;        /* #0284c7 - Sky / Brand primary */
-  --accent-sky: 2 132 199;          /* #0284c7 - Bending moment / Beam */
-  --accent-emerald: 4 120 87;       /* #047857 - NBR 6118 compliant */
-  --accent-amber: 180 83 9;         /* #b45309 - Structural warning / Cantilever */
-  --accent-rose: 225 29 72;         /* #e11d48 - Critical ELS/ELU failure */
-  --accent-indigo: 79 70 229;       /* #4f46e5 - Engineering mechanics */
-  --accent-purple: 126 34 206;      /* #7e22ce - Generative redesigns */
+  /* Restrained Technical Accents (WCAG-compliant on light surfaces) */
+  --accent-brand: 30 75 133;        /* #1e4b85 - Sober technical blue */
+  --accent-sky: 30 75 133;          /* #1e4b85 - Bending moment / Beam */
+  --accent-emerald: 21 109 77;      /* #156d4d - NBR 6118 compliant */
+  --accent-amber: 161 98 7;         /* #a16207 - Structural warning */
+  --accent-rose: 185 28 28;         /* #b91c1c - Critical ELS/ELU limit */
+  --accent-indigo: 63 63 70;        /* #3f3f46 - Neutral graphite */
+  --accent-purple: 82 82 91;        /* #52525b - Neutral slate */
 
   /* UI Chrome & Controls */
-  --blueprint-grid-color: rgba(2, 132, 199, 0.075);
-  --scrollbar-track: #f1f5f9;
-  --scrollbar-thumb: #cbd5e1;
-  --scrollbar-thumb-hover: #94a3b8;
-  --slider-track: #cbd5e1;
-  --slider-thumb: #0284c7;
+  --blueprint-grid-color: rgba(24, 24, 27, 0.035);
+  --scrollbar-track: #fafafa;
+  --scrollbar-thumb: #d4d4d8;
+  --scrollbar-thumb-hover: #a1a1aa;
+  --slider-track: #e4e4e7;
+  --slider-thumb: #18181b;
   --slider-thumb-border: #ffffff;
-  --slider-thumb-shadow: 0 2px 8px rgba(2, 132, 199, 0.35);
+  --slider-thumb-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
 
   /* Interactive 2D Structural Canvas */
-  --canvas-bg: #f8fafc;
-  --canvas-grid: #e2e8f0;
-  --canvas-beam: #0284c7;
-  --canvas-cantilever: #d97706;
-  --canvas-col-fill: #0ea5e9;
-  --canvas-col-stroke: #0369a1;
-  --canvas-col-label: #334155;
+  --canvas-bg: #fafafa;
+  --canvas-grid: #e4e4e7;
+  --canvas-beam: #1e4b85;
+  --canvas-cantilever: #a16207;
+  --canvas-col-fill: #27272a;
+  --canvas-col-stroke: #111113;
+  --canvas-col-label: #3f3f46;
   --canvas-tag-bg: #ffffff;
-  --canvas-tag-border: #cbd5e1;
+  --canvas-tag-border: #d4d4d8;
 
   /* 5-Variant SVG Architectural Blueprints */
-  --bp-bg: #f8fafc;
-  --bp-grid: #e2e8f0;
-  --bp-ground: #64748b;
-  --bp-ground-hatch: #94a3b8;
-  --bp-struct-fill: #e2e8f0;
+  --bp-bg: #fafafa;
+  --bp-grid: #e4e4e7;
+  --bp-ground: #71717a;
+  --bp-ground-hatch: #a1a1aa;
+  --bp-struct-fill: #e4e4e7;
   --bp-slab-fill: #ffffff;
-  --bp-slab-stroke: #64748b;
-  --bp-panel-fill: #f1f5f9;
-  --bp-panel-stroke: #cbd5e1;
-  --bp-badge-bg: #d1fae5;
-  --bp-badge-text: #047857;
-  --bp-text-strong: #0f172a;
-  --bp-text-body: #334155;
-  --bp-text-muted: #64748b;
-  --bp-dim-line: #64748b;
-  --bp-vierendeel-chord: #f3e8ff;
-  --bp-vierendeel-post: #ede9fe;
-  --bp-vierendeel-stroke: #9333ea;
-  --bp-waffle-cell: #e0f2fe;
-  --bp-waffle-stroke: #0284c7;
-  --bp-waffle-text: #0369a1;
-  --bp-arch-sub: #be185d;
+  --bp-slab-stroke: #71717a;
+  --bp-panel-fill: #f4f4f5;
+  --bp-panel-stroke: #d4d4d8;
+  --bp-badge-bg: #e6f4ee;
+  --bp-badge-text: #156d4d;
+  --bp-text-strong: #111113;
+  --bp-text-body: #3f3f46;
+  --bp-text-muted: #71717a;
+  --bp-dim-line: #71717a;
+  --bp-vierendeel-chord: #f4f4f5;
+  --bp-vierendeel-post: #e4e4e7;
+  --bp-vierendeel-stroke: #52525b;
+  --bp-waffle-cell: #eff4fa;
+  --bp-waffle-stroke: #1e4b85;
+  --bp-waffle-text: #1e4b85;
+  --bp-arch-sub: #991b1b;
 }
 
 html.dark {
   color-scheme: dark;
 
   /* Surfaces */
-  --surface-base: 2 6 23;           /* #020617 - slate-950 */
-  --surface-card: 15 23 42;         /* #0f172a - slate-900 */
-  --surface-elevated: 30 41 59;     /* #1e293b - slate-800 */
-  --surface-hover: 51 65 85;        /* #334155 - slate-700 */
-  --surface-inset: 2 6 23;          /* #020617 - slate-950 */
+  --surface-base: 10 10 12;         /* #0a0a0c - Deep neutral carbon */
+  --surface-card: 18 18 21;         /* #121215 - Dark sheet / card */
+  --surface-elevated: 26 26 30;     /* #1a1a1e - Elevated control */
+  --surface-hover: 39 39 42;        /* #27272a - Hover surface */
+  --surface-inset: 14 14 17;        /* #0e0e11 - Inset field */
 
   /* Borders & Hairlines */
-  --edge-subtle: 15 23 42;          /* #0f172a - slate-900 */
-  --edge-default: 30 41 59;         /* #1e293b - slate-800 */
-  --edge-strong: 51 65 85;          /* #334155 - slate-700 */
+  --edge-subtle: 26 26 30;          /* #1a1a1e - Subtle divider */
+  --edge-default: 36 36 41;         /* #242429 - Card & header border */
+  --edge-strong: 56 56 64;          /* #383840 - Input & hover border */
 
   /* Typography Hierarchy */
-  --ink-strong: 255 255 255;        /* #ffffff - white */
-  --ink-primary: 241 245 249;       /* #f1f5f9 - slate-100 */
-  --ink-secondary: 203 213 225;     /* #cbd5e1 - slate-300 */
-  --ink-muted: 148 163 184;         /* #94a3b8 - slate-400 */
-  --ink-faint: 100 116 139;         /* #64748b - slate-500 */
+  --ink-strong: 250 250 250;        /* #fafafa - Primary headings */
+  --ink-primary: 228 228 231;       /* #e4e4e7 - Body copy */
+  --ink-secondary: 161 161 170;     /* #a1a1aa - Descriptions */
+  --ink-muted: 113 113 122;         /* #71717a - Labels & metadata */
+  --ink-faint: 82 82 91;            /* #52525b - Subtle markers */
 
-  /* Harmonized Semantic Accents */
-  --accent-brand: 56 189 248;       /* #38bdf8 - brand-400 */
-  --accent-sky: 56 189 248;         /* #38bdf8 - sky-400 */
-  --accent-emerald: 52 211 153;     /* #34d399 - emerald-400 */
-  --accent-amber: 251 191 36;       /* #fbbf24 - amber-400 */
-  --accent-rose: 251 113 133;       /* #fb7185 - rose-400 */
-  --accent-indigo: 129 140 248;     /* #818cf8 - indigo-400 */
-  --accent-purple: 192 132 252;     /* #c084fc - purple-400 */
+  /* Restrained Technical Accents */
+  --accent-brand: 138 176 222;      /* #8ab0de - Calm architectural steel-blue */
+  --accent-sky: 138 176 222;        /* #8ab0de - Bending moment / Beam */
+  --accent-emerald: 82 183 136;     /* #52b788 - NBR 6118 compliant */
+  --accent-amber: 212 163 89;       /* #d4a359 - Structural warning */
+  --accent-rose: 224 108 108;       /* #e06c6c - Critical ELS/ELU limit */
+  --accent-indigo: 161 161 170;     /* #a1a1aa - Neutral silver */
+  --accent-purple: 161 161 170;     /* #a1a1aa - Neutral silver */
 
   /* UI Chrome & Controls */
-  --blueprint-grid-color: rgba(56, 189, 248, 0.08);
-  --scrollbar-track: #090d16;
-  --scrollbar-thumb: #1e293b;
-  --scrollbar-thumb-hover: #334155;
-  --slider-track: #1e293b;
-  --slider-thumb: #38bdf8;
-  --slider-thumb-border: #0f172a;
-  --slider-thumb-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  --blueprint-grid-color: rgba(255, 255, 255, 0.028);
+  --scrollbar-track: #0a0a0c;
+  --scrollbar-thumb: #27272a;
+  --scrollbar-thumb-hover: #3f3f46;
+  --slider-track: #27272a;
+  --slider-thumb: #fafafa;
+  --slider-thumb-border: #121215;
+  --slider-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
 
   /* Interactive 2D Structural Canvas */
-  --canvas-bg: #020617;
-  --canvas-grid: #1e293b;
-  --canvas-beam: #38bdf8;
-  --canvas-cantilever: #f59e0b;
-  --canvas-col-fill: #38bdf8;
-  --canvas-col-stroke: #0284c7;
-  --canvas-col-label: #cbd5e1;
-  --canvas-tag-bg: #0f172a;
-  --canvas-tag-border: #334155;
+  --canvas-bg: #0e0e11;
+  --canvas-grid: #242429;
+  --canvas-beam: #8ab0de;
+  --canvas-cantilever: #d4a359;
+  --canvas-col-fill: #d4d4d8;
+  --canvas-col-stroke: #71717a;
+  --canvas-col-label: #a1a1aa;
+  --canvas-tag-bg: #18181b;
+  --canvas-tag-border: #383840;
 
   /* 5-Variant SVG Architectural Blueprints */
-  --bp-bg: #020617;
-  --bp-grid: #1e293b;
-  --bp-ground: #475569;
-  --bp-ground-hatch: #334155;
-  --bp-struct-fill: #1e293b;
-  --bp-slab-fill: #0f172a;
-  --bp-slab-stroke: #64748b;
-  --bp-panel-fill: #0f172a;
-  --bp-panel-stroke: #334155;
-  --bp-badge-bg: #065f46;
-  --bp-badge-text: #34d399;
-  --bp-text-strong: #f8fafc;
-  --bp-text-body: #cbd5e1;
-  --bp-text-muted: #94a3b8;
-  --bp-dim-line: #94a3b8;
-  --bp-vierendeel-chord: #3b0764;
-  --bp-vierendeel-post: #1e1b4b;
-  --bp-vierendeel-stroke: #c084fc;
-  --bp-waffle-cell: #020617;
-  --bp-waffle-stroke: #0ea5e9;
-  --bp-waffle-text: #7dd3fc;
-  --bp-arch-sub: #fda4af;
+  --bp-bg: #0e0e11;
+  --bp-grid: #242429;
+  --bp-ground: #52525b;
+  --bp-ground-hatch: #3f3f46;
+  --bp-struct-fill: #27272a;
+  --bp-slab-fill: #18181b;
+  --bp-slab-stroke: #71717a;
+  --bp-panel-fill: #18181b;
+  --bp-panel-stroke: #27272a;
+  --bp-badge-bg: #143628;
+  --bp-badge-text: #52b788;
+  --bp-text-strong: #fafafa;
+  --bp-text-body: #d4d4d8;
+  --bp-text-muted: #a1a1aa;
+  --bp-dim-line: #a1a1aa;
+  --bp-vierendeel-chord: #1f1f24;
+  --bp-vierendeel-post: #27272a;
+  --bp-vierendeel-stroke: #a1a1aa;
+  --bp-waffle-cell: #121822;
+  --bp-waffle-stroke: #8ab0de;
+  --bp-waffle-text: #8ab0de;
+  --bp-arch-sub: #e06c6c;
 }

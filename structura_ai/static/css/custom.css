@@ -24,7 +24,7 @@
 
 /* Architectural Blueprint Grid Background */
 .bg-blueprint-dense {
-  background-size: 16px 16px;
+  background-size: 24px 24px;
   background-image:
     linear-gradient(to right, var(--blueprint-grid-color) 1px, transparent 1px),
     linear-gradient(to bottom, var(--blueprint-grid-color) 1px, transparent 1px);
@@ -84,11 +84,11 @@ input[type=range]::-moz-range-thumb:hover {
   transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 .deck-card:hover {
-  transform: translateY(-2px);
-  box-shadow: 0 8px 24px -4px rgba(2, 132, 199, 0.18);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.08);
 }
 html.dark .deck-card:hover {
-  box-shadow: 0 8px 24px -4px rgba(56, 189, 248, 0.15);
+  box-shadow: 0 4px 16px -4px rgba(0, 0, 0, 0.4);
 }
 
 :fullscreen #variants-section,
