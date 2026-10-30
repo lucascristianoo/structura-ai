@@ -9,6 +9,8 @@ class StructuraStudio {
     this.currentVariants = [];
     this.activeVariantIndex = 0;
     this.debounceTimer = null;
+    this.viewportSwitcher = null;
+    this.decisionDeck = null;
 
     this.initElements();
     this.initEventListeners();
@@ -64,6 +66,21 @@ class StructuraStudio {
     // Upload & Save Form
     this.saveForm = document.getElementById('studio-save-form');
     this.btnSave = document.getElementById('btn-save-project');
+
+    // Multi-Format Viewport Switcher & Professional Redesign Deck
+    if (window.ViewportSwitcher) {
+      this.viewportSwitcher = new window.ViewportSwitcher();
+    }
+    if (window.RedesignDecisionDeck) {
+      this.decisionDeck = new window.RedesignDecisionDeck('decision-deck-container', {
+        onVariantSelect: (variantNum, variantData) => {
+          this.activeVariantIndex = variantNum - 1;
+          if (this.viewportSwitcher) {
+            this.viewportSwitcher.setActiveVariant(variantNum);
+          }
+        }
+      });
+    }
   }
 
   initEventListeners() {
@@ -91,6 +108,27 @@ class StructuraStudio {
     }
     if (this.fckSelect) {
       this.fckSelect.addEventListener('change', () => this.scheduleQuickCalc());
+    }
+
+    // Official CAD/BIM Sample Loader
+    const sampleSelect = document.getElementById('select-cad-sample');
+    if (sampleSelect) {
+      sampleSelect.addEventListener('change', async (e) => {
+        const val = e.target.value;
+        if (!val) return;
+        sampleSelect.disabled = true;
+        try {
+          const res = await fetch(`/api/projects/samples/load/${val}`, { method: 'POST' });
+          const data = await res.json();
+          if (data.project_id) {
+            window.location.href = `/project/${data.project_id}`;
+          }
+        } catch (err) {
+          console.error('Falha ao carregar amostra:', err);
+        } finally {
+          sampleSelect.disabled = false;
+        }
+      });
     }
 
     // Save & Gemini Full Analysis Form
@@ -206,6 +244,27 @@ class StructuraStudio {
 
     // Render 5 Redesign Proposals
     this.renderVariantsTabs();
+
+    // Sincronizar com o Viewport Multi-Formato (3D, Blueprint, Corte, Diagramas)
+    if (this.viewportSwitcher) {
+      this.viewportSwitcher.updateFromParams({
+        ...this.getPayload(),
+        max_deflection_mm: evaluation.max_deflection_mm,
+        allowable_deflection_mm: evaluation.allowable_deflection_mm,
+        is_viable: isViable,
+        score: score,
+      });
+    }
+
+    // Sincronizar com a Matriz de Decisão Executiva (Cards + Radar de Trade-offs)
+    if (this.decisionDeck) {
+      this.decisionDeck.init(variants, {
+        deflection_mm: evaluation.max_deflection_mm,
+        allowable_mm: evaluation.allowable_deflection_mm,
+        score: score,
+        span_m: parseFloat(this.spanSlider ? this.spanSlider.value : 10.0),
+      });
+    }
   }
 
   renderVariantsTabs() {
