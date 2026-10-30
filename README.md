@@ -1,9 +1,12 @@
-# 🏛️ Structura.AI — HackTown 2026 Edition
+# 🏛️ Structura.AI — HackTown 2026 Edition (v2.0)
 ### *O Intermediário Inteligente entre o Traço do Arquiteto e o Cálculo do Engenheiro Civil*
+#### *Compatibilização CAD/BIM, Plugins para Blender & Rhino, Viewport 3D WebGL e Matriz de Decisão Executiva*
 
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.115+-009688.svg?style=flat&logo=fastapi)](https://fastapi.tiangolo.com)
 [![Python](https://img.shields.io/badge/Python-3.12+-3776AB.svg?style=flat&logo=python)](https://python.org)
 [![PostgreSQL](https://img.shields.io/badge/PostgreSQL-16-336791.svg?style=flat&logo=postgresql)](https://postgresql.org)
+[![Three.js](https://img.shields.io/badge/Three.js-3D%20WebGL-black.svg?style=flat&logo=three.js)](https://threejs.org)
+[![BIM & CAD](https://img.shields.io/badge/BIM%20%2F%20CAD-IFC%20%7C%20DXF%20%7C%20OBJ-orange.svg?style=flat)]()
 [![Google Gemini](https://img.shields.io/badge/Google%20AI-Gemini%202.5%20Flash-4285F4.svg?style=flat&logo=google)](https://aistudio.google.com)
 [![Norma](https://img.shields.io/badge/Norma-ABNT%20NBR%206118%3A2023-emerald.svg?style=flat)]()
 [![License](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
@@ -36,6 +39,28 @@ Quando uma flecha excessiva, vão crítico ou balanço desbalanceado é identifi
 | **03** | **Balanço Atirantado com Pilares em V** | Tirantes de alta tração (ASTM A572) e pilares angulados a 65° | Converte flexão destrutiva em **tração axial pura** nos tirantes | Dinamismo de **ponte estaiada**. Balanço amplo transformado em escultura. |
 | **04** | **Lajes Nervuradas Waffle com Capitéis** | Alívio por cubetas plásticas 80x80cm + capitéis maciços | **-38% de carga permanente** de concreto | **Teto rítmico aparente** com spots de iluminação zenital de LED embutidos. |
 | **05** | **Geometria Catenária Funicular** | Curvatura funicular em arco suave (Gaudí / Eladio Dieste) | **Momento fletor $\approx 0$** (compressão axial pura) | Cobertura orgânica fluida, casca esbelta de 10cm cobrindo vão recorde. |
+
+---
+
+## 🚀 Novidades da Versão 2.0 (CAD/BIM & Plugins)
+
+1. **Ingestão Nativa CAD/BIM Multi-Formato:**
+   - Interpretação semântica direta de arquivos `.ifc` (BIM ISO 16739), `.dxf` (AutoCAD), `.obj` e `.gltf` tridimensionais via `ifcopenshell`, `ezdxf` e `trimesh`.
+2. **Plugins Oficiais de Integração Arquitetônica (`plugins/`):**
+   - **Blender 3D / BIM Addon** (`plugins/blender/structura_addon.py`): Painel N com 1-click sync e retorno de conformidade NBR 6118 em tempo real.
+   - **Rhino / Grasshopper GhPython** (`plugins/rhino_grasshopper/structura_gh.py`): Componente paramétrico contínuo para avaliação de vãos e curvaturas.
+   - **Desktop Hot-Folder Bridge** (`plugins/desktop_bridge/structura_bridge.py`): Monitora pasta de exportação de AutoCAD, Revit e SketchUp com sincronização automática.
+3. **Central de Visualização Multi-Modo (WebGL Three.js):**
+   - **3D CAD/BIM Orbit**: Órbita livre tridimensional com modos *Sólido CAD*, *Aramado Estrutural*, *Raio-X* e *Mapa de Tensões (FEA Stress Heatmap)*.
+   - **Planta Baixa 2D Técnica**: Cotas normativas, eixos estruturais e seções.
+   - **Corte Transversal & Curva da Deformada**: Ampliação didática ajustável da flecha elástica ($f_{calc}$ vs $f_{adm}$).
+   - **Diagramas de Esforços Internos**: Momento fletor ($M_k$) e esforço cortante ($V_k$).
+4. **Matriz de Decisão Executiva (Redesign Decision Deck):**
+   - Substituição de abas simples por cards executivos com métricas de impacto (`[-72% Flecha]`, `[0 Pilares]`, `[Pé-direito 100%]`).
+   - Radar de Trade-offs (5 eixos de decisão: Segurança, Fidelidade Estética, Custo, Obra e Espaço).
+   - Modo Apresentação em tela cheia para reuniões com o cliente final.
+5. **Biblioteca Oficial de Amostras de Teste (`downloads/test_samples/`):**
+   - Carregamento de 1 clique na interface web para demonstração imediata de arquivos DXF, IFC e OBJ.
 
 ---
 

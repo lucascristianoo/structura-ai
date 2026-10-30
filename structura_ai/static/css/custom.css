@@ -79,6 +79,25 @@ input[type=range]::-moz-range-thumb:hover {
   transform: scale(1.18);
 }
 
+/* Redesign Decision Deck Cards & Fullscreen Pitch */
+.deck-card {
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+.deck-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px -4px rgba(56, 189, 248, 0.15);
+}
+
+:fullscreen #variants-section,
+:-webkit-full-screen #variants-section {
+  width: 100vw !important;
+  height: 100vh !important;
+  overflow-y: auto !important;
+  padding: 2.5rem !important;
+  border-radius: 0 !important;
+  background: #030712 !important;
+}
+
 /* Print Styles */
 @media print {
   header, footer, .no-print {

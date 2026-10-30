@@ -25,16 +25,34 @@
       </h1>
     </div>
 
-    <!-- Presets Quick Switcher -->
-    <div class="flex items-center gap-2.5">
-      <label for="preset-select" class="text-sm font-mono text-slate-300 hidden sm:inline">Cenário Rápido:</label>
-      <select id="preset-select" class="bg-slate-900 border border-slate-700 text-sm font-mono rounded-lg px-3.5 py-2 text-slate-100 focus:outline-none focus:border-brand-500">
-        {% for p in presets %}
-        <option value="{{ p.key }}" {% if p.key == preset_key %}selected{% endif %}>
-          {{ p.title }} ({% if 'FAIL' in p.expected_result %}⚠️ Reprova{% else %}✅ Aprova{% endif %})
-        </option>
-        {% endfor %}
-      </select>
+    <!-- Presets & CAD Sample Quick Switchers -->
+    <div class="flex flex-wrap items-center gap-3">
+      <!-- Official CAD/BIM Samples 1-Click Loader -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs font-mono text-slate-400 hidden sm:inline flex items-center gap-1">
+          <i data-lucide="folder-git-2" class="w-3.5 h-3.5 text-brand-400"></i>
+          Amostra CAD/BIM:
+        </label>
+        <select id="select-cad-sample" class="bg-slate-900 border border-brand-500/40 text-xs font-mono rounded-lg px-3 py-2 text-brand-300 focus:outline-none focus:border-brand-400 shadow-sm cursor-pointer">
+          <option value="">📂 Carregar Amostra de Teste...</option>
+          <option value="residencia_horizon_10m.dxf">Residência Horizon (DXF - Vão 10m)</option>
+          <option value="pavilhao_estrutural_bim.ifc">Pavilhão Multiuso BIM (IFC - Vão 10.5m)</option>
+          <option value="residencia_horizon_3d.obj">Residência Horizon 3D (OBJ - Vão 13m)</option>
+          <option value="cobertura_balanco_critico.dxf">Cobertura Balanço Crítico (DXF - 4.5m)</option>
+        </select>
+      </div>
+
+      <!-- Presets Quick Switcher -->
+      <div class="flex items-center gap-2">
+        <label class="text-xs font-mono text-slate-400 hidden sm:inline">Cenário Rápido:</label>
+        <select id="preset-select" onchange="window.location.href='/analyzer?preset=' + this.value" class="bg-slate-900 border border-slate-700 text-xs font-mono rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-500 cursor-pointer">
+          {% for p in presets %}
+          <option value="{{ p.key }}" {% if p.key == preset_key %}selected{% endif %}>
+            {{ p.title }} ({% if 'FAIL' in p.expected_result %}⚠️ Reprova{% else %}✅ Aprova{% endif %})
+          </option>
+          {% endfor %}
+        </select>
+      </div>
     </div>
   </div>
 
@@ -290,73 +308,128 @@
 
       </div>
 
-      <!-- INTERACTIVE ARCHITECTURAL CANVAS -->
-      <div class="rounded-2xl border border-slate-800 bg-slate-900/70 backdrop-blur-md p-6 shadow-xl">
-        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5 mb-4">
+      <!-- ========================================================================= -->
+      <!-- MULTI-FORMAT VIEWPORT HUB (3D CAD/BIM, BLUEPRINT 2D, CORTE, DIAGRAMAS, CROQUI) -->
+      <!-- ========================================================================= -->
+      <div class="rounded-2xl border border-slate-800 bg-slate-900/80 backdrop-blur-md p-6 shadow-xl space-y-4">
+        
+        <!-- Viewport Format Switcher Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
           <div class="flex items-center gap-2">
-            <i data-lucide="layout-grid" class="w-4 h-4 text-brand-400"></i>
-            <h3 class="text-base font-bold text-white uppercase tracking-wider font-mono">Croqui Estrutural Interativo</h3>
+            <i data-lucide="box" class="w-4 h-4 text-brand-400"></i>
+            <h3 class="text-sm font-bold text-white uppercase tracking-wider font-mono">Central de Visualização Multi-Formato</h3>
           </div>
-          <!-- Canvas Tools -->
-          <div class="flex flex-wrap items-center gap-1.5 font-mono text-xs sm:text-sm">
-            <button type="button" data-canvas-tool="column" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white font-semibold transition-colors">
+
+          <!-- Format Switcher Buttons -->
+          <div class="flex items-center gap-1 font-mono text-xs flex-wrap">
+            <button type="button" data-view-mode="3d" class="px-3 py-1.5 rounded-lg bg-brand-600 text-white font-semibold transition-colors flex items-center gap-1.5">
+              <i data-lucide="orbit" class="w-3.5 h-3.5"></i>
+              <span>3D CAD/BIM</span>
+            </button>
+            <button type="button" data-view-mode="blueprint" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5">
+              <i data-lucide="file-text" class="w-3.5 h-3.5"></i>
+              <span>Planta 2D</span>
+            </button>
+            <button type="button" data-view-mode="section" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5">
+              <i data-lucide="scissors" class="w-3.5 h-3.5"></i>
+              <span>Corte ELS</span>
+            </button>
+            <button type="button" data-view-mode="diagrams" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5">
+              <i data-lucide="activity" class="w-3.5 h-3.5"></i>
+              <span>Esforços (M/V)</span>
+            </button>
+            <button type="button" data-view-mode="canvas" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors flex items-center gap-1.5">
+              <i data-lucide="edit-3" class="w-3.5 h-3.5"></i>
+              <span>Croqui Manual</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- 3D Viewport Controls (Visible only in 3D Mode) -->
+        <div id="controls-3d-bar" class="flex flex-wrap items-center justify-between gap-3 text-xs font-mono py-1 border-b border-slate-800/60">
+          <!-- Shading Mode Pills -->
+          <div class="flex items-center gap-1.5">
+            <span class="text-slate-400 text-[10px] uppercase">Sombreamento:</span>
+            <button type="button" data-shading-mode="shaded" class="px-2 py-1 rounded bg-brand-600 text-white font-semibold transition-colors">
+              Sólido
+            </button>
+            <button type="button" data-shading-mode="wireframe" class="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              Aramado
+            </button>
+            <button type="button" data-shading-mode="xray" class="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              Raio-X
+            </button>
+            <button type="button" data-shading-mode="stress" class="px-2 py-1 rounded bg-slate-800 text-slate-300 hover:text-white transition-colors">
+              Tensões FEA
+            </button>
+          </div>
+
+          <!-- Deflection Amplification Slider -->
+          <div class="flex items-center gap-2">
+            <span class="text-slate-400 text-[10px] uppercase">Escala da Flecha:</span>
+            <input type="range" id="slider-amp-deflection" min="1" max="60" step="5" value="25" class="w-24 accent-brand-500">
+            <span id="val-amp-deflection" class="text-brand-400 font-bold text-[11px] w-8">25x</span>
+          </div>
+        </div>
+
+        <!-- VIEWPORT CONTAINERS -->
+
+        <!-- 1. 3D WEBGL VIEWPORT -->
+        <div id="view-container-3d" class="relative w-full h-[440px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+          <div id="three-viewport-box" class="w-full h-full"></div>
+          <div class="absolute bottom-2 left-2 px-2.5 py-1 rounded-md bg-slate-900/80 backdrop-blur text-[10px] font-mono text-slate-400 border border-slate-800 pointer-events-none">
+            🖱️ Botão Esquerdo: Órbita • Botão Direito: Pan • Scroll: Zoom
+          </div>
+        </div>
+
+        <!-- 2. BLUEPRINT 2D VIEWPORT -->
+        <div id="view-container-blueprint" class="hidden relative w-full min-h-[360px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-2">
+          <div id="svg-blueprint-content" class="w-full"></div>
+        </div>
+
+        <!-- 3. SECTION ELS VIEWPORT -->
+        <div id="view-container-section" class="hidden relative w-full min-h-[360px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-2">
+          <div id="svg-section-content" class="w-full"></div>
+        </div>
+
+        <!-- 4. DIAGRAMS M/V VIEWPORT -->
+        <div id="view-container-diagrams" class="hidden relative w-full min-h-[360px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950 p-2">
+          <div id="svg-diagrams-content" class="w-full"></div>
+        </div>
+
+        <!-- 5. MANUAL CROQUI CANVAS -->
+        <div id="view-container-canvas" class="hidden space-y-3">
+          <div class="flex items-center gap-2 font-mono text-xs">
+            <button type="button" data-canvas-tool="column" class="px-2.5 py-1.5 rounded-lg bg-brand-600 text-white font-semibold">
               + Pilar
             </button>
-            <button type="button" data-canvas-tool="beam" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors">
+            <button type="button" data-canvas-tool="beam" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300">
               + Viga
             </button>
-            <button type="button" data-canvas-tool="cantilever" class="px-3 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors">
+            <button type="button" data-canvas-tool="cantilever" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300">
               + Balanço
             </button>
-            <button type="button" data-canvas-action="undo" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-slate-300 hover:text-white transition-colors" title="Desfazer último elemento">
-              Desfazer
-            </button>
-            <button type="button" data-canvas-action="clear" class="px-2.5 py-1.5 rounded-lg bg-slate-800 text-rose-400 hover:bg-rose-950/50 transition-colors">
+            <button type="button" data-canvas-tool="clear" class="px-2 py-1.5 rounded-lg bg-slate-800 text-rose-400">
               Limpar
             </button>
           </div>
-        </div>
-
-        <!-- Canvas Container -->
-        <div class="relative w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
-          <canvas id="structural-canvas" class="w-full block cursor-crosshair touch-none"></canvas>
-          <div id="canvas-scale-label" class="absolute bottom-2.5 right-2.5 px-2.5 py-1 rounded bg-slate-900/85 backdrop-blur text-xs font-mono text-slate-300 pointer-events-none">
-            Escala: 40px = 1.0m • Clique ou arraste para desenhar
+          <div class="relative w-full rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+            <canvas id="structural-canvas" class="w-full block cursor-crosshair"></canvas>
+            <div class="absolute bottom-2 right-2 px-2 py-1 rounded bg-slate-900/80 backdrop-blur text-[10px] font-mono text-slate-400">
+              Escala: 40px = 1.0m • Clique e arraste
+            </div>
           </div>
         </div>
+
       </div>
 
-      <!-- THE 5 VISUAL REDESIGN PROPOSALS -->
+      <!-- ========================================================================= -->
+      <!-- PROFESSIONAL REDESIGN DECISION DECK & ENGINEERING MATRIX -->
+      <!-- ========================================================================= -->
       <div id="variants-section" class="rounded-2xl border border-brand-500/30 bg-slate-900/90 backdrop-blur-md p-6 shadow-2xl relative overflow-hidden">
-
-        <div class="flex flex-wrap items-center justify-between gap-4 border-b border-slate-800 pb-4 mb-6">
-          <div>
-            <div class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-mono font-bold text-brand-400 uppercase tracking-wider mb-1">
-              <i data-lucide="sparkles" class="w-4 h-4"></i>
-              <span>Adequação Matemática ao Projeto</span>
-            </div>
-            <h2 class="text-xl sm:text-2xl font-extrabold text-white">5 Alternativas Visuais de Redesign Estrutural</h2>
-            <p class="text-sm text-slate-300 mt-1">
-              Cada proposta transforma a restrição da engenharia em uma nova assinatura plástica para o arquiteto.
-            </p>
-          </div>
+        <div id="decision-deck-container">
+          <!-- Populated dynamically via decision_deck.js -->
         </div>
-
-        <!-- Horizontal Tabs for the 5 Variants -->
-        <div id="variants-tabs" class="flex gap-2.5 overflow-x-auto pb-3 mb-6">
-          <!-- Populated dynamically via app.js -->
-        </div>
-
-        <!-- Active Variant Dynamic SVG Blueprint Render -->
-        <div id="variant-svg-container" class="w-full mb-6 rounded-xl overflow-hidden border border-slate-800 shadow-2xl">
-          <!-- Populated with SVG Blueprint -->
-        </div>
-
-        <!-- Active Variant Detailed Technical & Architectural Breakdown -->
-        <div id="variant-active-content">
-          <!-- Populated dynamically via app.js -->
-        </div>
-
       </div>
 
     </div>
@@ -367,6 +440,15 @@
 {% endblock %}
 
 {% block scripts %}
+<!-- Vendor CAD / 3D / Charting Assets -->
+<script src="/static/js/vendor/three.min.js"></script>
+<script src="/static/js/vendor/OrbitControls.js"></script>
+<script src="/static/js/vendor/chart.min.js"></script>
+
+<!-- Structura.AI Frontend Stack -->
 <script src="/static/js/canvas_draw.js"></script>
+<script src="/static/js/viewport_3d.js"></script>
+<script src="/static/js/viewport_switcher.js"></script>
+<script src="/static/js/decision_deck.js"></script>
 <script src="/static/js/app.js"></script>
 {% endblock %}
