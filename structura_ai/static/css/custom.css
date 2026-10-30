@@ -1,8 +1,9 @@
 /* Structura.AI Custom Styling & Architectural Blueprint Theme */
 
-:root {
-  --blueprint-grid: #1e293b;
-  --blueprint-accent: #38bdf8;
+/* Base weight boost for monospace text without overriding Tailwind font-semibold / font-bold */
+:where(.font-mono) {
+  font-weight: 500;
+  letter-spacing: -0.01em;
 }
 
 /* Custom Scrollbar */
@@ -21,62 +22,61 @@
   background: #334155;
 }
 
-/* Architectural Grid Pattern for Canvas & Backgrounds */
-.bg-blueprint-grid {
-  background-size: 24px 24px;
-  background-image: 
-    linear-gradient(to right, rgba(30, 41, 59, 0.4) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(30, 41, 59, 0.4) 1px, transparent 1px);
-}
-
+/* Architectural Blueprint Grid Background */
 .bg-blueprint-dense {
   background-size: 16px 16px;
-  background-image: 
+  background-image:
     linear-gradient(to right, rgba(56, 189, 248, 0.08) 1px, transparent 1px),
     linear-gradient(to bottom, rgba(56, 189, 248, 0.08) 1px, transparent 1px);
 }
 
-/* Glassmorphism Cards */
-.glass-panel {
-  background: rgba(15, 23, 42, 0.75);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(51, 65, 85, 0.6);
-}
-
-/* Range Input Sliders Styling */
+/* Range Input Sliders Styling (WebKit & Firefox) */
 input[type=range] {
   -webkit-appearance: none;
+  appearance: none;
   background: #1e293b;
   border-radius: 9999px;
-  height: 6px;
+  height: 7px;
   outline: none;
+  cursor: pointer;
 }
 
 input[type=range]::-webkit-slider-thumb {
   -webkit-appearance: none;
   appearance: none;
-  width: 18px;
-  height: 18px;
+  width: 20px;
+  height: 20px;
   border-radius: 50%;
   background: #38bdf8;
   cursor: pointer;
   border: 2px solid #0f172a;
   box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
-  transition: transform 0.1s ease;
+  transition: transform 0.12s ease;
 }
 
 input[type=range]::-webkit-slider-thumb:hover {
-  transform: scale(1.2);
+  transform: scale(1.18);
 }
 
-/* Animations */
-@keyframes pulseGlow {
-  0%, 100% { box-shadow: 0 0 15px rgba(56, 189, 248, 0.3); }
-  50% { box-shadow: 0 0 25px rgba(56, 189, 248, 0.6); }
+input[type=range]::-moz-range-track {
+  background: #1e293b;
+  border-radius: 9999px;
+  height: 7px;
 }
 
-.glow-active {
-  animation: pulseGlow 2.5s infinite;
+input[type=range]::-moz-range-thumb {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #38bdf8;
+  cursor: pointer;
+  border: 2px solid #0f172a;
+  box-shadow: 0 0 10px rgba(56, 189, 248, 0.5);
+  transition: transform 0.12s ease;
+}
+
+input[type=range]::-moz-range-thumb:hover {
+  transform: scale(1.18);
 }
 
 /* Redesign Decision Deck Cards & Fullscreen Pitch */
