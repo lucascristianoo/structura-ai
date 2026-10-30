@@ -1,0 +1,71 @@
+{% set current_path = request.url.path if request is defined and request else '' %}
+<header class="border-b border-edge bg-surface-card/90 backdrop-blur-md sticky top-0 z-50 transition-colors duration-150">
+  <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
+
+    <!-- Logo & Navigation -->
+    <div class="flex items-center gap-6">
+      <a href="/" class="flex items-center gap-2.5 shrink-0">
+        <div class="w-7 h-7 rounded bg-ink-strong text-surface-card flex items-center justify-center">
+          <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6" aria-hidden="true">
+            <path d="M2 13.5h12M3.5 13.5V4.5h9v9M3.5 8h9" stroke-linecap="square"/>
+          </svg>
+        </div>
+        <span class="text-sm font-semibold tracking-tight text-ink-strong">Structura<span class="text-ink-muted font-normal">.ai</span></span>
+      </a>
+
+      <nav class="flex items-center gap-0.5 sm:gap-1" aria-label="Navegação principal">
+        <a
+          href="/"
+          class="hidden sm:inline-block px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors {% if current_path == '/' %}text-ink-strong bg-surface-elevated{% else %}text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated{% endif %}"
+        >
+          Início
+        </a>
+        <a
+          href="/analyzer"
+          class="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors {% if current_path.startswith('/analyzer') %}text-ink-strong bg-surface-elevated{% else %}text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated{% endif %}"
+        >
+          Studio
+        </a>
+        <a
+          href="/viewer"
+          class="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors {% if current_path.startswith('/viewer') or current_path.startswith('/model-viewer') %}text-ink-strong bg-surface-elevated{% else %}text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated{% endif %}"
+        >
+          <span class="hidden md:inline">Visualizador 3D</span>
+          <span class="md:hidden">3D</span>
+        </a>
+        <a
+          href="/council"
+          class="px-2 sm:px-2.5 py-1.5 text-xs font-medium rounded-md transition-colors {% if current_path.startswith('/council') %}text-ink-strong bg-surface-elevated{% else %}text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated{% endif %}"
+        >
+          <span class="hidden md:inline">Conselho Técnico</span>
+          <span class="md:hidden">Conselho</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- Engine Status, Theme & Primary Action -->
+    <div class="flex items-center gap-2">
+      <div class="hidden md:inline-flex ui-badge">
+        <span class="ui-dot {% if gemini_active %}ui-dot-ok{% endif %}"></span>
+        <span>{% if gemini_active %}Gemini{% else %}Motor local{% endif %}</span>
+      </div>
+
+      <button
+        type="button"
+        id="theme-toggle"
+        aria-label="Alternar tema"
+        title="Alternar tema"
+        class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-edge bg-surface-card text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ink-strong shrink-0"
+      >
+        <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block"></i>
+        <i data-lucide="moon" class="w-3.5 h-3.5 block dark:hidden"></i>
+      </button>
+
+      <a href="/analyzer" class="ui-btn ui-btn-primary shrink-0">
+        <span>Novo projeto</span>
+      </a>
+    </div>
+
+  </div>
+</header>
+

@@ -1,5 +1,5 @@
 /* ==========================================================================
-   Structura.AI — Minimalist Architectural Design Tokens
+   Structura.AI — Design System Tokens (Single Source of Truth)
    Light Theme (:root)  — "Technical Paper & Graphite"
    Dark Theme  (.dark)  — "Architectural Carbon"
    ========================================================================== */
@@ -7,26 +7,26 @@
 :root {
   color-scheme: light;
 
-  /* Surfaces (RGB channels for Tailwind <alpha-value> support) */
+  /* 1. Surfaces (RGB channels for Tailwind <alpha-value> support) */
   --surface-base: 250 250 250;      /* #fafafa - Neutral drafting paper */
   --surface-card: 255 255 255;      /* #ffffff - Clean sheet / card */
   --surface-elevated: 244 244 245;  /* #f4f4f5 - Subtle control surface */
   --surface-hover: 228 228 231;     /* #e4e4e7 - Control hover surface */
   --surface-inset: 244 244 245;     /* #f4f4f5 - Metric wells & inputs */
 
-  /* Borders & Hairlines */
+  /* 2. Borders & Hairlines */
   --edge-subtle: 236 236 238;       /* #ececee - Subtle dividers */
   --edge-default: 228 228 231;      /* #e4e4e7 - Card & section borders */
   --edge-strong: 205 205 210;       /* #cdcdd2 - Inputs, selects & active edges */
 
-  /* Typography Hierarchy */
+  /* 3. Typography Hierarchy */
   --ink-strong: 17 17 19;           /* #111113 - Headings & primary actions */
   --ink-primary: 39 39 42;          /* #27272a - Body & controls */
   --ink-secondary: 82 82 91;        /* #52525b - Supporting copy */
   --ink-muted: 113 113 122;         /* #71717a - Labels, units & captions */
   --ink-faint: 161 161 170;         /* #a1a1aa - Subtle metadata */
 
-  /* Restrained Technical Accents (WCAG-compliant on light surfaces) */
+  /* 4. Restrained Technical Accents (WCAG-compliant on light surfaces) */
   --accent-brand: 30 75 133;        /* #1e4b85 - Sober technical blue */
   --accent-sky: 30 75 133;          /* #1e4b85 - Bending moment / Beam */
   --accent-emerald: 21 109 77;      /* #156d4d - NBR 6118 compliant */
@@ -35,7 +35,7 @@
   --accent-indigo: 63 63 70;        /* #3f3f46 - Neutral graphite */
   --accent-purple: 82 82 91;        /* #52525b - Neutral slate */
 
-  /* UI Chrome & Controls */
+  /* 5. UI Chrome & Controls */
   --blueprint-grid-color: rgba(24, 24, 27, 0.035);
   --scrollbar-track: #fafafa;
   --scrollbar-thumb: #d4d4d8;
@@ -43,27 +43,47 @@
   --slider-track: #e4e4e7;
   --slider-thumb: #18181b;
   --slider-thumb-border: #ffffff;
-  --slider-thumb-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+  --slider-thumb-shadow: 0 1px 2px rgba(0, 0, 0, 0.22);
 
-  /* Interactive 2D Structural Canvas */
+  /* 6. Interactive 2D Structural Canvas */
   --canvas-bg: #fafafa;
   --canvas-grid: #e4e4e7;
   --canvas-beam: #1e4b85;
   --canvas-cantilever: #a16207;
   --canvas-col-fill: #27272a;
   --canvas-col-stroke: #111113;
-  --canvas-col-label: #3f3f46;
+  --canvas-col-label: #52525b;
   --canvas-tag-bg: #ffffff;
   --canvas-tag-border: #d4d4d8;
 
-  /* 5-Variant SVG Architectural Blueprints */
+  /* 7. Three.js 3D Viewport & Chart.js Tokens */
+  --three-bg: #fafafa;
+  --three-grid-main: #a1a1aa;
+  --three-grid-sub: #e4e4e7;
+  --three-col: #52525b;
+  --three-slab: #d4d4d8;
+  --three-beam-ok: #1e4b85;
+  --three-beam-fail: #b91c1c;
+  --three-accent: #1e4b85;
+  --three-cable: #a16207;
+  --chart-grid: rgba(24, 24, 27, 0.08);
+  --chart-angle: rgba(24, 24, 27, 0.1);
+  --chart-label: #52525b;
+  --chart-legend: #18181b;
+  --chart-primary-border: #18181b;
+  --chart-primary-bg: rgba(24, 24, 27, 0.12);
+  --chart-fail-border: #b91c1c;
+  --chart-fail-bg: rgba(185, 28, 28, 0.1);
+
+  /* 8. Architectural SVG Blueprints */
   --bp-bg: #fafafa;
   --bp-grid: #e4e4e7;
   --bp-ground: #71717a;
   --bp-ground-hatch: #a1a1aa;
   --bp-struct-fill: #e4e4e7;
+  --bp-struct-stroke: #52525b;
   --bp-slab-fill: #ffffff;
-  --bp-slab-stroke: #71717a;
+  --bp-slab-stroke: #52525b;
   --bp-panel-fill: #f4f4f5;
   --bp-panel-stroke: #d4d4d8;
   --bp-badge-bg: #e6f4ee;
@@ -74,36 +94,37 @@
   --bp-dim-line: #71717a;
   --bp-vierendeel-chord: #f4f4f5;
   --bp-vierendeel-post: #e4e4e7;
-  --bp-vierendeel-stroke: #52525b;
-  --bp-waffle-cell: #eff4fa;
-  --bp-waffle-stroke: #1e4b85;
-  --bp-waffle-text: #1e4b85;
-  --bp-arch-sub: #991b1b;
+  --bp-vierendeel-stroke: #3f3f46;
+  --bp-waffle-cell: #f4f4f5;
+  --bp-waffle-stroke: #52525b;
+  --bp-waffle-text: #3f3f46;
+  --bp-arch-sub: #52525b;
+  --bp-glass-fill: rgba(30, 75, 133, 0.06);
 }
 
 html.dark {
   color-scheme: dark;
 
-  /* Surfaces */
+  /* 1. Surfaces */
   --surface-base: 10 10 12;         /* #0a0a0c - Deep neutral carbon */
   --surface-card: 18 18 21;         /* #121215 - Dark sheet / card */
   --surface-elevated: 26 26 30;     /* #1a1a1e - Elevated control */
   --surface-hover: 39 39 42;        /* #27272a - Hover surface */
   --surface-inset: 14 14 17;        /* #0e0e11 - Inset field */
 
-  /* Borders & Hairlines */
+  /* 2. Borders & Hairlines */
   --edge-subtle: 26 26 30;          /* #1a1a1e - Subtle divider */
   --edge-default: 36 36 41;         /* #242429 - Card & header border */
   --edge-strong: 56 56 64;          /* #383840 - Input & hover border */
 
-  /* Typography Hierarchy */
+  /* 3. Typography Hierarchy */
   --ink-strong: 250 250 250;        /* #fafafa - Primary headings */
   --ink-primary: 228 228 231;       /* #e4e4e7 - Body copy */
   --ink-secondary: 161 161 170;     /* #a1a1aa - Descriptions */
   --ink-muted: 113 113 122;         /* #71717a - Labels & metadata */
   --ink-faint: 82 82 91;            /* #52525b - Subtle markers */
 
-  /* Restrained Technical Accents */
+  /* 4. Restrained Technical Accents */
   --accent-brand: 138 176 222;      /* #8ab0de - Calm architectural steel-blue */
   --accent-sky: 138 176 222;        /* #8ab0de - Bending moment / Beam */
   --accent-emerald: 82 183 136;     /* #52b788 - NBR 6118 compliant */
@@ -112,7 +133,7 @@ html.dark {
   --accent-indigo: 161 161 170;     /* #a1a1aa - Neutral silver */
   --accent-purple: 161 161 170;     /* #a1a1aa - Neutral silver */
 
-  /* UI Chrome & Controls */
+  /* 5. UI Chrome & Controls */
   --blueprint-grid-color: rgba(255, 255, 255, 0.028);
   --scrollbar-track: #0a0a0c;
   --scrollbar-thumb: #27272a;
@@ -120,9 +141,9 @@ html.dark {
   --slider-track: #27272a;
   --slider-thumb: #fafafa;
   --slider-thumb-border: #121215;
-  --slider-thumb-shadow: 0 1px 4px rgba(0, 0, 0, 0.5);
+  --slider-thumb-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
 
-  /* Interactive 2D Structural Canvas */
+  /* 6. Interactive 2D Structural Canvas */
   --canvas-bg: #0e0e11;
   --canvas-grid: #242429;
   --canvas-beam: #8ab0de;
@@ -133,12 +154,32 @@ html.dark {
   --canvas-tag-bg: #18181b;
   --canvas-tag-border: #383840;
 
-  /* 5-Variant SVG Architectural Blueprints */
+  /* 7. Three.js 3D Viewport & Chart.js Tokens */
+  --three-bg: #0e0e11;
+  --three-grid-main: #3f3f46;
+  --three-grid-sub: #242429;
+  --three-col: #71717a;
+  --three-slab: #27272a;
+  --three-beam-ok: #8ab0de;
+  --three-beam-fail: #e06c6c;
+  --three-accent: #8ab0de;
+  --three-cable: #d4a359;
+  --chart-grid: rgba(255, 255, 255, 0.08);
+  --chart-angle: rgba(255, 255, 255, 0.1);
+  --chart-label: #a1a1aa;
+  --chart-legend: #e4e4e7;
+  --chart-primary-border: #fafafa;
+  --chart-primary-bg: rgba(250, 250, 250, 0.14);
+  --chart-fail-border: #e06c6c;
+  --chart-fail-bg: rgba(224, 108, 108, 0.12);
+
+  /* 8. Architectural SVG Blueprints */
   --bp-bg: #0e0e11;
   --bp-grid: #242429;
   --bp-ground: #52525b;
   --bp-ground-hatch: #3f3f46;
   --bp-struct-fill: #27272a;
+  --bp-struct-stroke: #71717a;
   --bp-slab-fill: #18181b;
   --bp-slab-stroke: #71717a;
   --bp-panel-fill: #18181b;
@@ -152,8 +193,9 @@ html.dark {
   --bp-vierendeel-chord: #1f1f24;
   --bp-vierendeel-post: #27272a;
   --bp-vierendeel-stroke: #a1a1aa;
-  --bp-waffle-cell: #121822;
-  --bp-waffle-stroke: #8ab0de;
-  --bp-waffle-text: #8ab0de;
-  --bp-arch-sub: #e06c6c;
+  --bp-waffle-cell: #18181b;
+  --bp-waffle-stroke: #71717a;
+  --bp-waffle-text: #a1a1aa;
+  --bp-arch-sub: #a1a1aa;
+  --bp-glass-fill: rgba(138, 176, 222, 0.08);
 }

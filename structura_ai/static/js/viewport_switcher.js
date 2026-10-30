@@ -1,17 +1,16 @@
 /**
- * Structura.AI — Viewport Switcher & Multi-Format Manager
- * Gerencia a alternância entre 3D WebGL, Planta Baixa Blueprint, Corte Transversal, Diagramas e Croqui.
+ * Structura.AI — Viewport Switcher & Multi-Format Technical Drawings
+ * Manages switching between 3D WebGL, 2D Plan, ELS Section, Internal Force Diagrams & Sketch Canvas.
  */
 
 class ViewportSwitcher {
   constructor() {
-    this.activeMode = '3d'; // '3d', 'blueprint', 'section', 'diagrams', 'canvas'
+    this.activeMode = '3d';
     this.threeViewport = null;
     this.init();
   }
 
   init() {
-    // Inicializar viewport 3D se container existir
     if (document.getElementById('three-viewport-box') && window.Structura3DViewport) {
       this.threeViewport = new window.Structura3DViewport('three-viewport-box');
     }
@@ -22,35 +21,24 @@ class ViewportSwitcher {
 
   bindButtons() {
     const buttons = document.querySelectorAll('[data-view-mode]');
-    buttons.forEach(btn => {
+    buttons.forEach((btn) => {
       btn.addEventListener('click', () => {
         const mode = btn.dataset.viewMode;
         this.switchMode(mode);
       });
     });
 
-    // Shading controls (Sólido, Aramado, Raio-X, Stress)
     const shadeBtns = document.querySelectorAll('[data-shading-mode]');
-    shadeBtns.forEach(btn => {
+    shadeBtns.forEach((btn) => {
       btn.addEventListener('click', () => {
         const mode = btn.dataset.shadingMode;
         if (this.threeViewport) {
           this.threeViewport.setShadingMode(mode);
         }
-        shadeBtns.forEach(b => {
-          const isSelected = b === btn;
-          b.classList.toggle('bg-brand-600', isSelected);
-          b.classList.toggle('text-white', isSelected);
-          b.classList.toggle('font-semibold', isSelected);
-          b.classList.toggle('bg-surface-elevated', !isSelected);
-          b.classList.toggle('text-ink-secondary', !isSelected);
-          b.classList.toggle('hover:text-ink-strong', !isSelected);
-          b.classList.toggle('hover:bg-surface-hover', !isSelected);
-        });
+        shadeBtns.forEach((b) => b.classList.toggle('is-active', b === btn));
       });
     });
 
-    // Slider de ampliação da deformada
     const ampSlider = document.getElementById('slider-amp-deflection');
     const ampVal = document.getElementById('val-amp-deflection');
     if (ampSlider) {
@@ -67,46 +55,31 @@ class ViewportSwitcher {
   switchMode(mode) {
     this.activeMode = mode;
 
-    // Atualizar botões
     const buttons = document.querySelectorAll('[data-view-mode]');
-    buttons.forEach(btn => {
-      const isSelected = btn.dataset.viewMode === mode;
-      btn.classList.toggle('bg-brand-600', isSelected);
-      btn.classList.toggle('text-white', isSelected);
-      btn.classList.toggle('font-semibold', isSelected);
-      btn.classList.toggle('bg-surface-elevated', !isSelected);
-      btn.classList.toggle('text-ink-secondary', !isSelected);
-      btn.classList.toggle('hover:text-ink-strong', !isSelected);
-      btn.classList.toggle('hover:bg-surface-hover', !isSelected);
+    buttons.forEach((btn) => {
+      btn.classList.toggle('is-active', btn.dataset.viewMode === mode);
     });
 
-    // Mostrar controles 3D apenas no modo 3D
     const controls3dBar = document.getElementById('controls-3d-bar');
     if (controls3dBar) {
       controls3dBar.classList.toggle('hidden', mode !== '3d');
     }
 
-    // Alternar visibilidade dos containers
     const containers = {
       '3d': document.getElementById('view-container-3d'),
-      'blueprint': document.getElementById('view-container-blueprint'),
-      'section': document.getElementById('view-container-section'),
-      'diagrams': document.getElementById('view-container-diagrams'),
-      'canvas': document.getElementById('view-container-canvas'),
+      blueprint: document.getElementById('view-container-blueprint'),
+      section: document.getElementById('view-container-section'),
+      diagrams: document.getElementById('view-container-diagrams'),
+      canvas: document.getElementById('view-container-canvas')
     };
 
-    Object.keys(containers).forEach(k => {
+    Object.keys(containers).forEach((k) => {
       const el = containers[k];
       if (el) {
-        if (k === mode) {
-          el.classList.remove('hidden');
-        } else {
-          el.classList.add('hidden');
-        }
+        el.classList.toggle('hidden', k !== mode);
       }
     });
 
-    // Se mudou para 3D, acionar resize do Three.js; se mudou para Croqui Manual, redimensionar canvas
     if (mode === '3d' && this.threeViewport) {
       setTimeout(() => this.threeViewport.onResize(), 50);
     } else if (mode === 'canvas' && window.archCanvas) {
@@ -147,54 +120,62 @@ class ViewportSwitcher {
     const bh = parseFloat(params.beam_height_cm) || 30.0;
 
     const totalLen = span + cant;
-    const scale = 500 / Math.max(totalLen + 2.0, 8.0);
-    const startX = 60;
+    const scale = 470 / Math.max(totalLen + 1.5, 8.0);
+    const startX = 76;
     const p1X = startX;
-    const p2X = startX + (span * scale);
-    const cantX = p2X + (cant * scale);
-    const yAxis = 130;
+    const p2X = startX + span * scale;
+    const cantX = p2X + cant * scale;
+    const yAxis = 138;
+    const beamPlanW = Math.min(Math.max(bw * 0.55, 8), 22);
+
+    const cantPx = cantX - p2X;
+    const cantLabelX = cantPx < 78 ? p2X + 8 : (p2X + cantX) / 2;
+    const cantLabelAnchor = cantPx < 78 ? 'start' : 'middle';
 
     container.innerHTML = `
-      <svg viewBox="0 0 700 260" class="bp-svg w-full h-auto font-mono text-xs rounded-lg">
+      <svg viewBox="0 0 700 250" class="bp-svg w-full h-auto font-mono text-xs rounded">
         <defs>
-          <pattern id="cad-grid" width="20" height="20" patternUnits="userSpaceOnUse">
-            <path d="M 20 0 L 0 0 0 20" fill="none" class="bp-grid-line" stroke-width="0.5"/>
+          <pattern id="cad-grid" width="24" height="24" patternUnits="userSpaceOnUse">
+            <path d="M 24 0 L 0 0 0 24" fill="none" class="bp-grid-line" stroke-width="0.5"/>
           </pattern>
         </defs>
         <rect width="100%" height="100%" fill="url(#cad-grid)" />
-        
-        <!-- Eixo estrutural traço-ponto -->
-        <line x1="30" y1="${yAxis}" x2="${cantX + 40}" y2="${yAxis}" stroke="#0284c7" stroke-dasharray="8,4,2,4" stroke-width="1.2"/>
-        <text x="35" y="${yAxis - 8}" class="bp-accent-brand" font-size="10">EIXO ESTRUTURAL 01</text>
 
-        <!-- Vigas principais em planta -->
-        <rect x="${p1X}" y="${yAxis - (bw * 0.4)}" width="${cantX - p1X}" height="${bw * 0.8}" class="bp-panel" stroke="#0284c7" stroke-width="2"/>
+        <!-- Drawing Header -->
+        <text x="26" y="26" class="bp-text-strong" font-size="10.5">Planta de fôrma · Eixo estrutural A</text>
 
-        <!-- Pilares em corte (hachura) -->
-        <rect x="${p1X - 10}" y="${yAxis - 18}" width="20" height="36" class="bp-struct" stroke="#0284c7" stroke-width="2"/>
-        <line x1="${p1X - 10}" y1="${yAxis - 18}" x2="${p1X + 10}" y2="${yAxis + 18}" stroke="#0284c7" stroke-width="1"/>
-        <text x="${p1X - 12}" y="${yAxis + 32}" class="bp-text-muted" font-size="10" font-weight="bold">P1 (20x40)</text>
+        <!-- Structural Axis Bubble & Centerline -->
+        <circle cx="32" cy="${yAxis}" r="11" class="bp-slab" stroke-width="1.2"/>
+        <text x="32" y="${yAxis + 3.5}" class="bp-text-strong" font-size="9.5" text-anchor="middle">A</text>
+        <line x1="43" y1="${yAxis}" x2="${cantX + 36}" y2="${yAxis}" class="bp-dim-line" stroke-dasharray="8,4,2,4" stroke-width="1"/>
 
-        <rect x="${p2X - 10}" y="${yAxis - 18}" width="20" height="36" class="bp-struct" stroke="#0284c7" stroke-width="2"/>
-        <line x1="${p2X - 10}" y1="${yAxis - 18}" x2="${p2X + 10}" y2="${yAxis + 18}" stroke="#0284c7" stroke-width="1"/>
-        <text x="${p2X - 12}" y="${yAxis + 32}" class="bp-text-muted" font-size="10" font-weight="bold">P2 (20x40)</text>
+        <!-- Primary Beam Plan -->
+        <rect x="${p1X}" y="${yAxis - beamPlanW / 2}" width="${cantX - p1X}" height="${beamPlanW}" class="bp-slab" stroke-width="1.5"/>
 
-        <!-- Linha de Cota Vão Principal -->
-        <line x1="${p1X}" y1="60" x2="${p2X}" y2="60" stroke="#d97706" stroke-width="1.5"/>
-        <line x1="${p1X}" y1="52" x2="${p1X}" y2="68" stroke="#d97706" stroke-width="1.5"/>
-        <line x1="${p2X}" y1="52" x2="${p2X}" y2="68" stroke="#d97706" stroke-width="1.5"/>
-        <text x="${(p1X + p2X) / 2}" y="52" class="bp-accent-amber" font-size="11" font-weight="bold" text-anchor="middle">VÃO LIVRE L = ${span.toFixed(2)} m</text>
+        <!-- Columns in Section -->
+        <rect x="${p1X - 9}" y="${yAxis - 16}" width="18" height="32" class="bp-struct" stroke-width="1.5"/>
+        <line x1="${p1X - 9}" y1="${yAxis - 16}" x2="${p1X + 9}" y2="${yAxis + 16}" class="bp-dim-line" stroke-width="0.8"/>
+        <text x="${p1X}" y="${yAxis + 32}" class="bp-text-strong" font-size="9.5" text-anchor="middle">P1</text>
+
+        <rect x="${p2X - 9}" y="${yAxis - 16}" width="18" height="32" class="bp-struct" stroke-width="1.5"/>
+        <line x1="${p2X - 9}" y1="${yAxis - 16}" x2="${p2X + 9}" y2="${yAxis + 16}" class="bp-dim-line" stroke-width="0.8"/>
+        <text x="${p2X}" y="${yAxis + 32}" class="bp-text-strong" font-size="9.5" text-anchor="middle">P2</text>
+
+        <!-- Main Span Dimension -->
+        <line x1="${p1X}" y1="72" x2="${p2X}" y2="72" class="bp-dim-line" stroke-width="1"/>
+        <line x1="${p1X}" y1="66" x2="${p1X}" y2="78" class="bp-dim-line" stroke-width="1"/>
+        <line x1="${p2X}" y1="66" x2="${p2X}" y2="78" class="bp-dim-line" stroke-width="1"/>
+        <text x="${(p1X + p2X) / 2}" y="61" class="bp-text-strong" font-size="10" text-anchor="middle">L = ${span.toFixed(2)} m</text>
 
         ${cant > 0 ? `
-          <!-- Cota Balanço -->
-          <line x1="${p2X}" y1="60" x2="${cantX}" y2="60" stroke="#ea580c" stroke-width="1.5"/>
-          <line x1="${cantX}" y1="52" x2="${cantX}" y2="68" stroke="#ea580c" stroke-width="1.5"/>
-          <text x="${(p2X + cantX) / 2}" y="52" fill="#ea580c" font-size="11" font-weight="bold" text-anchor="middle">BALANÇO Lc = ${cant.toFixed(2)} m</text>
+          <line x1="${p2X}" y1="72" x2="${cantX}" y2="72" class="bp-stroke-amber" stroke-width="1.2"/>
+          <line x1="${cantX}" y1="66" x2="${cantX}" y2="78" class="bp-stroke-amber" stroke-width="1.2"/>
+          <text x="${cantLabelX}" y="61" class="bp-accent-amber" font-size="10" text-anchor="${cantLabelAnchor}">Lc = ${cant.toFixed(2)} m</text>
         ` : ''}
 
-        <!-- Detalhes de Seção -->
-        <text x="500" y="210" class="bp-text-muted" font-size="10">SEÇÃO: ${bw}x${bh} cm</text>
-        <text x="500" y="225" class="bp-text-muted" font-size="10">ESCALA: 1:50</text>
+        <!-- Footer Metadata -->
+        <text x="26" y="230" class="bp-text-muted" font-size="9.5">Seção da viga: ${bw}×${bh} cm</text>
+        <text x="674" y="230" class="bp-text-muted" font-size="9.5" text-anchor="end">Escala esquemática 1:50</text>
       </svg>
     `;
   }
@@ -210,37 +191,41 @@ class ViewportSwitcher {
 
     const scale = 500 / Math.max(span, 8.0);
     const x0 = 80;
-    const x1 = x0 + (span * scale);
-    const yTop = 80;
-    const yBot = yTop + (bh * 0.8);
+    const x1 = x0 + span * scale;
+    const yTop = 64;
+    const beamHpx = Math.min(Math.max(bh * 0.42, 10), 34);
+    const yBot = yTop + beamHpx;
     const xm = (x0 + x1) / 2;
-    const deflY = yBot + Math.min(defl * 0.6, 50);
+
+    // True midpoint of quadratic Bezier M(x0,yBot) Q(xm,ctrlY) (x1,yBot) is yBot + sagPx when ctrlY = yBot + 2*sagPx
+    const sagPx = Math.min(Math.max(defl * 0.5, 10), 46);
+    const curveMidY = yBot + sagPx;
+    const ctrlY = yBot + 2 * sagPx;
 
     container.innerHTML = `
-      <svg viewBox="0 0 700 240" class="bp-svg w-full h-auto font-mono text-xs rounded-lg">
-        <!-- Pilares em corte -->
-        <rect x="${x0 - 15}" y="${yTop}" width="30" height="130" class="bp-struct" stroke="#64748b" stroke-width="1.5"/>
-        <rect x="${x1 - 15}" y="${yTop}" width="30" height="130" class="bp-struct" stroke="#64748b" stroke-width="1.5"/>
+      <svg viewBox="0 0 700 240" class="bp-svg w-full h-auto font-mono text-xs rounded">
+        <text x="26" y="30" class="bp-text-strong" font-size="10.5">Corte longitudinal · Deformada em serviço (ELS)</text>
 
-        <!-- Viga sem deformação (tracejada) -->
-        <rect x="${x0}" y="${yTop}" width="${x1 - x0}" height="${yBot - yTop}" fill="none" stroke="#64748b" stroke-dasharray="4,4" stroke-width="1"/>
+        <!-- Columns -->
+        <rect x="${x0 - 12}" y="${yTop}" width="24" height="146" class="bp-struct" stroke-width="1.25"/>
+        <rect x="${x1 - 12}" y="${yTop}" width="24" height="146" class="bp-struct" stroke-width="1.25"/>
 
-        <!-- Curva da deformada elástica em serviço ELS -->
-        <path d="M ${x0} ${yBot} Q ${xm} ${deflY} ${x1} ${yBot}" fill="none" stroke="${isViable ? '#10b981' : '#ef4444'}" stroke-width="3"/>
-        
-        <!-- Indicação da flecha no ponto médio -->
-        <line x1="${xm}" y1="${yBot}" x2="${xm}" y2="${deflY}" stroke="#d97706" stroke-width="2"/>
-        <circle cx="${xm}" cy="${deflY}" r="4" fill="#d97706"/>
-        
-        <text x="${xm + 12}" y="${(yBot + deflY) / 2 + 4}" class="bp-accent-amber" font-size="11" font-weight="bold">
-          f_calc = ${defl.toFixed(1)} mm
+        <!-- Undeformed Beam Reference -->
+        <rect x="${x0}" y="${yTop}" width="${x1 - x0}" height="${beamHpx}" fill="none" class="bp-dim-line" stroke-dasharray="4,4" stroke-width="1"/>
+
+        <!-- Elastic Deflection Curve -->
+        <path d="M ${x0} ${yBot} Q ${xm} ${ctrlY} ${x1} ${yBot}" fill="none" class="${isViable ? 'bp-stroke-emerald' : 'bp-stroke-rose'}" stroke-width="2"/>
+
+        <!-- Midspan Deflection Marker (strictly terminating at the curve vertex) -->
+        <line x1="${xm}" y1="${yBot}" x2="${xm}" y2="${curveMidY}" class="bp-dim-line" stroke-width="1.25"/>
+        <circle cx="${xm}" cy="${curveMidY}" r="3.2" class="${isViable ? 'bp-accent-emerald' : 'bp-accent-rose'}"/>
+
+        <!-- Callout cleanly positioned below the lowest point of the curve -->
+        <text x="${xm}" y="${curveMidY + 18}" text-anchor="middle" class="${isViable ? 'bp-accent-emerald' : 'bp-accent-rose'}" font-size="10">
+          δ = ${defl.toFixed(1)} mm
         </text>
-        <text x="${xm + 12}" y="${(yBot + deflY) / 2 + 18}" class="bp-text-muted" font-size="9">
-          f_adm ≤ ${allowable.toFixed(1)} mm
-        </text>
-
-        <text x="80" y="35" class="bp-text-strong" font-size="12" font-weight="bold">
-          CORTE LONGITUDINAL: VIGA SOB CARGA EM SERVIÇO (ELS)
+        <text x="${xm}" y="${curveMidY + 32}" text-anchor="middle" class="bp-text-muted" font-size="9">
+          Limite: ≤ ${allowable.toFixed(1)} mm
         </text>
       </svg>
     `;
@@ -250,30 +235,35 @@ class ViewportSwitcher {
     const container = document.getElementById('svg-diagrams-content');
     if (!container) return;
     const span = parseFloat(params.span_length_m) || 10.0;
-    const q = 25.0; // kN/m
-    const mMax = (q * span * span) / 8.0; // kNm
-    const vMax = (q * span) / 2.0; // kN
+    const q = 25.0;
+    const mMax = (q * span * span) / 8.0;
+    const vMax = (q * span) / 2.0;
 
     const x0 = 80;
     const x1 = 580;
     const xm = (x0 + x1) / 2;
 
-    container.innerHTML = `
-      <svg viewBox="0 0 700 240" class="bp-svg w-full h-auto font-mono text-xs rounded-lg">
-        <!-- 1. DIAGRAMA DE MOMENTO FLETOR (M) -->
-        <text x="80" y="30" class="bp-accent-brand" font-size="11" font-weight="bold">DIAGRAMA DE MOMENTO FLETOR (M_k): M_max = ${mMax.toFixed(1)} kN.m</text>
-        <line x1="${x0}" y1="50" x2="${x1}" y2="50" class="bp-dim-line" stroke-width="1.5"/>
-        <path d="M ${x0} 50 Q ${xm} 105 ${x1} 50 Z" fill="rgba(2, 132, 199, 0.16)" stroke="#0284c7" stroke-width="2"/>
-        <text x="${xm}" y="85" class="bp-accent-brand" font-size="10" font-weight="bold" text-anchor="middle">+${mMax.toFixed(1)} kN.m (Tração inferior)</text>
+    const yM = 46;
+    const yMPeak = 84;
+    const ctrlMY = yM + 2 * (yMPeak - yM);
 
-        <!-- 2. DIAGRAMA DE ESFORÇO CORTANTE (V) -->
-        <text x="80" y="140" class="bp-accent-purple" font-size="11" font-weight="bold">DIAGRAMA DE ESFORÇO CORTANTE (V_k): V_max = ${vMax.toFixed(1)} kN</text>
-        <line x1="${x0}" y1="180" x2="${x1}" y2="180" class="bp-dim-line" stroke-width="1.5"/>
-        <!-- Triângulo positivo esquerda, negativo direita -->
-        <polygon points="${x0},180 ${x0},150 ${xm},180" fill="rgba(147, 51, 234, 0.18)" stroke="#9333ea" stroke-width="1.5"/>
-        <polygon points="${xm},180 ${x1},210 ${x1},180" fill="rgba(147, 51, 234, 0.18)" stroke="#9333ea" stroke-width="1.5"/>
-        <text x="${x0 + 30}" y="170" class="bp-accent-purple" font-size="9" font-weight="bold">+${vMax.toFixed(1)} kN</text>
-        <text x="${x1 - 65}" y="200" class="bp-accent-purple" font-size="9" font-weight="bold">-${vMax.toFixed(1)} kN</text>
+    const yV = 186;
+
+    container.innerHTML = `
+      <svg viewBox="0 0 700 250" class="bp-svg w-full h-auto font-mono text-xs rounded">
+        <!-- 1. Bending Moment Diagram (M) -->
+        <text x="26" y="26" class="bp-text-strong" font-size="10.5">Momento fletor (Mk) · Máx = ${mMax.toFixed(1)} kN·m</text>
+        <line x1="${x0}" y1="${yM}" x2="${x1}" y2="${yM}" class="bp-dim-line" stroke-width="1.25"/>
+        <path d="M ${x0} ${yM} Q ${xm} ${ctrlMY} ${x1} ${yM} Z" class="bp-glass bp-stroke-brand" stroke-width="1.5"/>
+        <text x="${xm}" y="${yMPeak + 16}" class="bp-accent-brand" font-size="9.5" text-anchor="middle">+${mMax.toFixed(1)} kN·m</text>
+
+        <!-- 2. Shear Force Diagram (V) -->
+        <text x="26" y="136" class="bp-text-strong" font-size="10.5">Esforço cortante (Vk) · Máx = ${vMax.toFixed(1)} kN</text>
+        <line x1="${x0}" y1="${yV}" x2="${x1}" y2="${yV}" class="bp-dim-line" stroke-width="1.25"/>
+        <polygon points="${x0},${yV} ${x0},${yV - 26} ${xm},${yV}" class="bp-panel" stroke-width="1.25"/>
+        <polygon points="${xm},${yV} ${x1},${yV + 26} ${x1},${yV}" class="bp-panel" stroke-width="1.25"/>
+        <text x="${x0}" y="${yV - 32}" class="bp-text-strong" font-size="9" text-anchor="start">+${vMax.toFixed(1)} kN</text>
+        <text x="${x1}" y="${yV + 40}" class="bp-text-strong" font-size="9" text-anchor="end">-${vMax.toFixed(1)} kN</text>
       </svg>
     `;
   }

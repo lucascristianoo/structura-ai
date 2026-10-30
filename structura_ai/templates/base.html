@@ -18,7 +18,7 @@
     })();
   </script>
 
-  <!-- Theme Design Tokens -->
+  <!-- 1. Design Tokens -->
   <link rel="stylesheet" href="/static/css/theme.css">
 
   <!-- Google Fonts (Inter & JetBrains Mono) -->
@@ -86,7 +86,8 @@
   <!-- Lucide Icons -->
   <script src="https://unpkg.com/lucide@latest"></script>
 
-  <!-- Custom CSS -->
+  <!-- 2. Reusable UI Primitives & 3. Specialized Interactive Controls -->
+  <link rel="stylesheet" href="/static/css/components.css">
   <link rel="stylesheet" href="/static/css/custom.css">
 
   <!-- Theme Controller -->
@@ -94,81 +95,13 @@
 </head>
 <body class="bg-surface-base text-ink-primary min-h-full flex flex-col font-sans antialiased selection:bg-ink-strong selection:text-surface-card transition-colors duration-150">
 
-  <!-- NAVBAR -->
-  <header class="border-b border-edge bg-surface-card/90 backdrop-blur-md sticky top-0 z-50 transition-colors duration-150">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-14 flex items-center justify-between gap-4">
+  {% include "partials/navbar.html" %}
 
-      <!-- Logo & Brand -->
-      <div class="flex items-center gap-6">
-        <a href="/" class="flex items-center gap-2.5 shrink-0">
-          <div class="w-7 h-7 rounded bg-ink-strong text-surface-card flex items-center justify-center">
-            <svg class="w-3.5 h-3.5" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.6">
-              <path d="M2 13.5h12M3.5 13.5V4.5h9v9M3.5 8h9" stroke-linecap="square"/>
-            </svg>
-          </div>
-          <span class="text-sm font-semibold tracking-tight text-ink-strong">Structura<span class="text-ink-muted font-normal">.ai</span></span>
-        </a>
-
-        <!-- Navigation Links -->
-        <nav class="flex items-center gap-0.5 sm:gap-1">
-          <a href="/" class="hidden sm:inline-block px-2.5 py-1.5 text-xs font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated rounded-md transition-colors">
-            Início
-          </a>
-          <a href="/analyzer" class="px-2 sm:px-2.5 py-1.5 text-xs font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated rounded-md transition-colors">
-            Studio
-          </a>
-          <a href="/viewer" class="px-2 sm:px-2.5 py-1.5 text-xs font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated rounded-md transition-colors">
-            <span class="hidden md:inline">Visualizador 3D</span>
-            <span class="md:hidden">3D</span>
-          </a>
-          <a href="/council" class="px-2 sm:px-2.5 py-1.5 text-xs font-medium text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated rounded-md transition-colors">
-            <span class="hidden md:inline">Conselho Técnico</span>
-            <span class="md:hidden">Conselho</span>
-          </a>
-        </nav>
-      </div>
-
-      <!-- Action & Status -->
-      <div class="flex items-center gap-2">
-        <!-- Engine status badge -->
-        <div class="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded border border-edge bg-surface-inset text-[11px] font-mono text-ink-muted">
-          <span class="w-1.5 h-1.5 rounded-full {% if gemini_active %}bg-accent-emerald{% else %}bg-ink-faint{% endif %}"></span>
-          <span>{% if gemini_active %}Gemini{% else %}Motor local{% endif %}</span>
-        </div>
-
-        <!-- Compact Theme Toggle -->
-        <button
-          type="button"
-          id="theme-toggle"
-          aria-label="Alternar tema"
-          title="Alternar tema"
-          class="h-8 w-8 inline-flex items-center justify-center rounded-md border border-edge bg-surface-card text-ink-secondary hover:text-ink-strong hover:bg-surface-elevated transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ink-strong shrink-0"
-        >
-          <i data-lucide="sun" class="w-3.5 h-3.5 hidden dark:block"></i>
-          <i data-lucide="moon" class="w-3.5 h-3.5 block dark:hidden"></i>
-        </button>
-
-        <!-- Primary Action Button -->
-        <a href="/analyzer" class="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-md bg-ink-strong text-surface-card hover:opacity-90 transition-opacity shrink-0">
-          <span>Novo projeto</span>
-        </a>
-      </div>
-
-    </div>
-  </header>
-
-  <!-- MAIN CONTENT -->
   <main class="flex-1">
     {% block content %}{% endblock %}
   </main>
 
-  <!-- FOOTER -->
-  <footer class="border-t border-edge bg-surface-card py-6 text-[11px] text-ink-muted font-mono transition-colors duration-150">
-    <div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between gap-2">
-      <span>Structura.ai — Análise e compatibilização estrutural</span>
-      <span>Referência normativa: ABNT NBR 6118:2023 · NBR 6120</span>
-    </div>
-  </footer>
+  {% include "partials/footer.html" %}
 
   <script>
     lucide.createIcons();

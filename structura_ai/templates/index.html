@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% from "partials/macros.html" import status_dot %}
 
 {% block title %}Structura.AI — Validação e Compatibilização Estrutural{% endblock %}
 
@@ -11,9 +12,7 @@
 
       <!-- Left Column: Direct Value Proposition -->
       <div class="lg:col-span-7">
-        <p class="text-[11px] font-mono uppercase tracking-wider text-ink-muted mb-3">
-          ABNT NBR 6118:2023 · NBR 6120
-        </p>
+        <p class="ui-eyebrow mb-3">ABNT NBR 6118:2023 · NBR 6120</p>
 
         <h1 class="text-2xl sm:text-3xl lg:text-[2.15rem] font-semibold tracking-tight text-ink-strong leading-[1.2] max-w-xl">
           Validação estrutural para estudos preliminares de arquitetura.
@@ -23,16 +22,16 @@
           Verifique vãos livres, balanços e esbeltez antes do detalhamento executivo. Quando um elemento excede os limites normativos, o sistema dimensiona alternativas compatíveis com o partido arquitetônico.
         </p>
 
-        <!-- Primary & Secondary Solid Actions (Zero Gradients) -->
+        <!-- Primary & Secondary Solid Actions -->
         <div class="mt-7 flex flex-wrap items-center gap-2.5">
-          <a href="/analyzer" class="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-[13px] font-medium rounded-md bg-ink-strong text-surface-card hover:opacity-90 transition-opacity">
+          <a href="/analyzer" class="ui-btn ui-btn-primary">
             <span>Abrir Studio</span>
             <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
           </a>
-          <a href="#presets" class="inline-flex items-center gap-2 px-4 py-2 text-xs sm:text-[13px] font-medium rounded-md bg-surface-card text-ink-primary border border-edge-strong hover:bg-surface-elevated transition-colors">
+          <a href="#presets" class="ui-btn ui-btn-secondary">
             <span>Estudos de caso</span>
           </a>
-          <a href="/viewer" class="inline-flex items-center gap-1.5 px-3 py-2 text-xs sm:text-[13px] font-medium text-ink-secondary hover:text-ink-strong transition-colors">
+          <a href="/viewer" class="ui-btn ui-btn-ghost">
             <span>Importar DXF / IFC</span>
           </a>
         </div>
@@ -60,66 +59,51 @@
 
       <!-- Right Column: Minimalist Technical Diagnostic Sheet -->
       <div class="lg:col-span-5">
-        <div class="rounded-lg border border-edge bg-surface-card overflow-hidden">
-          <!-- Sheet Header -->
-          <div class="px-4 py-2.5 border-b border-edge bg-surface-inset/60 flex items-center justify-between text-[11px] font-mono">
+        <div class="ui-card overflow-hidden">
+          <div class="px-4 py-2.5 border-b border-edge bg-surface-inset/60 flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
             <span class="text-ink-secondary">PÓRTICO · L = 10,0 m + Lc = 3,8 m</span>
-            <span class="inline-flex items-center gap-1.5 text-ink-secondary">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-rose"></span>
-              <span>ELS excedido</span>
-            </span>
+            {{ status_dot(false, 'Conforme', 'ELS excedido') }}
           </div>
 
-          <!-- Clean Architectural Elevation Diagram -->
           <div class="bg-blueprint-dense px-4 py-5 border-b border-edge">
-            <svg viewBox="0 0 360 132" class="w-full h-auto block" role="img" aria-label="Esquema estrutural de viga com vão livre de 10 metros e balanço de 3,8 metros">
-              <!-- Dimension Lines Top -->
+            <svg viewBox="0 0 360 136" class="w-full h-auto block" role="img" aria-label="Esquema estrutural de viga com vão livre de 10 metros e balanço de 3,8 metros">
               <line x1="44" y1="22" x2="236" y2="22" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
               <line x1="44" y1="18" x2="44" y2="26" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
               <line x1="236" y1="18" x2="236" y2="26" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
-              <text x="140" y="16" text-anchor="middle" class="fill-current text-ink-muted font-mono" font-size="9">Vão 10,0 m</text>
+              <text x="140" y="15" text-anchor="middle" class="fill-current text-ink-muted font-mono" font-size="9">Vão 10,0 m</text>
 
               <line x1="236" y1="22" x2="316" y2="22" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
               <line x1="316" y1="18" x2="316" y2="26" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
-              <text x="276" y="16" text-anchor="middle" class="fill-current text-ink-muted font-mono" font-size="9">3,8 m</text>
+              <text x="276" y="15" text-anchor="middle" class="fill-current text-ink-muted font-mono" font-size="9">3,8 m</text>
 
-              <!-- Columns -->
-              <rect x="40" y="46" width="8" height="62" class="fill-current text-ink-primary"/>
-              <rect x="232" y="46" width="8" height="62" class="fill-current text-ink-primary"/>
-
-              <!-- Undeformed Beam -->
+              <rect x="40" y="46" width="8" height="64" class="fill-current text-ink-primary"/>
+              <rect x="232" y="46" width="8" height="64" class="fill-current text-ink-primary"/>
               <rect x="40" y="40" width="276" height="7" class="fill-current text-ink-strong"/>
 
-              <!-- Elastic Deflection Curve (Subtle Dashed Line) -->
-              <path d="M 44 47 Q 140 68 236 47 Q 278 49 316 63" fill="none" stroke="rgb(var(--accent-rose))" stroke-width="1.25" stroke-dasharray="3 3"/>
+              <path d="M 44 47 Q 140 67 236 47 Q 278 49 316 63" fill="none" stroke="rgb(var(--accent-rose))" stroke-width="1.25" stroke-dasharray="3 3"/>
+              <text x="140" y="76" text-anchor="middle" fill="rgb(var(--accent-rose))" class="font-mono" font-size="8.5">δ = 48,0 mm (lim. 40,0 mm)</text>
 
-              <!-- Deflection Callout -->
-              <text x="140" y="74" text-anchor="middle" fill="rgb(var(--accent-rose))" class="font-mono" font-size="8.5">δ = 48,0 mm (lim. 40,0 mm)</text>
-
-              <!-- Ground Line -->
-              <line x1="20" y1="108" x2="340" y2="108" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
-              <text x="44" y="121" class="fill-current text-ink-muted font-mono" font-size="8.5">Seção 20×28 cm · C30</text>
+              <line x1="20" y1="110" x2="340" y2="110" stroke="currentColor" class="text-ink-faint" stroke-width="1"/>
+              <text x="44" y="124" class="fill-current text-ink-muted font-mono" font-size="8.5">Seção 20×28 cm · C30</text>
             </svg>
           </div>
 
-          <!-- Engineering Readout Rows -->
           <div class="divide-y divide-edge text-xs">
-            <div class="px-4 py-2.5 flex items-center justify-between">
+            <div class="px-4 py-2.5 flex items-center justify-between gap-2">
               <span class="text-ink-muted">Flecha diferida (ELS)</span>
-              <span class="font-mono text-ink-strong">48,0 mm &gt; L/250</span>
+              <span class="font-mono text-ink-strong text-right">48,0 mm &gt; L/250</span>
             </div>
-            <div class="px-4 py-2.5 flex items-center justify-between">
+            <div class="px-4 py-2.5 flex items-center justify-between gap-2">
               <span class="text-ink-muted">Momento fletor solicitante</span>
-              <span class="font-mono text-ink-strong">194,2 kN·m</span>
+              <span class="font-mono text-ink-strong text-right">194,2 kN·m</span>
             </div>
-            <div class="px-4 py-2.5 flex items-center justify-between">
+            <div class="px-4 py-2.5 flex items-center justify-between gap-2">
               <span class="text-ink-muted">Alternativas calculadas</span>
-              <span class="font-mono text-ink-strong">Protensão, Vierendeel +3</span>
+              <span class="font-mono text-ink-strong text-right">Protensão, Vierendeel +3</span>
             </div>
           </div>
 
-          <!-- Sheet Footer Link -->
-          <div class="px-4 py-2.5 bg-surface-inset/50 border-t border-edge flex items-center justify-between text-[11px] font-mono">
+          <div class="px-4 py-2.5 bg-surface-inset/50 border-t border-edge flex flex-wrap items-center justify-between gap-2 text-[11px] font-mono">
             <span class="text-ink-muted">Caso: Residência Horizon</span>
             <a href="/analyzer?preset=residencia_vao_livre_critico" class="text-ink-strong font-medium hover:underline">
               Simular no Studio →
@@ -134,11 +118,11 @@
   <!-- WORKFLOW SECTION -->
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-edge">
     <div class="mb-6">
-      <h2 class="text-base sm:text-lg font-semibold text-ink-strong tracking-tight">Processo de verificação</h2>
-      <p class="mt-1 text-xs text-ink-secondary">Etapas diretas entre o estudo volumétrico e o pré-dimensionamento estrutural.</p>
+      <h2 class="ui-section-title">Processo de verificação</h2>
+      <p class="ui-subtitle">Etapas diretas entre o estudo volumétrico e o pré-dimensionamento estrutural.</p>
     </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-3 border border-edge rounded-lg bg-surface-card divide-y md:divide-y-0 md:divide-x divide-edge">
+    <div class="ui-card grid grid-cols-1 md:grid-cols-3 divide-y md:divide-y-0 md:divide-x divide-edge">
       <div class="p-5">
         <span class="text-[11px] font-mono text-ink-muted">01</span>
         <h3 class="mt-2 text-sm font-semibold text-ink-strong">Entrada geométrica</h3>
@@ -169,8 +153,8 @@
   <section id="presets" class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-edge">
     <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-6">
       <div>
-        <h2 class="text-base sm:text-lg font-semibold text-ink-strong tracking-tight">Estudos de caso</h2>
-        <p class="mt-1 text-xs text-ink-secondary">
+        <h2 class="ui-section-title">Estudos de caso</h2>
+        <p class="ui-subtitle">
           Modelos parametrizados para avaliar estruturas conformes e casos que demandam adequação.
         </p>
       </div>
@@ -179,28 +163,18 @@
 
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
       {% for preset in presets %}
-      <article class="group rounded-lg border border-edge bg-surface-card hover:border-edge-strong p-4 flex flex-col justify-between transition-colors">
+      <article class="group ui-card ui-card-interactive p-4 flex flex-col justify-between">
         <div>
           <div class="flex items-center justify-between gap-2">
             <span class="text-[11px] font-mono text-ink-muted">{{ preset.category }}</span>
-            {% if 'FAIL' in preset.expected_result %}
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-mono text-ink-secondary">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-rose"></span>
-              <span>Requer ajuste</span>
-            </span>
-            {% else %}
-            <span class="inline-flex items-center gap-1.5 text-[11px] font-mono text-ink-secondary">
-              <span class="w-1.5 h-1.5 rounded-full bg-accent-emerald"></span>
-              <span>Conforme</span>
-            </span>
-            {% endif %}
+            {{ status_dot('FAIL' not in preset.expected_result) }}
           </div>
 
           <h3 class="mt-2.5 text-sm font-semibold text-ink-strong leading-snug">
             {{ preset.title }}
           </h3>
 
-          <p class="mt-1.5 text-xs text-ink-secondary line-clamp-2 leading-relaxed">
+          <p class="mt-1.5 text-xs text-ink-secondary leading-relaxed">
             {{ preset.description }}
           </p>
 
@@ -236,23 +210,23 @@
   <section class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12 border-t border-edge">
     <div class="flex items-center justify-between mb-4">
       <div>
-        <h2 class="text-base sm:text-lg font-semibold text-ink-strong tracking-tight">Projetos recentes</h2>
-        <p class="mt-0.5 text-xs text-ink-secondary">Análises salvas no histórico local.</p>
+        <h2 class="ui-section-title">Projetos recentes</h2>
+        <p class="ui-subtitle">Análises salvas no histórico local.</p>
       </div>
       <a href="/analyzer" class="text-xs font-medium text-ink-secondary hover:text-ink-strong transition-colors">Novo projeto →</a>
     </div>
 
-    <div class="rounded-lg border border-edge bg-surface-card divide-y divide-edge">
+    <div class="ui-card divide-y divide-edge">
       {% for proj in projects %}
       <a href="/project/{{ proj.id }}" class="group flex flex-col sm:flex-row sm:items-center justify-between gap-2 px-4 py-3 hover:bg-surface-elevated/60 transition-colors">
         <div class="min-w-0">
-          <div class="flex items-center gap-2">
-            <h3 class="text-xs sm:text-[13px] font-medium text-ink-strong truncate">
+          <div class="flex flex-wrap items-baseline gap-x-2 gap-y-0.5">
+            <h3 class="text-xs sm:text-[13px] font-medium text-ink-strong break-words">
               {{ proj.title }}
             </h3>
             <span class="text-[11px] font-mono text-ink-muted shrink-0">· {{ proj.category }}</span>
           </div>
-          <p class="text-[11px] text-ink-muted truncate mt-0.5">
+          <p class="text-[11px] text-ink-muted leading-relaxed mt-0.5 break-words">
             {{ proj.author_architect }}{% if proj.description %} — {{ proj.description }}{% endif %}
           </p>
         </div>
@@ -260,10 +234,7 @@
         <div class="flex items-center gap-4 shrink-0 text-[11px] font-mono">
           {% if proj.analyses %}
             {% set a = proj.analyses[-1] %}
-            <span class="inline-flex items-center gap-1.5 text-ink-secondary">
-              <span class="w-1.5 h-1.5 rounded-full {% if a.is_physically_viable %}bg-accent-emerald{% else %}bg-accent-rose{% endif %}"></span>
-              <span>{% if a.is_physically_viable %}Aprovado ({{ a.structural_score }}){% else %}Revisão ({{ a.structural_score }}){% endif %}</span>
-            </span>
+            {{ status_dot(a.is_physically_viable, 'Aprovado (' ~ a.structural_score ~ ')', 'Revisão (' ~ a.structural_score ~ ')') }}
           {% else %}
             <span class="text-ink-muted">Pendente</span>
           {% endif %}
