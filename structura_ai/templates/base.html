@@ -5,6 +5,11 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>{% block title %}Structura.AI — Ponte Físico-Arquitetônica{% endblock %}</title>
   
+  <!-- Google Fonts (Inter & JetBrains Mono) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:ital,wght@0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+
   <!-- Tailwind CSS CDN -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -23,20 +28,11 @@
               800: '#075985',
               900: '#0c4a6e',
               950: '#082f49',
-            },
-            arch: {
-              dark: '#030712',
-              card: '#0f172a',
-              border: '#1e293b',
-              accent: '#38bdf8',
-              warn: '#f59e0b',
-              danger: '#ef4444',
-              success: '#10b981'
             }
           },
           fontFamily: {
             sans: ['Inter', '-apple-system', 'BlinkMacSystemFont', 'sans-serif'],
-            mono: ['JetBrains Mono', 'Fira Code', 'Courier New', 'monospace']
+            mono: ['"JetBrains Mono"', '"JetBrainsMono Nerd Font"', '"Noto Sans Mono"', '"Liberation Mono"', 'ui-monospace', 'SFMono-Regular', 'monospace']
           }
         }
       }
@@ -69,27 +65,28 @@
       </a>
 
       <!-- Navigation Links -->
-      <nav class="hidden md:flex items-center gap-1">
-        <a href="/" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors">
+      <nav class="flex items-center gap-1">
+        <a href="/" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors">
           Início
         </a>
-        <a href="/analyzer" class="px-3 py-2 text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors flex items-center gap-2">
+        <a href="/analyzer" class="px-2.5 sm:px-3 py-2 text-xs sm:text-sm font-medium text-slate-300 hover:text-white hover:bg-slate-800/60 rounded-lg transition-colors flex items-center gap-1.5 sm:gap-2">
           <i data-lucide="sliders" class="w-4 h-4 text-brand-400"></i>
-          Studio Interativo
+          <span class="hidden sm:inline">Studio Interativo</span>
+          <span class="sm:hidden">Studio</span>
         </a>
       </nav>
 
       <!-- Action & Status -->
-      <div class="flex items-center gap-3">
+      <div class="flex items-center gap-2 sm:gap-3">
         <!-- Gemini status badge -->
-        <div class="flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-xs font-mono">
+        <div class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-full border border-slate-800 bg-slate-900/60 text-xs font-mono">
           <span class="w-2 h-2 rounded-full {% if gemini_active %}bg-emerald-400 animate-pulse{% else %}bg-sky-400{% endif %}"></span>
-          <span class="text-slate-400 hidden sm:inline">Google AI:</span>
-          <span class="text-slate-200 font-semibold">Gemini 2.0 Flash</span>
+          <span class="text-slate-400 hidden md:inline">Google AI:</span>
+          <span class="text-slate-200 font-semibold">{% if gemini_active %}Gemini Ativo{% else %}Modo Local{% endif %}</span>
         </div>
 
         <!-- New Analysis Button -->
-        <a href="/analyzer" class="inline-flex items-center gap-2 px-4 py-2 text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200">
+        <a href="/analyzer" class="inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 text-xs sm:text-sm font-semibold rounded-lg bg-gradient-to-r from-brand-600 to-indigo-600 hover:from-brand-500 hover:to-indigo-500 text-white shadow-md shadow-brand-500/20 hover:shadow-brand-500/30 transition-all duration-200">
           <i data-lucide="plus" class="w-4 h-4"></i>
           <span>Novo Projeto</span>
         </a>

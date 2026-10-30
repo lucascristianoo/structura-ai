@@ -1,6 +1,7 @@
 /**
  * Structura.AI — Interactive Architectural Floorplan & Structural Grid Canvas
- * Allows architects to sketch columns and beams directly, extracting spans and cantilever geometry.
+ * Allows architects to sketch columns, beams and cantilevers directly,
+ * staying synchronized with Studio sliders in both directions.
  */
 
 class ArchitecturalCanvas {
@@ -9,121 +10,217 @@ class ArchitecturalCanvas {
     if (!this.canvas) return;
 
     this.ctx = this.canvas.getContext('2d');
+    this.scaleLabel = document.getElementById('canvas-scale-label');
     this.elements = [];
-    this.currentTool = 'column'; // 'column', 'beam', 'cantilever', 'clear'
-    this.scale = 40.0; // 40px = 1.0 meter
+    this.currentTool = 'column'; // 'column' | 'beam' | 'cantilever'
+    this.scale = 40.0; // pixels per meter
     this.isDrawing = false;
     this.startPoint = null;
 
-    this.initCanvasSize();
+    this.initCanvasSize(false);
     this.initEventListeners();
-    this.loadDefaultLayout();
+    this.initFromSliders();
   }
 
-  initCanvasSize() {
+  initCanvasSize(shouldRender = true) {
     const rect = this.canvas.parentElement.getBoundingClientRect();
-    this.canvas.width = rect.width || 700;
+    this.canvas.width = Math.max(Math.floor(rect.width), 320);
     this.canvas.height = 360;
-    this.render();
+    if (shouldRender) {
+      this.render();
+    }
+  }
+
+  initFromSliders() {
+    const spanInput = document.getElementById('input-span');
+    const cantInput = document.getElementById('input-cantilever');
+    const initialSpan = spanInput ? parseFloat(spanInput.value) || 9.5 : 9.5;
+    const initialCant = cantInput ? parseFloat(cantInput.value) || 0.0 : 3.5;
+    this.setLayoutFromParams(initialSpan, initialCant);
+  }
+
+  setActiveTool(toolName) {
+    this.currentTool = toolName;
+    document.querySelectorAll('[data-canvas-tool]').forEach((btn) => {
+      const isSelected = btn.getAttribute('data-canvas-tool') === toolName;
+      btn.classList.toggle('bg-brand-600', isSelected);
+      btn.classList.toggle('text-white', isSelected);
+      btn.classList.toggle('font-semibold', isSelected);
+      btn.classList.toggle('bg-slate-800', !isSelected);
+      btn.classList.toggle('text-slate-300', !isSelected);
+    });
   }
 
   initEventListeners() {
-    window.addEventListener('resize', () => this.initCanvasSize());
+    window.addEventListener('resize', () => this.initCanvasSize(true));
 
-    this.canvas.addEventListener('mousedown', (e) => this.onMouseDown(e));
-    this.canvas.addEventListener('mousemove', (e) => this.onMouseMove(e));
-    this.canvas.addEventListener('mouseup', (e) => this.onMouseUp(e));
+    this.canvas.addEventListener('pointerdown', (e) => this.onPointerDown(e));
+    this.canvas.addEventListener('pointermove', (e) => this.onPointerMove(e));
+    this.canvas.addEventListener('pointerup', (e) => this.onPointerUp(e));
+    this.canvas.addEventListener('pointercancel', () => {
+      this.isDrawing = false;
+      this.render();
+    });
 
-    // Tool selector buttons if present
-    document.querySelectorAll('[data-canvas-tool]').forEach(btn => {
-      btn.addEventListener('click', (e) => {
-        document.querySelectorAll('[data-canvas-tool]').forEach(b => b.classList.remove('bg-brand-600', 'text-white'));
-        btn.classList.add('bg-brand-600', 'text-white');
-        this.currentTool = btn.getAttribute('data-canvas-tool');
-        if (this.currentTool === 'clear') {
-          this.elements = [];
-          this.render();
-          this.currentTool = 'column';
-        }
+    // Stateful drawing tool buttons
+    document.querySelectorAll('[data-canvas-tool]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const tool = btn.getAttribute('data-canvas-tool');
+        if (tool) this.setActiveTool(tool);
       });
     });
 
-    const btnAnalyzeCanvas = document.getElementById('btn-analyze-canvas');
-    if (btnAnalyzeCanvas) {
-      btnAnalyzeCanvas.addEventListener('click', () => this.analyzeCanvas());
-    }
+    // One-shot canvas actions (undo / clear)
+    document.querySelectorAll('[data-canvas-action]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const action = btn.getAttribute('data-canvas-action');
+        if (action === 'clear') {
+          this.elements = [];
+          this.render();
+          this.setActiveTool('column');
+        } else if (action === 'undo' && this.elements.length > 0) {
+          this.elements.pop();
+          this.render();
+          if (this.elements.length > 0) {
+            this.syncWithStudio();
+          }
+        }
+      });
+    });
   }
 
   getCanvasCoords(e) {
     const rect = this.canvas.getBoundingClientRect();
+    const scaleX = rect.width ? this.canvas.width / rect.width : 1;
+    const scaleY = rect.height ? this.canvas.height / rect.height : 1;
     return {
-      x: e.clientX - rect.left,
-      y: e.clientY - rect.top
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
     };
   }
 
-  onMouseDown(e) {
+  onPointerDown(e) {
+    if (e.button !== undefined && e.button !== 0) return;
     const pt = this.getCanvasCoords(e);
+
     if (this.currentTool === 'column') {
       this.elements.push({
         id: 'col_' + Date.now(),
         type: 'column',
-        start: pt,
-        properties: { section_cm: 20 }
+        start: pt
       });
       this.render();
       this.syncWithStudio();
     } else if (this.currentTool === 'beam' || this.currentTool === 'cantilever') {
       this.isDrawing = true;
       this.startPoint = pt;
+      if (this.canvas.setPointerCapture) {
+        this.canvas.setPointerCapture(e.pointerId);
+      }
     }
   }
 
-  onMouseMove(e) {
-    if (!this.isDrawing) return;
+  onPointerMove(e) {
+    if (!this.isDrawing || !this.startPoint) return;
     const pt = this.getCanvasCoords(e);
     this.render();
 
-    // Draw preview line
+    const isCant = this.currentTool === 'cantilever';
+    const distM = (Math.hypot(pt.x - this.startPoint.x, pt.y - this.startPoint.y) / this.scale).toFixed(1);
+
     this.ctx.beginPath();
-    this.ctx.strokeStyle = this.currentTool === 'cantilever' ? '#f59e0b' : '#38bdf8';
+    this.ctx.strokeStyle = isCant ? '#f59e0b' : '#38bdf8';
     this.ctx.lineWidth = 3;
-    this.ctx.setLineDash([4, 4]);
+    this.ctx.setLineDash([5, 5]);
     this.ctx.moveTo(this.startPoint.x, this.startPoint.y);
     this.ctx.lineTo(pt.x, pt.y);
     this.ctx.stroke();
     this.ctx.setLineDash([]);
+
+    // Live distance preview badge
+    const midX = (this.startPoint.x + pt.x) / 2;
+    const midY = (this.startPoint.y + pt.y) / 2;
+    this.drawDimensionTag(midX, midY, `${distM}m`, isCant);
   }
 
-  onMouseUp(e) {
-    if (!this.isDrawing) return;
+  onPointerUp(e) {
+    if (!this.isDrawing || !this.startPoint) return;
     this.isDrawing = false;
-    const pt = this.getCanvasCoords(e);
+    if (this.canvas.releasePointerCapture && this.canvas.hasPointerCapture?.(e.pointerId)) {
+      this.canvas.releasePointerCapture(e.pointerId);
+    }
 
+    const pt = this.getCanvasCoords(e);
     const dist = Math.hypot(pt.x - this.startPoint.x, pt.y - this.startPoint.y);
-    if (dist > 15) {
+    if (dist > 12) {
       this.elements.push({
         id: (this.currentTool === 'cantilever' ? 'cant_' : 'beam_') + Date.now(),
         type: this.currentTool,
         start: this.startPoint,
-        end: pt,
-        properties: { length_m: (dist / this.scale).toFixed(1) }
+        end: pt
       });
       this.render();
       this.syncWithStudio();
+    } else {
+      this.render();
     }
+    this.startPoint = null;
   }
 
-  loadDefaultLayout() {
-    // Default demo: 2 columns separated by ~9.5m (380px) and a cantilever of 3.5m (140px)
-    const centerY = 180;
+  /**
+   * Builds a clean schematic layout matching given span & cantilever (in meters).
+   * Dynamically adjusts pixel-per-meter scale so large spans never clip off-canvas.
+   */
+  setLayoutFromParams(spanM, cantileverM) {
+    const safeSpan = Math.max(parseFloat(spanM) || 6.0, 1.0);
+    const safeCant = Math.max(parseFloat(cantileverM) || 0.0, 0.0);
+    const totalLengthM = safeSpan + safeCant;
+
+    const availableWidth = Math.max(this.canvas.width - 120, 200);
+    this.scale = Math.min(40, Math.max(18, Math.floor(availableWidth / Math.max(totalLengthM, 1))));
+    if (this.scaleLabel) {
+      this.scaleLabel.textContent = `Escala: ${this.scale}px = 1.0m • Clique ou arraste para desenhar`;
+    }
+
+    const totalPx = totalLengthM * this.scale;
+    const startX = Math.max(50, Math.round((this.canvas.width - totalPx) / 2));
+    const col2X = Math.round(startX + safeSpan * this.scale);
+    const cantEndX = Math.round(col2X + safeCant * this.scale);
+    const centerY = Math.round(this.canvas.height / 2);
+
     this.elements = [
-      { id: 'c1', type: 'column', start: { x: 140, y: centerY } },
-      { id: 'c2', type: 'column', start: { x: 520, y: centerY } },
-      { id: 'b1', type: 'beam', start: { x: 140, y: centerY }, end: { x: 520, y: centerY } },
-      { id: 'cant1', type: 'cantilever', start: { x: 520, y: centerY }, end: { x: 660, y: centerY } }
+      { id: 'c1', type: 'column', start: { x: startX, y: centerY } },
+      { id: 'c2', type: 'column', start: { x: col2X, y: centerY } },
+      { id: 'b1', type: 'beam', start: { x: startX, y: centerY }, end: { x: col2X, y: centerY } }
     ];
+
+    if (safeCant > 0) {
+      this.elements.push({
+        id: 'cant1',
+        type: 'cantilever',
+        start: { x: col2X, y: centerY },
+        end: { x: cantEndX, y: centerY }
+      });
+    }
+
     this.render();
+  }
+
+  drawDimensionTag(midX, midY, label, isCantilever) {
+    const ctx = this.ctx;
+    const boxW = 58;
+    const boxH = 22;
+
+    ctx.fillStyle = '#0f172a';
+    ctx.fillRect(midX - boxW / 2, midY - boxH - 6, boxW, boxH);
+    ctx.strokeStyle = '#334155';
+    ctx.lineWidth = 1;
+    ctx.strokeRect(midX - boxW / 2, midY - boxH - 6, boxW, boxH);
+
+    ctx.fillStyle = isCantilever ? '#f59e0b' : '#38bdf8';
+    ctx.font = '700 12px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
+    ctx.textAlign = 'center';
+    ctx.fillText(label, midX, midY - 11);
   }
 
   render() {
@@ -148,51 +245,59 @@ class ArchitecturalCanvas {
     }
 
     // Beams and Cantilevers
-    this.elements.filter(e => e.type === 'beam' || e.type === 'cantilever').forEach(e => {
-      ctx.beginPath();
-      const isCant = e.type === 'cantilever';
-      ctx.strokeStyle = isCant ? '#f59e0b' : '#38bdf8';
-      ctx.lineWidth = isCant ? 4 : 5;
-      ctx.lineCap = 'round';
-      ctx.moveTo(e.start.x, e.start.y);
-      ctx.lineTo(e.end.x, e.end.y);
-      ctx.stroke();
+    this.elements
+      .filter((e) => e.type === 'beam' || e.type === 'cantilever')
+      .forEach((e) => {
+        const isCant = e.type === 'cantilever';
+        ctx.beginPath();
+        ctx.strokeStyle = isCant ? '#f59e0b' : '#38bdf8';
+        ctx.lineWidth = isCant ? 4 : 5;
+        ctx.lineCap = 'round';
+        ctx.moveTo(e.start.x, e.start.y);
+        ctx.lineTo(e.end.x, e.end.y);
+        ctx.stroke();
 
-      // Dimension Tag
-      const midX = (e.start.x + e.end.x) / 2;
-      const midY = (e.start.y + e.end.y) / 2;
-      const distM = (Math.hypot(e.end.x - e.start.x, e.end.y - e.start.y) / this.scale).toFixed(1);
-      
-      ctx.fillStyle = '#0f172a';
-      ctx.fillRect(midX - 25, midY - 18, 50, 18);
-      ctx.strokeStyle = '#334155';
-      ctx.strokeRect(midX - 25, midY - 18, 50, 18);
-
-      ctx.fillStyle = isCant ? '#f59e0b' : '#38bdf8';
-      ctx.font = '10px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText(`${distM}m`, midX, midY - 5);
-    });
+        const midX = (e.start.x + e.end.x) / 2;
+        const midY = (e.start.y + e.end.y) / 2;
+        const distM = (Math.hypot(e.end.x - e.start.x, e.end.y - e.start.y) / this.scale).toFixed(1);
+        this.drawDimensionTag(midX, midY, `${distM}m`, isCant);
+      });
 
     // Columns
-    this.elements.filter(e => e.type === 'column').forEach(e => {
-      ctx.fillStyle = '#38bdf8';
-      ctx.fillRect(e.start.x - 9, e.start.y - 9, 18, 18);
-      ctx.strokeStyle = '#0284c7';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(e.start.x - 9, e.start.y - 9, 18, 18);
+    this.elements
+      .filter((e) => e.type === 'column')
+      .forEach((e) => {
+        ctx.fillStyle = '#38bdf8';
+        ctx.fillRect(e.start.x - 9, e.start.y - 9, 18, 18);
+        ctx.strokeStyle = '#0284c7';
+        ctx.lineWidth = 2;
+        ctx.strokeRect(e.start.x - 9, e.start.y - 9, 18, 18);
 
-      ctx.fillStyle = '#94a3b8';
-      ctx.font = '9px monospace';
-      ctx.textAlign = 'center';
-      ctx.fillText('PILAR', e.start.x, e.start.y + 20);
-    });
+        ctx.fillStyle = '#cbd5e1';
+        ctx.font = '600 11px "JetBrains Mono", "JetBrainsMono Nerd Font", ui-monospace, monospace';
+        ctx.textAlign = 'center';
+        ctx.fillText('PILAR', e.start.x, e.start.y + 23);
+      });
   }
 
   syncWithStudio() {
-    // Computes max span between any 2 columns or along drawn beams
-    const cols = this.elements.filter(e => e.type === 'column');
-    let maxDistM = 6.0;
+    if (!window.studio) return;
+
+    const cols = this.elements.filter((e) => e.type === 'column');
+    const beams = this.elements.filter((e) => e.type === 'beam');
+    const cants = this.elements.filter((e) => e.type === 'cantilever');
+
+    let maxDistM = 0;
+
+    if (beams.length > 0) {
+      beams.forEach((b) => {
+        if (b.end) {
+          const d = Math.hypot(b.end.x - b.start.x, b.end.y - b.start.y) / this.scale;
+          if (d >= 1.0) maxDistM = Math.max(maxDistM, d);
+        }
+      });
+    }
+
     if (cols.length >= 2) {
       for (let i = 0; i < cols.length; i++) {
         for (let j = i + 1; j < cols.length; j++) {
@@ -202,39 +307,35 @@ class ArchitecturalCanvas {
       }
     }
 
-    const beams = this.elements.filter(e => e.type === 'beam');
-    beams.forEach(b => {
-      if (b.end) {
-        const d = Math.hypot(b.end.x - b.start.x, b.end.y - b.start.y) / this.scale;
-        if (d >= 2.0) maxDistM = Math.max(maxDistM, d);
+    if (maxDistM > 0 && window.studio.spanSlider) {
+      const minSpan = parseFloat(window.studio.spanSlider.min) || 3.0;
+      const maxSpan = parseFloat(window.studio.spanSlider.max) || 16.0;
+      const clampedSpan = Math.min(maxSpan, Math.max(minSpan, maxDistM));
+      window.studio.spanSlider.value = clampedSpan.toFixed(1);
+      if (window.studio.spanVal) {
+        window.studio.spanVal.textContent = `${clampedSpan.toFixed(1)} m`;
       }
-    });
+    }
 
-    const cants = this.elements.filter(e => e.type === 'cantilever');
     let maxCantM = 0.0;
-    cants.forEach(c => {
+    cants.forEach((c) => {
       if (c.end) {
         const d = Math.hypot(c.end.x - c.start.x, c.end.y - c.start.y) / this.scale;
         maxCantM = Math.max(maxCantM, d);
       }
     });
 
-    // Update main studio sliders
-    if (window.studio) {
-      if (window.studio.spanSlider) {
-        window.studio.spanSlider.value = maxDistM.toFixed(1);
-        if (window.studio.spanVal) window.studio.spanVal.textContent = `${maxDistM.toFixed(1)} m`;
+    if (window.studio.cantileverSlider && (cants.length > 0 || beams.length > 0 || cols.length >= 2)) {
+      const minCant = parseFloat(window.studio.cantileverSlider.min) || 0.0;
+      const maxCant = parseFloat(window.studio.cantileverSlider.max) || 6.0;
+      const clampedCant = Math.min(maxCant, Math.max(minCant, maxCantM));
+      window.studio.cantileverSlider.value = clampedCant.toFixed(1);
+      if (window.studio.cantileverVal) {
+        window.studio.cantileverVal.textContent = `${clampedCant.toFixed(1)} m`;
       }
-      if (window.studio.cantileverSlider) {
-        window.studio.cantileverSlider.value = maxCantM.toFixed(1);
-        if (window.studio.cantileverVal) window.studio.cantileverVal.textContent = `${maxCantM.toFixed(1)} m`;
-      }
-      window.studio.scheduleQuickCalc();
     }
-  }
 
-  async analyzeCanvas() {
-    this.syncWithStudio();
+    window.studio.scheduleQuickCalc();
   }
 }
 
