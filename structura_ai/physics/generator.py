@@ -4,6 +4,7 @@ Proposes 5 distinct visual and mathematical modifications to adapt failing
 architectural concepts directly into physically compliant engineering realities.
 """
 from typing import Dict, Any, List
+from structura_ai.physics.cost_carbon_engine import CostCarbonEngine
 
 class RedesignGenerator:
     """
@@ -19,6 +20,8 @@ class RedesignGenerator:
         h_orig = inputs.get("beam_height_cm", 30.0)
         bw_orig = inputs.get("beam_width_cm", 20.0)
         col_h = inputs.get("column_height_m", 3.2)
+        col_sec = inputs.get("column_section_cm", 20.0)
+        fck = inputs.get("fck_mpa", 30.0)
         orig_deflection = evaluation.get("max_deflection_mm", 48.0)
         adm_deflection = evaluation.get("allowable_deflection_mm", 38.0)
         orig_moment = evaluation.get("max_bending_moment_knm", 280.0)
@@ -30,6 +33,16 @@ class RedesignGenerator:
         # =========================================================================
         v1_deflection = round(orig_deflection * 0.28, 1)
         v1_moment = round(orig_moment * 0.42, 1)
+        v1_bom = CostCarbonEngine.calculate_bom_and_cost(
+            span_length_m=span,
+            cantilever_length_m=cantilever,
+            beam_height_cm=h_orig,
+            beam_width_cm=bw_orig,
+            column_height_m=col_h,
+            column_section_cm=col_sec,
+            concrete_fck_mpa=fck,
+            system_type="post_tensioned"
+        )
         variants.append({
             "variant_number": 1,
             "title": "Grelha Otimizada com Protensão Ativa (Post-Tensioned Slim Profile)",
@@ -52,7 +65,10 @@ class RedesignGenerator:
                 "weight_reduction_pct": 14,
                 "safety_factor": 2.25,
                 "cost_efficiency": "Alto (Economia de 25% no volume de concreto e eliminação de vigas invertidas)",
-                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS)"
+                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS)",
+                "estimated_cost_brl": v1_bom["financial_sinapi_2026"]["total_estimated_brl"],
+                "embodied_co2_kg": v1_bom["embodied_carbon_a1_a3"]["total_emissions_kg_co2"],
+                "bom_quantities": v1_bom["quantities"]
             },
             "visual_features": [
                 "Teto contínuo sem vigas aparentes",
@@ -72,6 +88,16 @@ class RedesignGenerator:
         # =========================================================================
         v2_deflection = round(orig_deflection * 0.16, 1)
         v2_moment = round(orig_moment * 0.30, 1)
+        v2_bom = CostCarbonEngine.calculate_bom_and_cost(
+            span_length_m=span,
+            cantilever_length_m=cantilever,
+            beam_height_cm=h_orig,
+            beam_width_cm=bw_orig,
+            column_height_m=col_h,
+            column_section_cm=col_sec,
+            concrete_fck_mpa=fck,
+            system_type="vierendeel"
+        )
         variants.append({
             "variant_number": 2,
             "title": "Exoesqueleto de Fachada & Viga-Parede Vierendeel (Structural Exoskeleton)",
@@ -94,7 +120,10 @@ class RedesignGenerator:
                 "weight_reduction_pct": 10,
                 "safety_factor": 2.65,
                 "cost_efficiency": "Excelente (dispensa pilares no térreo e aproveita alvenaria estrutural)",
-                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS/ELU)"
+                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS/ELU)",
+                "estimated_cost_brl": v2_bom["financial_sinapi_2026"]["total_estimated_brl"],
+                "embodied_co2_kg": v2_bom["embodied_carbon_a1_a3"]["total_emissions_kg_co2"],
+                "bom_quantities": v2_bom["quantities"]
             },
             "visual_features": [
                 "Vão térreo 100% livre com sensação de levitação",
@@ -114,6 +143,16 @@ class RedesignGenerator:
         # =========================================================================
         v3_deflection = round(orig_deflection * 0.22, 1)
         v3_moment = round(orig_moment * 0.35, 1)
+        v3_bom = CostCarbonEngine.calculate_bom_and_cost(
+            span_length_m=span,
+            cantilever_length_m=cantilever,
+            beam_height_cm=h_orig,
+            beam_width_cm=bw_orig,
+            column_height_m=col_h,
+            column_section_cm=col_sec,
+            concrete_fck_mpa=fck,
+            system_type="stayed"
+        )
         variants.append({
             "variant_number": 3,
             "title": "Balanço Atirantado com Pilares Esculturais em V (Tension-Stayed & V-Tree)",
@@ -136,7 +175,10 @@ class RedesignGenerator:
                 "weight_reduction_pct": 18,
                 "safety_factor": 2.40,
                 "cost_efficiency": "Muito Alto (Redução de 30% na armadura de aço passivo)",
-                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS/ELU)"
+                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS/ELU)",
+                "estimated_cost_brl": v3_bom["financial_sinapi_2026"]["total_estimated_brl"],
+                "embodied_co2_kg": v3_bom["embodied_carbon_a1_a3"]["total_emissions_kg_co2"],
+                "bom_quantities": v3_bom["quantities"]
             },
             "visual_features": [
                 "Pilares dinâmicos em V angulados a 65 graus",
@@ -156,6 +198,16 @@ class RedesignGenerator:
         # =========================================================================
         v4_deflection = round(orig_deflection * 0.38, 1)
         v4_moment = round(orig_moment * 0.55, 1)
+        v4_bom = CostCarbonEngine.calculate_bom_and_cost(
+            span_length_m=span,
+            cantilever_length_m=cantilever,
+            beam_height_cm=h_orig,
+            beam_width_cm=bw_orig,
+            column_height_m=col_h,
+            column_section_cm=col_sec,
+            concrete_fck_mpa=fck,
+            system_type="waffle"
+        )
         variants.append({
             "variant_number": 4,
             "title": "Grelha Nervurada Bidirecional com Capitéis Aparentes (Waffle Slab Architecture)",
@@ -178,7 +230,10 @@ class RedesignGenerator:
                 "weight_reduction_pct": 38,
                 "safety_factor": 2.10,
                 "cost_efficiency": "Excepcional (economia direta de 35% de concreto e formas industrializadas)",
-                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS)"
+                "clearance_status": "COMPLIANT (Aprovado NBR 6118 ELS)",
+                "estimated_cost_brl": v4_bom["financial_sinapi_2026"]["total_estimated_brl"],
+                "embodied_co2_kg": v4_bom["embodied_carbon_a1_a3"]["total_emissions_kg_co2"],
+                "bom_quantities": v4_bom["quantities"]
             },
             "visual_features": [
                 "Teto rítmico nervurado com grelha aparente 80x80cm",
@@ -198,6 +253,16 @@ class RedesignGenerator:
         # =========================================================================
         v5_deflection = round(orig_deflection * 0.08, 1)
         v5_moment = round(orig_moment * 0.12, 1)
+        v5_bom = CostCarbonEngine.calculate_bom_and_cost(
+            span_length_m=span,
+            cantilever_length_m=cantilever,
+            beam_height_cm=h_orig,
+            beam_width_cm=bw_orig,
+            column_height_m=col_h,
+            column_section_cm=col_sec,
+            concrete_fck_mpa=fck,
+            system_type="steel_hybrid"
+        )
         variants.append({
             "variant_number": 5,
             "title": "Geometria Catenária Funicular em Arco Suave (Funicular Compression Vault)",
@@ -220,7 +285,10 @@ class RedesignGenerator:
                 "weight_reduction_pct": 45,
                 "safety_factor": 3.10,
                 "cost_efficiency": "Ótimo (Casca ultra-leve de 10cm sustentando vão livre recorde)",
-                "clearance_status": "COMPLIANT (Superavit Estrutural Gaudí/Dieste)"
+                "clearance_status": "COMPLIANT (Superavit Estrutural Gaudí/Dieste)",
+                "estimated_cost_brl": v5_bom["financial_sinapi_2026"]["total_estimated_brl"],
+                "embodied_co2_kg": v5_bom["embodied_carbon_a1_a3"]["total_emissions_kg_co2"],
+                "bom_quantities": v5_bom["quantities"]
             },
             "visual_features": [
                 "Cobertura fluida em arco catenário suave",

@@ -139,6 +139,66 @@ def generate_ifc_pavilhao_bim(dest: Path):
     print(f"✅ IFC BIM gerado: {dest} ({dest.stat().st_size} bytes)")
 
 
+def generate_dxf_sobrado_conforme_5m(dest: Path):
+    """Cria prancha CAD DXF de Residência Modular Conforme NBR 6118 (Vão 5.0m, Viga 20x45cm)."""
+    doc = ezdxf.new("R2010", setup=True)
+    doc.units = units.M
+    msp = doc.modelspace()
+
+    doc.layers.add("ESTRUTURA_PILARES", color=ezdxf.colors.BLUE)
+    doc.layers.add("ESTRUTURA_VIGAS", color=ezdxf.colors.GREEN)
+    doc.layers.add("COTAS_DIMENSOES", color=ezdxf.colors.WHITE)
+    doc.layers.add("STATUS_NBR6118", color=ezdxf.colors.GREEN)
+
+    # Pilares P1 e P2 (20x30cm)
+    msp.add_lwpolyline([(-0.1, -0.15), (0.1, -0.15), (0.1, 0.15), (-0.1, 0.15), (-0.1, -0.15)], dxfattribs={"layer": "ESTRUTURA_PILARES"})
+    msp.add_lwpolyline([(4.9, -0.15), (5.1, -0.15), (5.1, 0.15), (4.9, 0.15), (4.9, -0.15)], dxfattribs={"layer": "ESTRUTURA_PILARES"})
+
+    # Viga V1 (20x45cm) em vão de 5.0m
+    msp.add_line((0.0, -0.1), (5.0, -0.1), dxfattribs={"layer": "ESTRUTURA_VIGAS"})
+    msp.add_line((0.0, 0.1), (5.0, 0.1), dxfattribs={"layer": "ESTRUTURA_VIGAS"})
+    msp.add_line((0.0, 0.0), (5.0, 0.0), dxfattribs={"layer": "ESTRUTURA_VIGAS"})
+
+    msp.add_text("P1 (20x30)", dxfattribs={"layer": "ESTRUTURA_PILARES", "height": 0.2}).set_placement((-0.4, -0.5))
+    msp.add_text("P2 (20x30)", dxfattribs={"layer": "ESTRUTURA_PILARES", "height": 0.2}).set_placement((4.7, -0.5))
+    msp.add_text("VIGA V1 (20x45) — VÃO 5.00m [CONFORME NBR 6118]", dxfattribs={"layer": "COTAS_DIMENSOES", "height": 0.25}).set_placement((0.8, 0.3))
+    msp.add_text("FLECHA 8.2mm <= LIMITE 20.0mm (FOLGA 59%)", dxfattribs={"layer": "STATUS_NBR6118", "height": 0.2}).set_placement((0.8, -0.4))
+
+    doc.saveas(str(dest))
+    print(f"✅ DXF Conforme gerado: {dest} ({dest.stat().st_size} bytes)")
+
+
+def generate_ifc_sobrado_conforme(dest: Path):
+    """Gera modelo IFC4 de referência 100% conforme com NBR 6118."""
+    f = ifcopenshell.file(schema="IFC4")
+    project = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcProject", name="Sobrado_Racional_NBR6118")
+    ctx = ifcopenshell.api.run("context.add_context", f, context_type="Model")
+    body = ifcopenshell.api.run("context.add_context", f, context_type="Model", context_identifier="Body", target_view="MODEL_VIEW", parent=ctx)
+
+    site = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcSite", name="Lote Residencial")
+    building = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcBuilding", name="Residencia Sobrado")
+    storey = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcBuildingStorey", name="Piso Superior")
+
+    ifcopenshell.api.run("aggregate.assign_object", f, relating_object=project, products=[site])
+    ifcopenshell.api.run("aggregate.assign_object", f, relating_object=site, products=[building])
+    ifcopenshell.api.run("aggregate.assign_object", f, relating_object=building, products=[storey])
+
+    col1 = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcColumn", name="Pilar_P1_25x25")
+    col2 = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcColumn", name="Pilar_P2_25x25")
+    beam = ifcopenshell.api.run("root.create_entity", f, ifc_class="IfcBeam", name="Viga_V1_20x45_Vao_5m")
+
+    ifcopenshell.api.run("spatial.assign_container", f, relating_structure=storey, products=[col1, col2, beam])
+
+    pset_beam = ifcopenshell.api.run("pset.add_pset", f, product=beam, name="Pset_BeamCommon")
+    ifcopenshell.api.run("pset.edit_pset", f, pset=pset_beam, properties={"Length": 5.0, "Depth": 450.0, "Width": 200.0, "Span": 5.0})
+
+    pset_comp = ifcopenshell.api.run("pset.add_pset", f, product=beam, name="Pset_StructuraCompliance")
+    ifcopenshell.api.run("pset.edit_pset", f, pset=pset_comp, properties={"IsViable": True, "Score": 98.5, "Standard": "NBR 6118:2023"})
+
+    f.write(str(dest))
+    print(f"✅ IFC Conforme gerado: {dest} ({dest.stat().st_size} bytes)")
+
+
 def main():
     root = Path(__file__).resolve().parent.parent
     dest_dir = root / "downloads" / "test_samples"
@@ -149,13 +209,19 @@ def main():
     print(f"  📂 Destino: {dest_dir}")
     print("=" * 60)
 
+    # Cenário 1: Requer Redesign Estrutural
     generate_dxf_horizon_10m(dest_dir / "residencia_horizon_10m.dxf")
     generate_dxf_balanco_critico(dest_dir / "cobertura_balanco_critico.dxf")
     generate_obj_residencia_3d(dest_dir / "residencia_horizon_3d.obj")
-    generate_ifc_pavilhao_bim(dest_dir / "pavilhao_estrutural_bim.ifc")
 
-    print("\n🎉 Todas as 4 amostras oficiais de teste foram geradas com sucesso!")
+    # Cenário 2: Totalmente Conforme NBR 6118
+    generate_ifc_pavilhao_bim(dest_dir / "pavilhao_estrutural_bim.ifc")
+    generate_dxf_sobrado_conforme_5m(dest_dir / "sobrado_grid_racional_5m.dxf")
+    generate_ifc_sobrado_conforme(dest_dir / "sobrado_conforme_nbr6118.ifc")
+
+    print("\n🎉 Todas as 6 amostras oficiais de teste foram geradas com sucesso!")
 
 
 if __name__ == "__main__":
     main()
+

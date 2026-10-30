@@ -7,6 +7,9 @@ import math
 from typing import Dict, Any, List
 from structura_ai.physics.nbr_standards import ConcreteProperties, DeflectionLimits, ColumnLimits
 from structura_ai.physics.load_calculator import LoadCalculator
+from structura_ai.physics.cost_carbon_engine import CostCarbonEngine
+from structura_ai.physics.dsm_solver import DSMSolver
+from structura_ai.physics.optisection import OptiSectionEngine
 
 class StructuralCoreEngine:
     """
@@ -225,6 +228,40 @@ class StructuralCoreEngine:
                 f"Foram identificados {len(failures)} ponto(s) de intervenção mandatória antes do envio ao engenheiro calculista."
             )
 
+        # Calculate BOM, SINAPI 2026 Cost and Embodied Carbon
+        bom_data = CostCarbonEngine.calculate_bom_and_cost(
+            span_length_m=span_length_m,
+            cantilever_length_m=cantilever_length_m,
+            beam_height_cm=beam_height_cm,
+            beam_width_cm=beam_width_cm,
+            column_height_m=column_height_m,
+            column_section_cm=column_section_cm,
+            tributary_width_m=tributary_width_m,
+            concrete_fck_mpa=concrete_fck_mpa,
+            system_type="standard_rc"
+        )
+
+        # Run Direct Stiffness Method (DSM) Frame Analysis
+        dsm_result = DSMSolver.solve_portal_frame(
+            span_length_m=span_length_m,
+            cantilever_length_m=cantilever_length_m,
+            beam_height_cm=beam_height_cm,
+            beam_width_cm=beam_width_cm,
+            column_height_m=column_height_m,
+            column_section_cm=column_section_cm,
+            elastic_modulus_gpa=e_gpa,
+            distributed_load_kn_m=q_ser
+        )
+
+        # Run Section Catalog Optimizer
+        optisection_result = OptiSectionEngine.optimize_beam_section(
+            span_length_m=span_length_m,
+            distributed_load_kn_m=q_ser,
+            concrete_fck_mpa=concrete_fck_mpa,
+            current_beam_height_cm=beam_height_cm,
+            current_beam_width_cm=beam_width_cm
+        )
+
         return {
             "is_physically_viable": is_viable,
             "structural_score": score,
@@ -247,5 +284,8 @@ class StructuralCoreEngine:
                 "column_height_m": column_height_m,
                 "column_section_cm": column_section_cm,
                 "fck_mpa": concrete_fck_mpa
-            }
+            },
+            "bom_and_cost": bom_data,
+            "dsm_analysis": dsm_result,
+            "section_optimization": optisection_result,
         }

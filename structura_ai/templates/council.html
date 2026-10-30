@@ -1,0 +1,232 @@
+{% extends "base.html" %}
+
+{% block title %}Conselho de Agentes Autônomos • Structura.AI{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+  
+  <!-- Breadcrumb & Header -->
+  <div class="flex flex-wrap items-center justify-between gap-4 mb-6">
+    <div>
+      <div class="flex items-center gap-2 text-xs font-mono text-slate-400 mb-1">
+        <a href="/" class="hover:text-brand-400">Início</a>
+        <span>/</span>
+        <span class="text-slate-200">Conselho de Agentes Autônomos</span>
+      </div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
+        Conselho de Agentes & Matriz Solow
+        <span class="text-xs font-mono font-medium px-2.5 py-1 rounded-md bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          Adversarial Testing & Curadoria
+        </span>
+      </h1>
+      <p class="text-xs text-slate-400 mt-1 max-w-2xl font-sans">
+        Loop de auto-aperfeiçoamento autônomo entre o Agente User (Arquiteto Adversarial que tenta clonar nosso IP), o Agente Engenheiro ("Menos é Mais", que poda o supérfluo) e a Pesquisa de Mercado Solow.
+      </p>
+    </div>
+
+    <!-- Actions -->
+    <div class="flex items-center gap-3 font-mono text-xs">
+      <button type="button" id="btn-run-council" class="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-brand-600 hover:from-purple-500 hover:to-brand-500 text-white font-bold shadow-lg shadow-purple-500/20 flex items-center gap-2 transition-all">
+        <i data-lucide="play" class="w-4 h-4"></i>
+        <span>Executar Sessão do Conselho</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- 3 AGENT CARDS GRID -->
+  <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8 font-mono">
+    
+    <!-- CARD 1: AGENTE USER -->
+    <div class="rounded-2xl border border-rose-500/30 bg-slate-900/80 backdrop-blur-md p-6 shadow-xl relative overflow-hidden">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-rose-500/20 flex items-center justify-center text-rose-400">
+            <i data-lucide="crosshair" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase">Agente User</h3>
+            <span class="text-[10px] text-slate-400 block font-sans">Arquiteto Adversarial & IP Cloner</span>
+          </div>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded bg-rose-950 text-rose-300 border border-rose-500/40">Stress-Test</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Missão Primária:</span>
+          <span class="text-slate-200">Testar limites e queixar-se</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Benchmarks Avaliados:</span>
+          <span id="user-benchmarks-count" class="text-brand-400 font-bold">6 projetos</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Queixas Registradas:</span>
+          <span id="user-complaints-count" class="text-rose-400 font-bold">10 pontos</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Viabilidade de Cópia:</span>
+          <span class="text-amber-400 font-bold">45% (Alta barreira)</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 2: AGENTE ENGENHEIRO -->
+    <div class="rounded-2xl border border-emerald-500/30 bg-slate-900/80 backdrop-blur-md p-6 shadow-xl relative overflow-hidden">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-emerald-500/20 flex items-center justify-center text-emerald-400">
+            <i data-lucide="shield-check" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase">Agente Engenheiro</h3>
+            <span class="text-[10px] text-slate-400 block font-sans">Curador "Menos é Mais"</span>
+          </div>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded bg-emerald-950 text-emerald-300 border border-emerald-500/40">Filtro Pareto</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Lema Central:</span>
+          <span class="text-emerald-400 font-bold">Menos é mais</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Features Mantidas:</span>
+          <span id="eng-kept-count" class="text-slate-200 font-bold">5 fundamentais</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Complexidade Podada:</span>
+          <span id="eng-pruned-count" class="text-amber-400 font-bold">1 bloat descartado</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Status Calibração:</span>
+          <span class="text-emerald-400 font-bold">NBR 6118 Estável</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- CARD 3: AGENTE PESQUISA DE MERCADO -->
+    <div class="rounded-2xl border border-brand-500/30 bg-slate-900/80 backdrop-blur-md p-6 shadow-xl relative overflow-hidden">
+      <div class="flex items-center justify-between border-b border-slate-800 pb-3 mb-4">
+        <div class="flex items-center gap-2">
+          <div class="w-8 h-8 rounded-lg bg-brand-500/20 flex items-center justify-center text-brand-400">
+            <i data-lucide="trending-up" class="w-4 h-4"></i>
+          </div>
+          <div>
+            <h3 class="text-sm font-bold text-white uppercase">Pesquisa & Solow</h3>
+            <span class="text-[10px] text-slate-400 block font-sans">Estratégia & Fosso Competitivo</span>
+          </div>
+        </div>
+        <span class="text-[10px] px-2 py-0.5 rounded bg-brand-950 text-brand-300 border border-brand-500/40">TFP +94%</span>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="flex justify-between">
+          <span class="text-slate-400">Modelo Econômico:</span>
+          <span class="text-slate-200">Solow-Swan AEC</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Ciclo Tradicional:</span>
+          <span class="text-rose-400 font-bold">21 dias</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Ciclo Structura:</span>
+          <span class="text-emerald-400 font-bold">1.2 segundos</span>
+        </div>
+        <div class="flex justify-between">
+          <span class="text-slate-400">Ganho TFP Residual:</span>
+          <span class="text-brand-400 font-bold">4.2x capital</span>
+        </div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- SOLOW MATRIX & SIGNATURE KILLER FEATURE BANNER -->
+  <div class="rounded-2xl border border-amber-500/40 bg-gradient-to-r from-slate-900 via-amber-950/20 to-slate-900 p-6 shadow-xl mb-8">
+    <div class="flex flex-wrap items-center justify-between gap-4">
+      <div class="space-y-1">
+        <span class="text-xs font-mono font-bold text-amber-400 uppercase tracking-wider flex items-center gap-1.5">
+          <i data-lucide="award" class="w-4 h-4"></i>
+          Nossa Marca Registrada • A Feature Matadora (Solow Pareto 20/60)
+        </span>
+        <h2 class="text-xl font-bold text-white font-sans">
+          Instant Structural Truth Slider™ & BIM Roundtrip (IFC4 & DXF)
+        </h2>
+        <p class="text-xs text-slate-300 max-w-3xl font-sans leading-relaxed">
+          O arquiteto manipula os sliders de vão livre e altura de viga na tela, e em menos de 50 milissegundos:
+          1) As áreas tributárias de Voronoi redistribuem as cargas; 2) O solver DSM calcula as deformações; 3) A NBR 6118 atualiza o farol; 4) O SINAPI 2026 recalcula o orçamento; 5) Um clique gera o arquivo IFC4 e DXF para Revit ou Blender.
+        </p>
+      </div>
+      <a href="/viewer" class="px-4 py-2.5 rounded-xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-mono text-xs font-bold shadow-lg transition-colors flex items-center gap-2">
+        <i data-lucide="eye" class="w-4 h-4"></i>
+        <span>Testar no Visualizador</span>
+      </a>
+    </div>
+  </div>
+
+  <!-- DELIBERATION AUDIT LOG DISPLAY -->
+  <div class="rounded-2xl border border-slate-800 bg-slate-900/90 backdrop-blur-md p-6 shadow-xl space-y-4">
+    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+      <h3 class="text-sm font-bold uppercase tracking-wider text-slate-200 font-mono flex items-center gap-2">
+        <i data-lucide="terminal" class="w-4 h-4 text-brand-400"></i>
+        Dossiê de Auditoria & Deliberações do Conselho (Markdown)
+      </h3>
+      <span id="council-status-pill" class="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+        Auditoria Ativa
+      </span>
+    </div>
+
+    <div class="rounded-xl bg-slate-950 p-4 border border-slate-800 font-mono text-xs text-slate-300 max-h-96 overflow-y-auto whitespace-pre-wrap leading-relaxed" id="council-log-text">
+Carregando deliberações do Conselho de Agentes...
+    </div>
+  </div>
+
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', async () => {
+  const logEl = document.getElementById('council-log-text');
+  const btnRun = document.getElementById('btn-run-council');
+
+  async function fetchCouncilReport() {
+    try {
+      const res = await fetch('/api/agents/council/report');
+      if (res.ok) {
+        const text = await res.text();
+        if (logEl) logEl.textContent = text;
+      }
+    } catch (e) {
+      if (logEl) logEl.textContent = 'Erro ao carregar relatório: ' + e;
+    }
+  }
+
+  if (btnRun) {
+    btnRun.addEventListener('click', async () => {
+      btnRun.disabled = true;
+      btnRun.innerHTML = `<i data-lucide="loader-2" class="w-4 h-4 animate-spin"></i><span>Deliberando...</span>`;
+      if (window.lucide) lucide.createIcons();
+
+      try {
+        const res = await fetch('/api/agents/council/run', { method: 'POST' });
+        if (res.ok) {
+          const data = await res.json();
+          if (logEl) logEl.textContent = data.markdown_dossier;
+        }
+      } catch (err) {
+        alert('Erro ao executar sessão: ' + err);
+      } finally {
+        btnRun.disabled = false;
+        btnRun.innerHTML = `<i data-lucide="play" class="w-4 h-4"></i><span>Executar Sessão do Conselho</span>`;
+        if (window.lucide) lucide.createIcons();
+      }
+    });
+  }
+
+  fetchCouncilReport();
+});
+</script>
+{% endblock %}
