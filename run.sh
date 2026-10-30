@@ -21,8 +21,14 @@ if [ ! -d ".venv" ]; then
     python3 -m venv .venv
     source .venv/bin/activate
     pip install -r requirements.txt
+    touch .venv/.requirements.stamp
 else
     source .venv/bin/activate
+    if [ ! -f ".venv/.requirements.stamp" ] || [ "requirements.txt" -nt ".venv/.requirements.stamp" ]; then
+        echo "📦 Sincronizando dependências de requirements.txt..."
+        pip install -r requirements.txt
+        touch .venv/.requirements.stamp
+    fi
 fi
 
 export PYTHONPATH=.
