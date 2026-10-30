@@ -45,7 +45,7 @@
       <!-- Presets Quick Switcher -->
       <div class="flex items-center gap-2">
         <label class="text-xs font-mono text-slate-400 hidden sm:inline">Cenário Rápido:</label>
-        <select id="preset-select" onchange="window.location.href='/analyzer?preset=' + this.value" class="bg-slate-900 border border-slate-700 text-xs font-mono rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-500 cursor-pointer">
+        <select id="preset-select" class="bg-slate-900 border border-slate-700 text-xs font-mono rounded-lg px-3 py-2 text-slate-200 focus:outline-none focus:border-brand-500 cursor-pointer">
           {% for p in presets %}
           <option value="{{ p.key }}" {% if p.key == preset_key %}selected{% endif %}>
             {{ p.title }} ({% if 'FAIL' in p.expected_result %}⚠️ Reprova{% else %}✅ Aprova{% endif %})
