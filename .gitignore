@@ -48,3 +48,9 @@ uploads/*
 .coverage
 htmlcov/
 .DS_Store
+
+# Uploads/DB gerados por testes (qualquer nível)
+**/uploads/*
+!**/uploads/.gitkeep
+*.db-shm
+*.db-wal
