@@ -1,6 +1,7 @@
 /**
  * Structura.AI — Interactive 3D WebGL Viewport (Three.js)
  * Reads scene, grid, and structural element colors directly from theme.css tokens.
+ * Supports parametric structural frames, CAD/BIM elements, and imported 3D meshes (OBJ/glTF/STL).
  */
 
 class Structura3DViewport {
@@ -16,7 +17,6 @@ class Structura3DViewport {
     this.gridHelper = null;
     this.currentMode = 'shaded';
     this.amplification = 25.0;
-    this.activeVariant = 0;
     this.currentParams = null;
 
     this.init();
@@ -35,14 +35,13 @@ class Structura3DViewport {
       slab: css('--three-slab', '#d4d4d8'),
       beamOk: css('--three-beam-ok', '#1e4b85'),
       beamFail: css('--three-beam-fail', '#b91c1c'),
-      accent: css('--three-accent', '#1e4b85'),
-      cable: css('--three-cable', '#a16207')
+      accent: css('--three-accent', '#1e4b85')
     };
   }
 
   init() {
     const width = this.container.clientWidth || 800;
-    const height = this.container.clientHeight || 450;
+    const height = this.container.clientHeight || 420;
 
     this.scene = new THREE.Scene();
 
@@ -63,18 +62,17 @@ class Structura3DViewport {
       this.controls.enableDamping = true;
       this.controls.dampingFactor = 0.05;
       this.controls.maxPolarAngle = Math.PI / 2 + 0.05;
-      this.controls.minDistance = 3;
-      this.controls.maxDistance = 60;
+      this.controls.minDistance = 2;
+      this.controls.maxDistance = 80;
       this.controls.target.set(5, 1.8, 0);
     }
 
     this.applySceneTheme();
 
-    // Neutral Architectural Studio Lighting
-    const ambientLight = new THREE.AmbientLight(0xffffff, 0.72);
+    const ambientLight = new THREE.AmbientLight(0xffffff, 0.75);
     this.scene.add(ambientLight);
 
-    const dirLight = new THREE.DirectionalLight(0xffffff, 0.82);
+    const dirLight = new THREE.DirectionalLight(0xffffff, 0.85);
     dirLight.position.set(15, 25, 20);
     dirLight.castShadow = true;
     dirLight.shadow.mapSize.width = 1024;
@@ -90,7 +88,9 @@ class Structura3DViewport {
     window.addEventListener('resize', () => this.onResize());
     window.addEventListener('structura:themechange', () => {
       this.applySceneTheme();
-      this.rebuildScene();
+      if (this.currentParams) {
+        this.rebuildScene();
+      }
     });
 
     this.animate();
@@ -113,8 +113,8 @@ class Structura3DViewport {
       }
     }
     this.gridHelper = new THREE.GridHelper(
-      30,
-      30,
+      36,
+      36,
       new THREE.Color(tc.gridMain),
       new THREE.Color(tc.gridSub)
     );
@@ -125,7 +125,8 @@ class Structura3DViewport {
   onResize() {
     if (!this.container || !this.renderer || !this.camera) return;
     const width = this.container.clientWidth;
-    const height = this.container.clientHeight || 450;
+    const height = this.container.clientHeight || 420;
+    if (width <= 0 || height <= 0) return;
     this.camera.aspect = width / height;
     this.camera.updateProjectionMatrix();
     this.renderer.setSize(width, height);
@@ -133,33 +134,45 @@ class Structura3DViewport {
 
   setShadingMode(mode) {
     this.currentMode = mode;
-    this.rebuildScene();
+    if (this.currentParams) {
+      this.rebuildScene();
+    }
   }
 
-  setDeflectionAmplification(amp) {
-    this.amplification = amp;
-    this.rebuildScene();
+  resetCamera() {
+    if (!this.camera || !this.controls) return;
+    const p = this.currentParams || {};
+    const span = parseFloat(p.span_length_m) || 10.0;
+    const cant = parseFloat(p.cantilever_length_m) || 0.0;
+    const ch = parseFloat(p.column_height_m) || 3.2;
+    const totalX = Math.max(span + cant, 6.0);
+
+    const centerX = totalX / 2.0;
+    const centerY = ch / 2.0;
+    const dist = Math.max(totalX * 1.35, 11.0);
+
+    this.camera.position.set(centerX + dist * 0.72, ch + dist * 0.48, dist * 0.95);
+    this.controls.target.set(centerX, centerY, 0);
+    this.controls.update();
   }
 
-  setActiveVariant(variantNum) {
-    this.activeVariant = variantNum;
-    this.rebuildScene();
-  }
-
-  updateFromParams(params) {
+  updateFromParams(params, { fitCamera = false } = {}) {
     this.currentParams = {
       ...this.currentParams,
       ...params,
       max_deflection_mm: params.max_deflection_mm ?? params.deflection_mm ?? 50.0
     };
     this.rebuildScene();
+    if (fitCamera) {
+      this.resetCamera();
+    }
   }
 
-  updateGeometry(params) {
-    this.updateFromParams(params);
+  updateGeometry(params, opts) {
+    this.updateFromParams(params, opts);
   }
 
-  rebuildScene() {
+  clearMeshGroup() {
     while (this.meshGroup.children.length > 0) {
       const obj = this.meshGroup.children[0];
       if (obj.geometry) obj.geometry.dispose();
@@ -169,18 +182,27 @@ class Structura3DViewport {
       }
       this.meshGroup.remove(obj);
     }
+  }
 
-    const p = this.currentParams || {
-      span_length_m: 10.0,
-      cantilever_length_m: 0.0,
-      beam_height_cm: 30.0,
-      beam_width_cm: 20.0,
-      column_height_m: 3.2,
-      column_section_cm: 20.0,
-      max_deflection_mm: 54.2,
-      allowable_deflection_mm: 40.0,
-      is_viable: false
-    };
+  rebuildScene() {
+    this.clearMeshGroup();
+    if (!this.currentParams) return;
+
+    const p = this.currentParams;
+    const tc = this.getThemeColors();
+
+    // If an imported 3D surface mesh (OBJ/glTF/STL) has vertices & faces, render it directly
+    const cadMesh = p.cad_mesh;
+    if (
+      cadMesh &&
+      Array.isArray(cadMesh.vertices) &&
+      cadMesh.vertices.length >= 3 &&
+      Array.isArray(cadMesh.faces) &&
+      cadMesh.faces.length >= 1
+    ) {
+      this.renderImportedTrimesh(cadMesh, p, tc);
+      return;
+    }
 
     const span = parseFloat(p.span_length_m) || 10.0;
     const cant = parseFloat(p.cantilever_length_m) || 0.0;
@@ -190,13 +212,8 @@ class Structura3DViewport {
     const cw = (parseFloat(p.column_section_cm) || 20.0) / 100.0;
     const cd = cw * 2.0;
 
-    if (this.controls) {
-      this.controls.target.set(span / 2, ch / 2, 0);
-    }
-
-    const tc = this.getThemeColors();
     const colMat = this.createMaterial(new THREE.Color(tc.col), 0.92);
-    const beamBaseColor = new THREE.Color(p.is_viable || this.activeVariant > 0 ? tc.beamOk : tc.beamFail);
+    const beamBaseColor = new THREE.Color(p.is_viable ? tc.beamOk : tc.beamFail);
     const beamMat = this.createMaterial(beamBaseColor, 0.95);
     const slabMat = this.createMaterial(new THREE.Color(tc.slab), 0.85);
 
@@ -217,8 +234,7 @@ class Structura3DViewport {
     // 2. Segmented Primary Beam (Elastic Deflection Curve)
     const segments = 24;
     const maxDeflM = (parseFloat(p.max_deflection_mm) || 50.0) / 1000.0;
-    const effectiveDefl = this.activeVariant > 0 ? maxDeflM * 0.25 : maxDeflM;
-    const ampDefl = effectiveDefl * this.amplification;
+    const ampDefl = Math.min(maxDeflM * this.amplification, ch * 0.45);
 
     for (let i = 0; i < segments; i++) {
       const x0 = (i / segments) * span;
@@ -254,86 +270,86 @@ class Structura3DViewport {
 
     // 4. Cantilever
     if (cant > 0) {
+      let cantMat = beamMat;
+      if (this.currentMode === 'stress') {
+        cantMat = this.createMaterial(this.getStressColor(0.85), 1.0);
+      }
       const cantGeom = new THREE.BoxGeometry(cant, bh, bw);
-      const cantMesh = new THREE.Mesh(cantGeom, beamMat);
+      const cantMesh = new THREE.Mesh(cantGeom, cantMat);
       cantMesh.position.set(span + cant / 2, ch - bh / 2, 0);
       cantMesh.castShadow = true;
       this.meshGroup.add(cantMesh);
     }
-
-    // 5. Structural Variant Specifics
-    this.renderVariantSpecifics(span, ch, bh, bw, cant, tc);
   }
 
-  renderVariantSpecifics(span, ch, bh, bw, cant, tc) {
-    const accentColor = new THREE.Color(tc.accent);
-    const cableColor = new THREE.Color(tc.cable);
-    const colColor = new THREE.Color(tc.col);
+  renderImportedTrimesh(cadMesh, p, tc) {
+    const positions = [];
+    const colors = [];
 
-    if (this.activeVariant === 1) {
-      const tendonPoints = [];
-      for (let i = 0; i <= 20; i++) {
-        const xi = (i / 20) * span;
-        const tendonSag = 0.2;
-        const yi = ch - 0.05 - (4 * tendonSag / (span * span)) * xi * (span - xi);
-        tendonPoints.push(new THREE.Vector3(xi, yi, 0));
-      }
-      const tendonGeom = new THREE.BufferGeometry().setFromPoints(tendonPoints);
-      const tendonLine = new THREE.Line(tendonGeom, new THREE.LineBasicMaterial({ color: cableColor, linewidth: 3 }));
-      this.meshGroup.add(tendonLine);
-    } else if (this.activeVariant === 2) {
-      const trussHeight = 2.8;
-      const topChordGeom = new THREE.BoxGeometry(span, 0.25, bw);
-      const topChord = new THREE.Mesh(topChordGeom, this.createMaterial(colColor, 0.92));
-      topChord.position.set(span / 2, ch + trussHeight, 0);
-      this.meshGroup.add(topChord);
+    let minX = Infinity, maxX = -Infinity;
+    let minY = Infinity, maxY = -Infinity;
+    let minZ = Infinity, maxZ = -Infinity;
 
-      const numPosts = 5;
-      for (let i = 0; i <= numPosts; i++) {
-        const xp = (i / numPosts) * span;
-        const postGeom = new THREE.BoxGeometry(0.2, trussHeight, bw);
-        const post = new THREE.Mesh(postGeom, this.createMaterial(accentColor, 0.92));
-        post.position.set(xp, ch + trussHeight / 2, 0);
-        this.meshGroup.add(post);
-      }
-    } else if (this.activeVariant === 3) {
-      const mastHeight = 4.5;
-      const mastGeom = new THREE.CylinderGeometry(0.08, 0.08, mastHeight);
-      const mast = new THREE.Mesh(mastGeom, this.createMaterial(colColor, 1.0));
-      mast.position.set(0, ch + mastHeight / 2, 0);
-      this.meshGroup.add(mast);
-
-      const cablePts1 = [new THREE.Vector3(0, ch + mastHeight, 0), new THREE.Vector3(span * 0.55, ch, 0)];
-      const cLine1 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(cablePts1), new THREE.LineBasicMaterial({ color: cableColor, linewidth: 2 }));
-      this.meshGroup.add(cLine1);
-
-      if (cant > 0) {
-        const cablePts2 = [new THREE.Vector3(0, ch + mastHeight, 0), new THREE.Vector3(span + cant, ch, 0)];
-        const cLine2 = new THREE.Line(new THREE.BufferGeometry().setFromPoints(cablePts2), new THREE.LineBasicMaterial({ color: cableColor, linewidth: 2 }));
-        this.meshGroup.add(cLine2);
-      }
-    } else if (this.activeVariant === 4) {
-      const waffleMat = this.createMaterial(colColor, 0.88);
-      const ribs = 6;
-      for (let r = 1; r < ribs; r++) {
-        const xr = (r / ribs) * span;
-        const ribGeom = new THREE.BoxGeometry(0.12, 0.35, 4.5);
-        const rib = new THREE.Mesh(ribGeom, waffleMat);
-        rib.position.set(xr, ch - 0.15, 2.25);
-        this.meshGroup.add(rib);
-      }
-    } else if (this.activeVariant === 5) {
-      const archPoints = [];
-      const archHeight = 1.4;
-      for (let i = 0; i <= 24; i++) {
-        const xi = (i / 24) * span;
-        const yi = (4 * archHeight / (span * span)) * xi * (span - xi);
-        archPoints.push(new THREE.Vector3(xi, yi + 0.1, 0));
-      }
-      const archGeom = new THREE.BufferGeometry().setFromPoints(archPoints);
-      const archLine = new THREE.Line(archGeom, new THREE.LineBasicMaterial({ color: accentColor, linewidth: 4 }));
-      this.meshGroup.add(archLine);
+    // Convert CAD Z-up or Y-up cleanly and find bounds
+    const verts = cadMesh.vertices;
+    for (let i = 0; i < verts.length; i++) {
+      const vx = verts[i][0] || 0;
+      const vy = verts[i][2] !== undefined ? verts[i][2] : (verts[i][1] || 0);
+      const vz = verts[i][2] !== undefined ? -(verts[i][1] || 0) : 0;
+      if (vx < minX) minX = vx;
+      if (vx > maxX) maxX = vx;
+      if (vy < minY) minY = vy;
+      if (vy > maxY) maxY = vy;
+      if (vz < minZ) minZ = vz;
+      if (vz > maxZ) maxZ = vz;
     }
+
+    const spanX = Math.max(maxX - minX, 0.1);
+    const centerZ = (minZ + maxZ) / 2.0;
+
+    for (let f = 0; f < cadMesh.faces.length; f++) {
+      const face = cadMesh.faces[f];
+      if (!face || face.length < 3) continue;
+      for (let k = 0; k < 3; k++) {
+        const idx = face[k];
+        const v = verts[idx] || [0, 0, 0];
+        const x = (v[0] || 0) - minX;
+        const y = (v[2] !== undefined ? v[2] : (v[1] || 0)) - minY;
+        const z = (v[2] !== undefined ? -(v[1] || 0) : 0) - centerZ;
+        positions.push(x, y, z);
+
+        const normX = Math.min(Math.max(x / spanX, 0), 1);
+        const stressRatio = 4 * normX * (1 - normX);
+        const c = new THREE.Color(this.getStressColor(stressRatio));
+        colors.push(c.r, c.g, c.b);
+      }
+    }
+
+    const geom = new THREE.BufferGeometry();
+    geom.setAttribute('position', new THREE.Float32BufferAttribute(positions, 3));
+    if (this.currentMode === 'stress') {
+      geom.setAttribute('color', new THREE.Float32BufferAttribute(colors, 3));
+    }
+    geom.computeVertexNormals();
+
+    let mat;
+    if (this.currentMode === 'stress') {
+      mat = new THREE.MeshStandardMaterial({
+        vertexColors: true,
+        roughness: 0.45,
+        metalness: 0.1,
+        side: THREE.DoubleSide
+      });
+    } else {
+      const baseCol = new THREE.Color(p.is_viable ? tc.beamOk : tc.accent);
+      mat = this.createMaterial(baseCol, 0.94);
+      mat.side = THREE.DoubleSide;
+    }
+
+    const mesh = new THREE.Mesh(geom, mat);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    this.meshGroup.add(mesh);
   }
 
   createMaterial(colorVal, opacity = 1.0) {

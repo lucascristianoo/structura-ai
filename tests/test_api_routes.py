@@ -51,10 +51,20 @@ async def test_preset_load_and_export():
         data = resp.json()
         project_id = data["project_id"]
 
-        # View project page
-        view_resp = await client.get(f"/project/{project_id}")
-        assert view_resp.status_code == 200
-        assert "Laudo Técnico" in view_resp.text
+        # Single-page viewer at '/' serves the unified frontend
+        home_resp = await client.get("/")
+        assert home_resp.status_code == 200
+        assert "fake-login-form" in home_resp.text
+        assert "viewer-workspace" in home_resp.text
+        assert "copilot-chat-box" in home_resp.text
+
+        # Legacy /viewer redirects to '/' and removed pages return 404
+        legacy_viewer = await client.get("/viewer", follow_redirects=False)
+        assert legacy_viewer.status_code == 307
+        assert legacy_viewer.headers["location"] == "/"
+        assert (await client.get("/analyzer")).status_code == 404
+        assert (await client.get("/council")).status_code == 404
+        assert (await client.get(f"/project/{project_id}")).status_code == 404
 
         # Export HTML report
         export_resp = await client.get(f"/api/export/{project_id}/report.html")
@@ -101,3 +111,36 @@ async def test_canvas_base64_upload_flow():
         proj_data = proj_resp.json()
         assert proj_data["image_path"] is not None
         assert "croqui_arquiteto.png" in proj_data["image_path"]
+
+
+@pytest.mark.asyncio
+async def test_copilot_debate_flow():
+    """Verifies chatbot diagnostic debate endpoint with project context and multi-turn history."""
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as client:
+        payload = {
+            "message": "Por que reprovou no ELS e qual altura de viga resolveria?",
+            "project_context": {
+                "title": "Residência Horizon",
+                "span_length_m": 10.0,
+                "cantilever_length_m": 0.0,
+                "beam_width_cm": 20.0,
+                "beam_height_cm": 28.0,
+                "concrete_fck_mpa": 30.0,
+                "is_physically_viable": False,
+                "structural_score": 42.0,
+                "max_deflection_mm": 48.2,
+                "allowable_deflection_mm": 40.0,
+                "max_bending_moment_knm": 285.4,
+                "failure_reasons": ["Flecha excessiva acima de L/250"]
+            },
+            "history": [
+                {"role": "user", "content": "Enviei o arquivo residencia_horizon_10m.dxf."},
+                {"role": "assistant", "content": "Diagnóstico emitido: flecha acima do limite."}
+            ]
+        }
+        resp = await client.post("/api/analysis/copilot", json=payload)
+        assert resp.status_code == 200
+        body = resp.json()
+        assert body["status"] == "success"
+        assert len(body["reply"]) > 20
