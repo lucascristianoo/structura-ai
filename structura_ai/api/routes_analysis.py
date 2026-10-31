@@ -160,7 +160,7 @@ async def solve_direct_stiffness_frame(payload: Dict[str, Any] = Body(...)):
 async def copilot_chat_endpoint(payload: Dict[str, Any] = Body(...)):
     """
     Endpoint do Copiloto chamado pelo frontend (viewer_page.js).
-    Integra o frontend diretamente com a stack Agno + EverMemOS + RAG Goiás + Tool de Código.
+    Integra o frontend diretamente com a stack Agno + EverMemOS + RAG Goiás + Tool de Código + LLM Dinâmico.
     Retorna a resposta, os 3 blocos de sugestões do ICP (suggestions), ui_mutations e active_file.
     """
     message = str(payload.get("message", "")).strip() or "Validar estrutura atual"
@@ -170,6 +170,10 @@ async def copilot_chat_endpoint(payload: Dict[str, Any] = Body(...)):
     region_country = str(payload.get("region_country") or "BR-GO").strip()
     selected_format = str(payload.get("selected_format") or "autocad").strip()
     force_memory_flush = bool(payload.get("force_memory_flush", False))
+    project_context = payload.get("project_context")
+    chat_history = payload.get("history")
+    api_key = str(payload.get("api_key") or "").strip() or None
+    model = str(payload.get("model") or "").strip() or None
 
     reply, suggestions, ui_mutations, active_file = await run_chat_workflow(
         message=message,
@@ -179,6 +183,10 @@ async def copilot_chat_endpoint(payload: Dict[str, Any] = Body(...)):
         region_country=region_country,
         selected_format=selected_format,
         force_memory_flush=force_memory_flush,
+        project_context=project_context if isinstance(project_context, dict) else None,
+        chat_history=chat_history if isinstance(chat_history, list) else None,
+        api_key=api_key,
+        model=model,
     )
 
     return {

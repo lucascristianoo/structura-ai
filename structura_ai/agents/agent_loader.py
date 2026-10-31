@@ -37,7 +37,8 @@ def build_model(model_config: Union[str, dict], tier: Optional[str] = None) -> A
     Por padrão usa Google Gemini (POC gratuita), suportando também AWS Bedrock e OpenAI.
     """
     # Garante que GOOGLE_API_KEY esteja exportada caso GEMINI_API_KEY tenha sido configurada
-    _ = settings.effective_api_key
+    api_key = settings.effective_api_key
+    gemini_kwargs = {"api_key": api_key} if api_key and not api_key.startswith(("STRUCTURA-FREE-", "sk-or-")) else {}
 
     if isinstance(model_config, dict):
         model_config = dict(model_config)
@@ -48,7 +49,7 @@ def build_model(model_config: Union[str, dict], tier: Optional[str] = None) -> A
     if isinstance(model_config, str):
         from agno.models.google import Gemini
 
-        return Gemini(id=model_config)
+        return Gemini(id=model_config, **gemini_kwargs)
 
     provider = model_config.get("provider", "google").lower()
     model_id = model_config.get("id", settings.GEMINI_MODEL or "gemini-2.5-flash")
@@ -65,7 +66,7 @@ def build_model(model_config: Union[str, dict], tier: Optional[str] = None) -> A
     else:
         from agno.models.google import Gemini
 
-        return Gemini(id=model_id, **model_params)
+        return Gemini(id=model_id, **{**gemini_kwargs, **model_params})
 
 
 def build_agent(

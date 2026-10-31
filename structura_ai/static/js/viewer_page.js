@@ -312,7 +312,9 @@ document.addEventListener('DOMContentLoaded', () => {
     apiSettingsModal?.classList.add('hidden');
   }
 
+  const chatApiSettingsBtn = document.getElementById('chat-api-settings-btn');
   apiSettingsBtn?.addEventListener('click', openApiSettingsModal);
+  chatApiSettingsBtn?.addEventListener('click', openApiSettingsModal);
   apiSettingsCloseBtn?.addEventListener('click', closeApiSettingsModal);
   apiSettingsCancelBtn?.addEventListener('click', closeApiSettingsModal);
   apiSettingsModal?.addEventListener('click', (e) => {
@@ -1146,6 +1148,13 @@ document.addEventListener('DOMContentLoaded', () => {
     const thinkingBubble = appendAssistantMessage('Analisando consulta...');
 
     try {
+      let activeApiKey = DEFAULT_FREE_TEST_KEY;
+      let activeModel = 'gemini-2.5-flash';
+      try {
+        activeApiKey = localStorage.getItem(API_KEY_STORAGE) || DEFAULT_FREE_TEST_KEY;
+        activeModel = localStorage.getItem(API_MODEL_STORAGE) || 'gemini-2.5-flash';
+      } catch {}
+
       const res = await fetch('/api/analysis/copilot', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -1156,7 +1165,9 @@ document.addEventListener('DOMContentLoaded', () => {
           selected_format: selectedFormat,
           region_country: 'BR-GO',
           project_context: buildProjectContext(),
-          history: chatHistory
+          history: chatHistory,
+          api_key: activeApiKey,
+          model: activeModel
         })
       });
 
