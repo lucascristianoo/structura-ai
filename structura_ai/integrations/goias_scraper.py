@@ -7,9 +7,14 @@ de Goiás (Goiânia, Pirenópolis, Cidade de Goiás, Chapada dos Veadeiros, Cald
 from __future__ import annotations
 
 from typing import Any
+import re
 import httpx
-from bs4 import BeautifulSoup
 from sqlalchemy import select
+
+try:
+    from bs4 import BeautifulSoup
+except ImportError:
+    BeautifulSoup = None  # type: ignore
 
 from structura_ai.database import AsyncSessionLocal
 from structura_ai.models import KnowledgeVector
@@ -159,16 +164,21 @@ async def scrape_and_seed_goias_knowledge(force_network: bool = False) -> dict[s
                 try:
                     resp = await client.get(src["url"])
                     if resp.status_code == 200 and resp.text:
-                        soup = BeautifulSoup(resp.text, "html.parser")
-                        for tag in soup(["script", "style", "nav", "footer"]):
-                            tag.decompose()
-                        title = (soup.title.string.strip() if soup.title and soup.title.string else src["source_name"])
-                        paragraphs = [
-                            p.get_text(" ", strip=True)
-                            for p in soup.find_all(["p", "h1", "h2", "h3", "li"])
-                            if len(p.get_text(" ", strip=True)) > 40
-                        ]
-                        snippet = " ".join(paragraphs[:8])[:1200]
+                        if BeautifulSoup is not None:
+                            soup = BeautifulSoup(resp.text, "html.parser")
+                            for tag in soup(["script", "style", "nav", "footer"]):
+                                tag.decompose()
+                            title = (soup.title.string.strip() if soup.title and soup.title.string else src["source_name"])
+                            paragraphs = [
+                                p.get_text(" ", strip=True)
+                                for p in soup.find_all(["p", "h1", "h2", "h3", "li"])
+                                if len(p.get_text(" ", strip=True)) > 40
+                            ]
+                            snippet = " ".join(paragraphs[:8])[:1200]
+                        else:
+                            clean_txt = re.sub(r"<[^>]+>", " ", resp.text)
+                            snippet = re.sub(r"\s+", " ", clean_txt).strip()[:1200]
+                            title = src["source_name"]
                         if snippet:
                             scraped_snippets.append(
                                 {

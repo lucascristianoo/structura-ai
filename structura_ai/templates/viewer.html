@@ -133,7 +133,7 @@
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
 
     <!-- BOTTOM LEFT: IMPORT / EXPORT FILES -->
-    <section class="ui-card flex flex-col h-[310px] sm:h-[330px]">
+    <section class="ui-card flex flex-col min-h-[310px] sm:min-h-[340px]">
       <div class="ui-card-header py-2.5 px-4 shrink-0">
         <h2 class="ui-card-title">Arquivos</h2>
         <span id="file-status-badge" class="text-[11px] font-mono text-ink-muted">Importar / Exportar</span>
@@ -151,7 +151,7 @@
           <input
             type="file"
             id="file-upload-input"
-            accept="image/*,.pdf,.svg,.dxf,.ifc,.obj,.gltf,.glb,.stl"
+            accept="image/*,.pdf,.svg,.dxf,.ifc,.obj,.gltf,.glb,.stl,.blend,.py,.scad"
             class="hidden"
           >
           <div class="w-9 h-9 rounded-md border border-edge bg-surface-card flex items-center justify-center text-ink-secondary mb-1 pointer-events-none">
@@ -171,7 +171,7 @@
         <div id="upload-feedback" class="hidden text-[11px] font-mono px-2.5 py-1.5 rounded border shrink-0"></div>
 
         <!-- Lista de Arquivos Carregados (Excalidraw Multi-File Switcher) -->
-        <div id="loaded-files-list" class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono shrink-0" aria-label="Arquivos carregados"></div>
+        <div id="loaded-files-list" class="flex flex-wrap items-center gap-1.5 max-h-14 overflow-y-auto text-[11px] font-mono shrink-0" aria-label="Arquivos carregados"></div>
 
         <!-- Export Controls -->
         <div class="pt-2.5 border-t border-edge flex flex-wrap items-center justify-between gap-2 shrink-0">
@@ -195,7 +195,7 @@
     </section>
 
     <!-- BOTTOM RIGHT: CHATBOT (DIAGNOSIS & DEBATE) -->
-    <section class="ui-card flex flex-col h-[310px] sm:h-[330px]">
+    <section class="ui-card flex flex-col min-h-[310px] sm:min-h-[340px] max-h-[420px]">
       <div class="ui-card-header py-2.5 px-4 shrink-0">
         <h2 class="ui-card-title">Chat</h2>
         <span id="chat-status-badge" class="ui-badge">Assistente</span>

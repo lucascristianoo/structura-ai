@@ -274,9 +274,24 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  async function fetchWithRetry(url, options = {}, retries = 2, delayMs = 450) {
+    for (let attempt = 0; attempt <= retries; attempt++) {
+      try {
+        return await fetch(url, options);
+      } catch (err) {
+        if (attempt === retries) throw err;
+        await new Promise((r) => setTimeout(r, delayMs * (attempt + 1)));
+      }
+    }
+  }
+
   function applyActiveFileToUI(activeFile) {
     if (!activeFile) return;
     currentFileId = activeFile.id;
+    hideUploadFeedback();
+    emptyOverlay?.classList.add('opacity-0');
+    hint3d?.classList.remove('hidden');
+
     if (activeFileBadge) {
       activeFileBadge.textContent = `${activeFile.filename} (v${activeFile.active_version_number})`;
     }
@@ -292,7 +307,7 @@ document.addEventListener('DOMContentLoaded', () => {
         vBtn.textContent = ver.version_label || `v${ver.version_number}`;
         vBtn.title = ver.change_summary || `Versão ${ver.version_label} (${ver.render_style})`;
         vBtn.addEventListener('click', async () => {
-          const res = await fetch(
+          const res = await fetchWithRetry(
             `/api/v1/files/${encodeURIComponent(activeFile.id)}/versions/${ver.version_number}/activate?user_id=${encodeURIComponent(currentUser || 'default_user')}`,
             { method: 'POST' }
           );
@@ -324,6 +339,8 @@ document.addEventListener('DOMContentLoaded', () => {
           latest_analysis: vr
         };
       } else {
+        currentProject.id = activeFile.project_id || activeFile.id || currentProject.id;
+        currentProject.title = activeFile.filename || currentProject.title;
         currentProject.parameters = { ...(currentProject.parameters || {}), ...sp };
         currentProject.latest_analysis = { ...(currentProject.latest_analysis || {}), ...vr };
       }
@@ -346,6 +363,13 @@ document.addEventListener('DOMContentLoaded', () => {
       }
       render2DView();
     }
+
+    [btnExportIfc, btnExportDxf, btnExportReport].forEach((btn) => {
+      if (btn) {
+        btn.disabled = false;
+        btn.removeAttribute('title');
+      }
+    });
   }
 
   async function refreshUserFilesList() {
@@ -747,7 +771,7 @@ document.addEventListener('DOMContentLoaded', () => {
     if (!file || isUploading) return;
     hideUploadFeedback();
 
-    const allowedExt = /\.(png|jpe?g|webp|gif|bmp|svg|pdf|dxf|ifc|obj|gltf|glb|stl)$/i;
+    const allowedExt = /\.(png|jpe?g|webp|gif|bmp|svg|pdf|dxf|ifc|obj|gltf|glb|stl|blend|py|scad)$/i;
     const isAllowedMime = file.type.startsWith('image/') || file.type === 'application/pdf';
     if (!isAllowedMime && !allowedExt.test(file.name)) {
       showUploadFeedback('Formato não suportado. Use DXF, IFC, OBJ, glTF, STL, SVG, PNG, JPG ou PDF.');
@@ -780,7 +804,7 @@ document.addEventListener('DOMContentLoaded', () => {
       formData.append('category', 'Residencial');
       formData.append('file', file);
 
-      const uploadRes = await fetch('/api/projects/upload', {
+      const uploadRes = await fetchWithRetry('/api/projects/upload', {
         method: 'POST',
         body: formData
       });
@@ -794,12 +818,15 @@ document.addEventListener('DOMContentLoaded', () => {
       if (uploadData.file_id) {
         currentFileId = uploadData.file_id;
       }
-      const projRes = await fetch(`/api/projects/${encodeURIComponent(uploadData.project_id)}`);
-      if (!projRes.ok) {
-        throw new Error('Não foi possível recuperar os resultados da análise.');
-      }
 
-      const project = await projRes.json();
+      let project = uploadData.project;
+      if (!project) {
+        const projRes = await fetchWithRetry(`/api/projects/${encodeURIComponent(uploadData.project_id)}`);
+        if (!projRes.ok) {
+          throw new Error('Não foi possível recuperar os resultados da análise.');
+        }
+        project = await projRes.json();
+      }
 
       // Update dropzone readout
       if (dropzoneTitle) dropzoneTitle.textContent = file.name;
@@ -811,6 +838,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Step (b): Update 2D / 3D Visualization & Version Bar
       applyLoadedProjectToViewer(project, file.name);
+      if (uploadData.active_file) {
+        applyActiveFileToUI(uploadData.active_file);
+      }
       await refreshUserFilesList();
 
       // Step (c): Post Results & Diagnosis into Chatbot + 3 ICP Suggestions
@@ -848,7 +878,10 @@ document.addEventListener('DOMContentLoaded', () => {
       }
     } catch (err) {
       loadingBubble?.remove();
-      const errMsg = err?.message || 'Erro inesperado ao analisar o arquivo.';
+      const rawMsg = err?.message || 'Erro inesperado ao analisar o arquivo.';
+      const errMsg = rawMsg === 'Failed to fetch'
+        ? 'Conexão com o servidor interrompida. Verifique se o backend está ativo (./run.sh) e tente novamente.'
+        : rawMsg;
       showUploadFeedback(errMsg);
       appendAssistantMessage(`Não foi possível concluir a análise do arquivo: **${errMsg}**`);
       if (dropzoneTitle) dropzoneTitle.textContent = 'Carregar arquivo...';

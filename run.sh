@@ -34,8 +34,8 @@ fi
 export PYTHONPATH=.
 
 echo "⚡ Servidor FastAPI Monolítico rodando em http://localhost:8000"
-echo "👉 Acesse o Studio Interativo em http://localhost:8000/analyzer"
+echo "👉 Acesse o Studio Interativo em http://localhost:8000/"
 echo "👉 Para rodar com Docker + PostgreSQL: ./run.sh --docker"
 echo "============================================================"
 
-exec uvicorn structura_ai.main:app --host 0.0.0.0 --port 8000 --reload
+exec uvicorn structura_ai.main:app --host 0.0.0.0 --port 8000 --reload --reload-dir structura_ai --reload-exclude "uploads/*" --reload-exclude "*.db*"

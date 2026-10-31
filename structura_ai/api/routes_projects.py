@@ -16,6 +16,7 @@ from structura_ai.schemas import ProjectOut, AnalysisResultOut
 from structura_ai.services.analyzer_service import AnalyzerService
 from structura_ai.cad import CadIngestor
 from structura_ai.tools.file_version_tools import _build_styled_svg_preview
+from structura_ai.workflows.chatbot.runner import serialize_project_file
 
 router = APIRouter(prefix="/api/projects", tags=["Projects"])
 
@@ -231,6 +232,12 @@ async def upload_and_create_project(
     db.add(v1)
     await db.commit()
 
+    stmt_proj = select(Project).options(selectinload(Project.analyses)).where(Project.id == project.id)
+    proj_loaded = (await db.execute(stmt_proj)).scalar_one()
+
+    stmt_pf = select(ProjectFile).options(selectinload(ProjectFile.versions)).where(ProjectFile.id == pf.id)
+    pf_loaded = (await db.execute(stmt_pf)).scalar_one()
+
     return {
         "status": "success",
         "project_id": project.id,
@@ -240,6 +247,8 @@ async def upload_and_create_project(
         "is_viable": analysis.is_physically_viable,
         "score": analysis.structural_score,
         "compliance_level": analysis.compliance_level,
+        "project": _serialize_project(proj_loaded).model_dump(),
+        "active_file": serialize_project_file(pf_loaded).model_dump(),
     }
 
 

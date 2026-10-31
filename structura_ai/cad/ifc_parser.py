@@ -4,9 +4,16 @@ Utiliza ifcopenshell para extrair IfcBeam, IfcColumn, IfcSlab e calcular vãos.
 """
 from pathlib import Path
 import math
+import re
 from typing import Any
-import ifcopenshell
-import ifcopenshell.util.element
+
+try:
+    import ifcopenshell
+    import ifcopenshell.util.element
+    HAS_IFCOPENSHELL = True
+except ImportError:
+    ifcopenshell = None  # type: ignore
+    HAS_IFCOPENSHELL = False
 
 from structura_ai.cad.models import (
     UnifiedProjectData,
@@ -37,15 +44,26 @@ def parse_ifc_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
     if not project_name:
         project_name = path.stem.replace("_", " ").title()
 
-    try:
-        model = ifcopenshell.open(str(path))
-    except Exception as e:
-        raise ValueError(f"Falha ao abrir arquivo IFC: {e}")
+    raw_beams = []
+    raw_columns = []
+    raw_slabs = []
+    model = None
 
-    # Extrair vigas e pilares
-    raw_beams = model.by_type("IfcBeam")
-    raw_columns = model.by_type("IfcColumn")
-    raw_slabs = model.by_type("IfcSlab")
+    if HAS_IFCOPENSHELL and ifcopenshell is not None:
+        try:
+            model = ifcopenshell.open(str(path))
+            raw_beams = model.by_type("IfcBeam")
+            raw_columns = model.by_type("IfcColumn")
+            raw_slabs = model.by_type("IfcSlab")
+        except Exception as e:
+            raise ValueError(f"Falha ao abrir arquivo IFC: {e}")
+    else:
+        try:
+            text_content = path.read_text(encoding="utf-8", errors="ignore")
+            if "ISO-10303-21" not in text_content and "IFC" not in text_content.upper():
+                raise ValueError("Cabeçalho IFC/STEP inválido")
+        except Exception as e:
+            raise ValueError(f"Falha ao abrir arquivo IFC: {e}")
 
     beams = []
     spans = []
