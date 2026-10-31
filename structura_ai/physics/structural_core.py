@@ -227,12 +227,13 @@ class StructuralCoreEngine:
         is_viable = len(failures) == 0 and score >= 75.0
 
         if is_viable:
-            compliance_level = "Aprovado para Detalhamento"
+            compliance_level = "Concepção Viável (Pré-Dimensionamento)"
             diagnosis_text = (
-                f"O projeto atende com excelência aos critérios normativos de física estrutural da ABNT NBR 6118:2023. "
-                f"A rigidez da seção transversal (viga {beam_height_cm:.0f}cm x {beam_width_cm:.0f}cm) suporta com folga o vão livre de {span_length_m:.1f}m, "
-                f"mantendo a flecha máxima calculada ({total_deflection_mm}mm) confortavelmente abaixo da tolerância admissível ({allowable_deflection_mm}mm). "
-                f"Os pilares apresentam taxa de esbeltez estável ({col_slenderness:.1f}) contra flambagem Euleriana. O projeto pode prosseguir para modelagem executiva."
+                f"O anteprojeto apresenta proporções geométricas compatíveis com critérios preliminares da ABNT NBR 6118:2023 para estimativa de vão e flecha em serviço. "
+                f"A rigidez da seção transversal estimada (viga {beam_height_cm:.0f}cm x {beam_width_cm:.0f}cm) suporta o vão livre de {span_length_m:.1f}m, "
+                f"mantendo a flecha máxima calculada ({total_deflection_mm}mm) abaixo da tolerância admissível ({allowable_deflection_mm}mm). "
+                f"Os pilares apresentam taxa de esbeltez estável ({col_slenderness:.1f}). "
+                f"NOTA LEGAL: Esta estimativa paramétrica de concepção não substitui o projeto estrutural executivo nem a respectiva Anotação de Responsabilidade Técnica (ART/CREA) per Lei Federal 5.194/66."
             )
         else:
             if score >= 50.0:

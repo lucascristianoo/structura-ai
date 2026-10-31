@@ -18,6 +18,33 @@ from structura_ai.cad.models import (
 )
 
 
+def _extract_entities_recursive(entity_iterable, parent_layer=None, depth=0):
+    """
+    Desempacota recursivamente entidades de modelspace e blocos INSERT virtuais.
+    Herda camada da referência de inserção caso a entidade interna esteja no layer '0'.
+    """
+    if depth > 4:
+        return
+
+    for entity in entity_iterable:
+        raw_layer = getattr(entity.dxf, 'layer', '') or ''
+        eff_layer = raw_layer if raw_layer not in ('0', '') else (parent_layer or raw_layer)
+        eff_layer = (eff_layer or '').upper()
+        dtype = entity.dxftype()
+
+        if dtype == "INSERT":
+            # Bloco de desenho: registra o ponto de inserção e desempacota entidades filhas
+            block_name = (getattr(entity.dxf, 'name', '') or '').upper()
+            yield ("INSERT", entity, eff_layer, block_name)
+            try:
+                virtuals = list(entity.virtual_entities())
+                yield from _extract_entities_recursive(virtuals, parent_layer=eff_layer, depth=depth + 1)
+            except Exception:
+                pass
+        else:
+            yield (dtype, entity, eff_layer, "")
+
+
 def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProjectData:
     path = Path(file_path)
     if not project_name:
@@ -30,14 +57,26 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
         # Fallback para parsing resiliente
         raise ValueError(f"Não foi possível ler o arquivo DXF: {e}")
 
-    # Coleta de entidades brutas
+    # Coleta de entidades brutas com suporte a blocos INSERT
     lines_raw = []
     texts_raw = []
     all_points = []
+    explicit_insert_columns = []
 
-    for entity in msp:
-        layer_name = (entity.dxf.layer or "").upper()
-        if entity.dxftype() == "LINE":
+    for dtype, entity, layer_name, block_name in _extract_entities_recursive(msp):
+        if dtype == "INSERT":
+            # Se o próprio bloco ou sua layer indicar pilar, registrar coordenada de inserção
+            is_col = any(k in layer_name or k in block_name for k in ["PILAR", "COLUMN", "COL"])
+            if is_col and hasattr(entity.dxf, "insert"):
+                ins = entity.dxf.insert
+                explicit_insert_columns.append({
+                    "layer": layer_name,
+                    "pos": (float(ins[0]), float(ins[1]), float(ins[2] if len(ins) > 2 else 0.0)),
+                    "block_name": block_name,
+                })
+                all_points.append((float(ins[0]), float(ins[1])))
+
+        elif dtype == "LINE":
             start = entity.dxf.start
             end = entity.dxf.end
             lines_raw.append({
@@ -47,7 +86,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
             })
             all_points.extend([(float(start.x), float(start.y)), (float(end.x), float(end.y))])
 
-        elif entity.dxftype() == "LWPOLYLINE":
+        elif dtype == "LWPOLYLINE":
             pts = list(entity.get_points())
             for i in range(len(pts) - 1):
                 p1, p2 = pts[i], pts[i + 1]
@@ -58,7 +97,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
                 })
                 all_points.extend([(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))])
 
-        elif entity.dxftype() in ("TEXT", "MTEXT"):
+        elif dtype in ("TEXT", "MTEXT"):
             insert = entity.dxf.insert if hasattr(entity.dxf, 'insert') else (0, 0, 0)
             text_val = entity.dxf.text if hasattr(entity.dxf, 'text') else str(getattr(entity, 'text', ''))
             texts_raw.append({
@@ -82,7 +121,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
             max_span_m=10.0,
         )
 
-    # Detectar escala (mm, cm ou metros)
+    # Detectar escala com análise da mediana de comprimentos de entidades e bounding box
     min_x = min(p[0] for p in all_points)
     max_x = max(p[0] for p in all_points)
     min_y = min(p[1] for p in all_points)
@@ -93,12 +132,29 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
     max_dim = max(dim_x, dim_y)
 
     scale_to_meters = 1.0
-    # Edificações reais: 3-50 m => 300-5000 un em cm, 3000-50000 un em mm.
-    # O limiar de 5000 evita ler 10-50 m em cm (1000-5000 un) como milímetros.
-    if max_dim > 5000.0:  # Provavelmente em milímetros
-        scale_to_meters = 0.001
-    elif max_dim > 50.0:  # Provavelmente em centímetros
-        scale_to_meters = 0.01
+    line_lengths = [
+        math.hypot(l["end"][0] - l["start"][0], l["end"][1] - l["start"][1])
+        for l in lines_raw
+    ]
+    line_lengths = [ll for ll in line_lengths if ll > 0.05]
+
+    if line_lengths:
+        import statistics
+        med_len = statistics.median(line_lengths)
+        if med_len > 1500.0:  # Comprimentos típicos de vigas em milímetros (ex: 3000-6000 mm)
+            scale_to_meters = 0.001
+        elif med_len > 50.0:  # Comprimentos típicos de vigas em centímetros (ex: 300-600 cm)
+            scale_to_meters = 0.01
+        else:  # Comprimentos típicos de vigas em metros (ex: 3-15 m)
+            scale_to_meters = 1.0
+    else:
+        # Fallback por bounding box caso não haja linhas com comprimento mensurável
+        if max_dim > 5000.0:
+            scale_to_meters = 0.001
+        elif max_dim > 50.0:
+            scale_to_meters = 0.01
+        else:
+            scale_to_meters = 1.0
 
     # Normalizar linhas para metros centradas em 0,0
     scaled_lines = []
@@ -109,6 +165,22 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
     beam_idx = 1
     span_idx = 1
     col_idx = 1
+
+    # Registrar pilares explicitamente marcados por blocos INSERT
+    for col_ins in explicit_insert_columns:
+        cx = (col_ins["pos"][0] - min_x) * scale_to_meters
+        cy = (col_ins["pos"][1] - min_y) * scale_to_meters
+        k = (round(cx, 1), round(cy, 1))
+        if k not in columns_map:
+            columns_map[k] = ColumnElement(
+                id=f"P{col_idx}",
+                name=f"Pilar P{col_idx} ({col_ins['block_name'] or 'Bloco'})",
+                position=Point3D(x=round(cx, 2), y=round(cy, 2), z=0.0),
+                section_width_cm=20.0,
+                section_height_cm=40.0,
+                height_m=3.0,
+            )
+            col_idx += 1
 
     for line in lines_raw:
         x1 = (line["start"][0] - min_x) * scale_to_meters

@@ -26,14 +26,22 @@ from structura_ai.cad.models import (
 
 
 def _get_local_placement_coords(element) -> tuple[float, float, float]:
-    """Extrai coordenadas aproximadas de placement de uma entidade IFC."""
+    """Extrai coordenadas globais de placement de uma entidade IFC acumulando a hierarquia espacial."""
     try:
-        placement = element.ObjectPlacement
-        if placement and placement.is_a("IfcLocalPlacement"):
-            rel_placement = placement.RelativePlacement
-            if rel_placement and rel_placement.is_a("IfcAxis2Placement3D"):
-                loc = rel_placement.Location.Coordinates
-                return float(loc[0]), float(loc[1]), float(loc[2] if len(loc) > 2 else 0.0)
+        placement = getattr(element, "ObjectPlacement", None)
+        if placement:
+            try:
+                import ifcopenshell.util.placement
+                mat = ifcopenshell.util.placement.get_local_placement(placement)
+                return float(mat[0, 3]), float(mat[1, 3]), float(mat[2, 3])
+            except Exception:
+                pass
+
+            if placement.is_a("IfcLocalPlacement"):
+                rel_placement = placement.RelativePlacement
+                if rel_placement and rel_placement.is_a("IfcAxis2Placement3D"):
+                    loc = rel_placement.Location.Coordinates
+                    return float(loc[0]), float(loc[1]), float(loc[2] if len(loc) > 2 else 0.0)
     except Exception:
         pass
     return 0.0, 0.0, 0.0

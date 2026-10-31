@@ -103,8 +103,17 @@ class CadIngestor:
         ext = Path(actual_name).suffix.lower()
         proj_title = project_name or Path(actual_name).stem.replace("_", " ").title()
 
-        if ext in (".dxf", ".dwg"):
+        if ext == ".dxf":
             return parse_dxf_file(path, project_name=proj_title)
+        elif ext == ".dwg":
+            try:
+                return parse_dxf_file(path, project_name=proj_title)
+            except Exception:
+                raise ValueError(
+                    f"O arquivo '{path.name}' está em formato DWG binário proprietário. "
+                    f"Para processamento preciso, exporte ou salve o arquivo como DXF (Drawing Exchange Format) "
+                    f"ou IFC diretamente no AutoCAD, Revit ou Archicad."
+                )
         elif ext == ".ifc":
             return parse_ifc_file(path, project_name=proj_title)
         elif ext in (".obj", ".gltf", ".glb", ".stl"):
