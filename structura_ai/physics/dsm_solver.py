@@ -39,14 +39,14 @@ class DSMSolver:
         Node 3: Base Column 2 (span, 0.0) - Fixed
         Node 4 (Optional): Cantilever Tip (span + cantilever, col_h)
         """
-        l_span = max(float(span_length_m), 1.0)
-        l_cant = max(float(cantilever_length_m), 0.0)
-        col_h = max(float(column_height_m), 1.5)
-        e_kpa = elastic_modulus_gpa * 1e6  # kN/m2
+        l_span = max(float(span_length_m or 1.0), 0.5)
+        l_cant = max(float(cantilever_length_m or 0.0), 0.0)
+        col_h = max(float(column_height_m or 3.0), 1.0)
+        e_kpa = max(float(elastic_modulus_gpa or 25.0), 10.0) * 1e6  # kN/m2
 
         # Beam properties
-        bw = max(beam_width_cm / 100.0, 0.12)
-        bh = max(beam_height_cm / 100.0, 0.15)
+        bw = max(float(beam_width_cm or 20.0) / 100.0, 0.12)
+        bh = max(float(beam_height_cm or 30.0) / 100.0, 0.15)
         a_beam = bw * bh
         # NBR 6118 cracked effective inertia
         i_beam = 0.50 * (bw * (bh ** 3)) / 12.0
@@ -54,7 +54,7 @@ class DSMSolver:
         ea_beam = e_kpa * a_beam
 
         # Column properties
-        cw = max(column_section_cm / 100.0, 0.14)
+        cw = max(float(column_section_cm or 20.0) / 100.0, 0.14)
         a_col = cw * cw
         i_col = 0.50 * (cw * (cw ** 3)) / 12.0
         ei_col = e_kpa * i_col
@@ -264,8 +264,11 @@ class DSMSolver:
         Calculates Tributary Areas based on 45-degree plastic yield line (charnière plástica)
         and Voronoi partitioning for two-way and one-way slabs per NBR 6118.
         """
-        lx = min(bay_x_m, bay_y_m)  # menor vão
-        ly = max(bay_x_m, bay_y_m)  # maior vão
+        safe_x = max(float(bay_x_m or 1.0), 0.5)
+        safe_y = max(float(bay_y_m or 1.0), 0.5)
+        slab_surface_load_kpa = max(float(slab_surface_load_kpa or 1.0), 0.5)
+        lx = min(safe_x, safe_y)  # menor vão
+        ly = max(safe_x, safe_y)  # maior vão
         ratio = ly / lx
 
         # Se ly / lx > 2.0 -> Laje armada em uma direção (carrega apenas vigas longas)

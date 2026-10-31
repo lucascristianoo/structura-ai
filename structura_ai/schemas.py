@@ -53,8 +53,8 @@ class ChangeStyleRequest(BaseModel):
 
 
 class GenerateCodeRequest(BaseModel):
-    target_format: str = Field(default="autocad", examples=["autocad", "blender", "ifc"])
-    instructions: str = Field(..., examples=["Aumentar altura da viga principal para 55cm e adicionar pilar central"])
+    target_format: str = Field(default="autocad", examples=["autocad", "blender", "ifc", "grasshopper_rhino", "openscad"])
+    instructions: str = Field(default="Gerar código paramétrico para o formato selecionado", examples=["Aumentar altura da viga principal para 55cm e adicionar pilar central"])
     structural_overrides: Dict[str, Any] = Field(default_factory=dict)
     user_id: str = Field(default="default_user")
 

@@ -47,12 +47,15 @@ class OptiSectionEngine:
         Tests all catalog sections to find the minimum volume and minimum depth solutions
         satisfying NBR 6118 deflection limits (L/250) and shear capacity.
         """
-        l_m = max(span_length_m, 1.0)
-        q_ser = max(distributed_load_kn_m, 1.0)
+        l_m = max(float(span_length_m or 1.0), 1.0)
+        q_ser = max(float(distributed_load_kn_m or 1.0), 1.0)
         q_elu = q_ser * 1.4
-        fcd_mpa = concrete_fck_mpa / 1.4
+        safe_fck = min(max(float(concrete_fck_mpa or 15.0), 15.0), 120.0)
+        current_beam_height_cm = max(float(current_beam_height_cm or 30.0), 12.0)
+        current_beam_width_cm = max(float(current_beam_width_cm or 20.0), 12.0)
+        fcd_mpa = safe_fck / 1.4
         fcd_kpa = fcd_mpa * 1000.0
-        e_gpa = 5600.0 * math.sqrt(concrete_fck_mpa) / 1000.0
+        e_gpa = 5600.0 * math.sqrt(safe_fck) / 1000.0
         e_kpa = e_gpa * 1e6
         allowable_deflection_mm = (l_m / 250.0) * 1000.0
 
@@ -73,7 +76,7 @@ class OptiSectionEngine:
 
             # Shear check: V_rd2 (esmagamento da biela)
             v_sd = q_elu * l_m / 2.0
-            v_rd2 = 0.27 * (1.0 - concrete_fck_mpa / 250.0) * fcd_kpa * bw_m * (bh_m * 0.9)
+            v_rd2 = 0.27 * (1.0 - safe_fck / 250.0) * fcd_kpa * bw_m * (bh_m * 0.9)
             shear_ok = v_sd <= v_rd2
 
             is_ok = (deflection_mm <= allowable_deflection_mm) and shear_ok

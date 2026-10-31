@@ -34,6 +34,26 @@ class StructuralCoreEngine:
         Executes complete structural mechanics evaluation.
         Returns safety factor, deflection, bending moments, failure diagnostic, and verdict.
         """
+        def _clamp(val: Any, low: float, high: float = 1e6, default: float = 1.0) -> float:
+            try:
+                v = float(val if val is not None else default)
+                if math.isnan(v) or math.isinf(v):
+                    v = default
+            except (TypeError, ValueError):
+                v = default
+            return max(low, min(v, high))
+
+        span_length_m = _clamp(span_length_m, 0.5, 500.0, 9.5)
+        cantilever_length_m = _clamp(cantilever_length_m, 0.0, 200.0, 0.0)
+        beam_height_cm = _clamp(beam_height_cm, 12.0, 500.0, 30.0)
+        beam_width_cm = _clamp(beam_width_cm, 12.0, 500.0, 20.0)
+        column_height_m = _clamp(column_height_m, 1.0, 200.0, 3.2)
+        column_section_cm = _clamp(column_section_cm, 14.0, 500.0, 20.0)
+        dead_load_kpa = _clamp(dead_load_kpa, 0.5, 500.0, 4.5)
+        live_load_kpa = _clamp(live_load_kpa, 0.0, 500.0, 2.5)
+        concrete_fck_mpa = _clamp(concrete_fck_mpa, 15.0, 120.0, 30.0)
+        tributary_width_m = _clamp(tributary_width_m, 0.5, 100.0, 4.0)
+
         # Material stiffness
         e_gpa = ConcreteProperties.get_elastic_modulus_gpa(concrete_fck_mpa)
         e_kpa = e_gpa * 1e6  # kN/m²

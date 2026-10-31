@@ -13,9 +13,10 @@ class ConcreteProperties:
         E_ci = alpha_E * 5600 * sqrt(fck) in MPa.
         Returns value in GPa.
         """
-        e_ci_mpa = aggregate_factor * 5600.0 * math.sqrt(max(fck_mpa, 15.0))
+        safe_fck = max(float(fck_mpa or 15.0), 15.0)
+        e_ci_mpa = max(float(aggregate_factor or 1.0), 0.5) * 5600.0 * math.sqrt(safe_fck)
         # Tangent initial modulus to secant modulus Ecs = alpha_i * Eci
-        alpha_i = min(0.8 + 0.2 * (fck_mpa / 80.0), 1.0)
+        alpha_i = min(0.8 + 0.2 * (safe_fck / 80.0), 1.0)
         e_cs_mpa = e_ci_mpa * alpha_i
         return e_cs_mpa / 1000.0  # Convert to GPa (kN/mm² or 10^6 kN/m²)
 

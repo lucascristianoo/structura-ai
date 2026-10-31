@@ -62,7 +62,9 @@ async def upload_project_file(
     os.makedirs(settings.UPLOAD_DIR, exist_ok=True)
     raw_basename = os.path.basename(file.filename or "projeto.dxf")
     safe_name = "".join(c for c in raw_basename if c.isalnum() or c in "._-").strip() or "projeto.dxf"
-    ext = os.path.splitext(safe_name)[1].lower().lstrip(".") or "dxf"
+    stem, ext_dot = os.path.splitext(safe_name)
+    ext = ext_dot.lower().lstrip(".")[:12] or "dxf"
+    safe_name = f"{(stem[:96] or 'projeto')}.{ext}"
 
     stored_name = f"{uuid.uuid4().hex[:8]}_{safe_name}"
     save_path = os.path.join(settings.UPLOAD_DIR, stored_name)
@@ -295,6 +297,10 @@ async def generate_code_for_file_endpoint(
     Executa a Tool de Código diretamente sobre o arquivo, gerando script/artefato
     no formato pedido ('autocad', 'blender', 'ifc') e criando a versão vN+1.
     """
+    chk = await db.execute(select(ProjectFile).where(ProjectFile.id == file_id))
+    if chk.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+
     ctx = RunContext(
         run_id="generate_code",
         session_id="rest_api",
@@ -332,6 +338,10 @@ async def convert_file_format_endpoint(
     Converte o arquivo ativo entre formatos de software ('autocad'/'dxf', 'blender'/'bpy',
     'ifc'/'bim', 'grasshopper_rhino', 'openscad'), gerando o código/artefato e criando a versão vN+1.
     """
+    chk = await db.execute(select(ProjectFile).where(ProjectFile.id == file_id))
+    if chk.scalar_one_or_none() is None:
+        raise HTTPException(status_code=404, detail="Arquivo não encontrado")
+
     ctx = RunContext(
         run_id="convert_format",
         session_id="rest_api",

@@ -117,6 +117,9 @@ async def upload_and_create_project(
     if file and file.filename:
         raw_basename = os.path.basename(file.filename)
         safe_name = "".join(c for c in raw_basename if c.isalnum() or c in "._-").strip() or "blueprint.png"
+        stem, ext_dot = os.path.splitext(safe_name)
+        ext_clean = ext_dot.lower().lstrip(".")[:12] or "png"
+        safe_name = f"{(stem[:96] or 'blueprint')}.{ext_clean}"
         image_filename = f"{uuid.uuid4().hex[:8]}_{safe_name}"
         mime_type = file.content_type or "image/png"
         image_bytes = await file.read()

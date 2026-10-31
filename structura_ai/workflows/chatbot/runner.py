@@ -559,7 +559,8 @@ async def run_chat_workflow(
     )
 
     raw_reply = ""
-    if settings.effective_api_key:
+    active_key = settings.effective_api_key
+    if active_key and not active_key.startswith("STRUCTURA-FREE-"):
         try:
             agent = build_conversational_agent(dependencies=dependencies)
             result = await agent.arun(

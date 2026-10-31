@@ -323,7 +323,16 @@ class MemCellStore:
         now = datetime.now(timezone.utc)
         valid_foresights: list[ForesightItem] = []
         for fs_raw in (row.foresights or []):
-            fs = ForesightItem(**fs_raw)
+            try:
+                fs = ForesightItem(**fs_raw)
+            except Exception:
+                clean_raw = dict(fs_raw) if isinstance(fs_raw, dict) else {"description": str(fs_raw)}
+                clean_raw.pop("valid_from", None)
+                clean_raw.pop("valid_until", None)
+                try:
+                    fs = ForesightItem(**clean_raw)
+                except Exception:
+                    continue
             v_from = fs.valid_from
             v_until = fs.valid_until
             if v_from and v_from.tzinfo is None:
