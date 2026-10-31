@@ -34,7 +34,7 @@ fi
 export PYTHONPATH=.
 
 echo "⚡ Servidor FastAPI Monolítico rodando em http://localhost:8000"
-echo "👉 Acesse o Studio Interativo em http://localhost:8000/analyzer"
+echo "👉 Acesse o Visualizador em http://localhost:8000/"
 echo "👉 Para rodar com Docker + PostgreSQL: ./run.sh --docker"
 echo "============================================================"
 

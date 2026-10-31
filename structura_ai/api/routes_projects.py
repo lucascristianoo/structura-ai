@@ -343,6 +343,7 @@ async def upload_and_create_project(
                 cad_data = ingested.model_dump()
                 if ingested.max_span_m > 0:
                     span_length_m = ingested.max_span_m
+                cantilever_length_m = ingested.max_cantilever_m
                 if ingested.suggested_beam_height_cm > 0:
                     beam_height_cm = ingested.suggested_beam_height_cm
                 if ingested.suggested_beam_width_cm > 0:
