@@ -48,6 +48,10 @@ class Settings(BaseSettings):
         extra="ignore"
     )
 
+    def model_post_init(self, __context) -> None:
+        """Exporta a chave do .env para GOOGLE_API_KEY/GEMINI_API_KEY (o SDK google-genai lê do os.environ)."""
+        _ = self.effective_api_key
+
     @property
     def effective_api_key(self) -> str:
         """Retorna a chave direta do Google Gemini (AIza...) para o SDK Agno."""
