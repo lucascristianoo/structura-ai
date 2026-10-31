@@ -106,6 +106,56 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
                 "position": (float(insert[0]), float(insert[1]), float(insert[2] if len(insert) > 2 else 0.0)),
             })
 
+        elif dtype == "CIRCLE":
+            center = entity.dxf.center
+            radius = float(entity.dxf.radius or 0.2)
+            is_col = any(k in layer_name for k in ["PILAR", "COLUMN", "COL"])
+            if is_col or (0.075 <= radius <= 0.60):
+                explicit_insert_columns.append({
+                    "layer": layer_name,
+                    "pos": (float(center.x), float(center.y), float(center.z if hasattr(center, "z") else 0.0)),
+                    "block_name": f"Pilar_Circular_R{int(radius * 100)}cm",
+                })
+                all_points.append((float(center.x), float(center.y)))
+            # Gera aproximação poligonal para visualização de vigas de contorno circular
+            try:
+                from ezdxf import path as ez_path
+                p = ez_path.make_path(entity)
+                pts = list(p.flattening(distance=0.08))
+                for i in range(len(pts) - 1):
+                    p1, p2 = pts[i], pts[i + 1]
+                    lines_raw.append({
+                        "layer": layer_name,
+                        "start": (float(p1[0]), float(p1[1]), 0.0),
+                        "end": (float(p2[0]), float(p2[1]), 0.0),
+                    })
+                    all_points.extend([(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))])
+            except Exception:
+                pass
+
+        elif dtype in ("ARC", "ELLIPSE", "SPLINE"):
+            try:
+                from ezdxf import path as ez_path
+                p = ez_path.make_path(entity)
+                pts = list(p.flattening(distance=0.08))
+                for i in range(len(pts) - 1):
+                    p1, p2 = pts[i], pts[i + 1]
+                    lines_raw.append({
+                        "layer": layer_name,
+                        "start": (float(p1[0]), float(p1[1]), 0.0),
+                        "end": (float(p2[0]), float(p2[1]), 0.0),
+                    })
+                    all_points.extend([(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))])
+            except Exception:
+                if hasattr(entity.dxf, "start") and hasattr(entity.dxf, "end"):
+                    s, e = entity.dxf.start, entity.dxf.end
+                    lines_raw.append({
+                        "layer": layer_name,
+                        "start": (float(s.x), float(s.y), 0.0),
+                        "end": (float(e.x), float(e.y), 0.0),
+                    })
+                    all_points.extend([(float(s.x), float(s.y)), (float(e.x), float(e.y))])
+
     if not all_points:
         # DXF vazio ou sem linhas reconhecidas
         return UnifiedProjectData(
@@ -353,5 +403,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
             "detected_scale": scale_to_meters,
             "total_spans": len(spans),
             "total_columns": len(columns),
+            "utm_origin_offset": {"x": round(min_x, 3), "y": round(min_y, 3)},
+            "is_georeferenced_utm": bool(min_x > 10000.0 or min_y > 10000.0),
         }
     )

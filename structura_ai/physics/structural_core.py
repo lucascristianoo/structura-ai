@@ -9,6 +9,7 @@ from structura_ai.physics.nbr_standards import ConcreteProperties, DeflectionLim
 from structura_ai.physics.load_calculator import LoadCalculator
 from structura_ai.physics.dsm_solver import DSMSolver
 from structura_ai.physics.optisection import OptiSectionEngine
+from structura_ai.physics.scope_guard import ScopeGuard
 
 class StructuralCoreEngine:
     """
@@ -269,6 +270,15 @@ class StructuralCoreEngine:
             current_beam_width_cm=beam_width_cm
         )
 
+        # Scope Guard Boundary Audit
+        scope_audit = ScopeGuard.audit_project_scope(
+            max_span_m=span_length_m,
+            max_cantilever_m=cantilever_length_m,
+            total_height_m=column_height_m,
+            num_storeys=1,
+            is_indirect_support=False,
+        )
+
         return {
             "is_physically_viable": is_viable,
             "structural_score": score,
@@ -294,4 +304,5 @@ class StructuralCoreEngine:
             },
             "dsm_analysis": dsm_result,
             "section_optimization": optisection_result,
+            "scope_audit": scope_audit.to_dict(),
         }

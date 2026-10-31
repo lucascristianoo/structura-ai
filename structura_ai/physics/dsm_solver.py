@@ -228,6 +228,25 @@ class DSMSolver:
             2
         )
 
+        # Análise de Sensibilidade Geotécnica ao Solo de Goiás (Latossolo Vermelho Colapsível)
+        # Recalque diferencial normativo de serviço em solos porosos: delta_v = min(10mm, L/500)
+        delta_v_recalque_m = min(0.010, l_span / 500.0)
+        delta_m_recalque_knm = round(float((6.0 * ei_beam / (l_span ** 2)) * delta_v_recalque_m), 1)
+        max_base_m = max(abs(m_node1_knm), abs(m_node2_knm), m_midspan_knm, 1.0)
+        recalque_impact_pct = round((delta_m_recalque_knm / max_base_m) * 100.0, 1)
+
+        geotechnical_sensitivity = {
+            "soil_context": "Latossolo Vermelho Poroso / Colapsível (Centro-Oeste / BR-GO)",
+            "imposed_differential_settlement_mm": round(delta_v_recalque_m * 1000.0, 1),
+            "induced_additional_moment_knm": delta_m_recalque_knm,
+            "moment_increase_percentage": recalque_impact_pct,
+            "geotechnical_advice": (
+                f"Caso ocorra recalque diferencial de {delta_v_recalque_m * 1000.0:.1f}mm no solo poroso, "
+                f"o momento fletor na viga sofrerá acréscimo estimado de +{recalque_impact_pct:.0f}% ({delta_m_recalque_knm} kNm). "
+                f"Recomenda-se prever estacas escavadas/trado profundo ou reforço de armadura negativa de apoio."
+            ),
+        }
+
         return {
             "solver": "Direct Stiffness Method (DSM) 2D Plane Frame",
             "degrees_of_freedom": int(num_dofs),
@@ -251,6 +270,7 @@ class DSMSolver:
                 "column2_vertical_reaction_kn": round(abs(float(ea_col / col_h * v2)), 1),
                 "column1_shear_reaction_kn": round(abs(float(12.0 * ei_col / (col_h ** 3) * u1)), 1),
             },
+            "geotechnical_sensitivity": geotechnical_sensitivity,
         }
 
     @classmethod
