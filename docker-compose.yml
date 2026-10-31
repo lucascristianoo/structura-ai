@@ -1,9 +1,7 @@
-version: '3.8'
-
 services:
   db:
-    image: postgres:16-alpine
-    container_name: structura_postgres
+    image: pgvector/pgvector:pg16
+    container_name: structura_pgvector
     restart: unless-stopped
     environment:
       POSTGRES_USER: structura_user
@@ -30,8 +28,10 @@ services:
       - "8000:8000"
     environment:
       - DATABASE_URL=postgresql+asyncpg://structura_user:structura_secure_pass_2026@db:5432/structura_db
+      - POSTGRES_URL=postgresql://structura_user:structura_secure_pass_2026@db:5432/structura_db
       - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-      - GEMINI_MODEL=gemini-2.0-flash
+      - GOOGLE_API_KEY=${GOOGLE_API_KEY:-}
+      - GEMINI_MODEL=gemini-2.5-flash
       - HOST=0.0.0.0
       - PORT=8000
     volumes:

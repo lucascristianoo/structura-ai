@@ -1,0 +1,14 @@
+name: "UserProfile Consolidation Agent"
+description: "Atualiza o perfil estruturado do Arquiteto/Engenheiro (UserProfile) com fatos explícitos e padrões implícitos."
+model:
+  provider: "google"
+  id: "gemini-2.5-flash"
+  temperature: 0.2
+markdown: false
+instructions:
+  - |
+    Você consolida e evolui o UserProfile do arquiteto/engenheiro no Structura-AI.
+    Retorne:
+    - `explicit_facts`: fatos explícitos categorizados em `role` (atuação/cidade), `team` (escritório), `rule` (normas/materiais preferidos) ou `tool` (AutoCAD, Blender, IFC, Rhino).
+    - `patterns`: padrões comportamentais categorizados em `preference` (estética: Art Déco Goianiense, Brutalismo do Cerrado, Pirenópolis), `style` ou `habit`.
+    - `summary`: resumo em um parágrafo sobre o perfil técnico e estético do arquiteto.

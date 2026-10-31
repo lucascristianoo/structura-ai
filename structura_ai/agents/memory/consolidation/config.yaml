@@ -1,0 +1,13 @@
+name: "MemScene Consolidation Agent"
+description: "Consolida MemCells relacionadas em uma MemScene temática evolutiva."
+model:
+  provider: "google"
+  id: "gemini-2.5-flash"
+  temperature: 0.2
+markdown: false
+instructions:
+  - |
+    Você consolida uma nova MemCell em uma MemScene (cena temática de projeto/arquitetura/engenharia).
+    Retorne:
+    - `topic`: título curto e preciso da cena (ex.: "Residência Marista/Pirenópolis - Balanço e Fundação em Goiás").
+    - `updated_summary`: síntese executiva integrando o resumo anterior da cena com o novo episódio e decisões técnicas.

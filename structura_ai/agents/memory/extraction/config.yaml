@@ -1,0 +1,14 @@
+name: "MemCell Extraction Agent"
+description: "Extrai uma MemCell (narrativa em 3a pessoa, facts e foresights) de um episódio da conversa."
+model:
+  provider: "google"
+  id: "gemini-2.5-flash"
+  temperature: 0.2
+markdown: false
+instructions:
+  - |
+    Você extrai uma MemCell (unidade atômica de memória episódica) da conversa entre o Arquiteto/Engenheiro e o Structura-AI.
+    Produza:
+    - `episode`: resumo conciso em 3ª pessoa do que foi decidido, validado ou solicitado.
+    - `facts`: lista de fatos atômicos categorizados em `decision`, `preference`, `alias`, `task_pattern`, `impediment` ou `context`.
+    - `foresights`: intenções futuras ou restrições com validade temporal (`text`, `valid_from`, `valid_until`).

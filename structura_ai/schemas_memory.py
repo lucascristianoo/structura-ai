@@ -1,0 +1,111 @@
+from __future__ import annotations
+
+import uuid
+from datetime import datetime, timezone
+from typing import Literal, Optional
+from pydantic import BaseModel, Field
+
+
+def _utc_now() -> datetime:
+    return datetime.now(timezone.utc)
+
+
+def _uuid() -> str:
+    return str(uuid.uuid4())
+
+
+class FactItem(BaseModel):
+    category: Literal["decision", "preference", "alias", "task_pattern", "impediment", "context"] = "decision"
+    fact: str
+
+
+class ForesightItem(BaseModel):
+    text: str
+    valid_from: Optional[datetime] = None
+    valid_until: Optional[datetime] = None
+
+
+class MemCell(BaseModel):
+    id: str = Field(default_factory=_uuid)
+    user_id: str
+    session_id: str = "default_session"
+    episode: str
+    searchable_text: str
+    facts: list[FactItem] = Field(default_factory=list)
+    foresights: list[ForesightItem] = Field(default_factory=list)
+    embedding: Optional[list[float]] = None
+    created_at: datetime = Field(default_factory=_utc_now)
+    message_count: int = 0
+
+
+class MemScene(BaseModel):
+    id: str = Field(default_factory=_uuid)
+    user_id: str
+    topic: str
+    summary: str
+    cell_ids: list[str] = Field(default_factory=list)
+    centroid_embedding: Optional[list[float]] = None
+    cell_count: int = 1
+    created_at: datetime = Field(default_factory=_utc_now)
+    updated_at: datetime = Field(default_factory=_utc_now)
+
+
+class MemSceneVersion(BaseModel):
+    id: str = Field(default_factory=_uuid)
+    scene_id: str
+    user_id: str
+    topic: str
+    summary: str
+    trigger_cell_id: Optional[str] = None
+    cell_count_at_version: int = 1
+    created_at: datetime = Field(default_factory=_utc_now)
+
+
+class ProfileExplicitFact(BaseModel):
+    category: Literal["role", "team", "rule", "tool"] = "role"
+    value: str
+
+
+class ProfileImplicitPattern(BaseModel):
+    category: Literal["preference", "style", "habit"] = "preference"
+    observation: str
+
+
+class UserProfile(BaseModel):
+    user_id: str
+    explicit_facts: list[ProfileExplicitFact] = Field(default_factory=list)
+    patterns: list[ProfileImplicitPattern] = Field(default_factory=list)
+    summary: str = ""
+    updated_at: datetime = Field(default_factory=_utc_now)
+
+
+class UserProfileVersion(BaseModel):
+    id: str = Field(default_factory=_uuid)
+    user_id: str
+    explicit_facts: list[ProfileExplicitFact] = Field(default_factory=list)
+    patterns: list[ProfileImplicitPattern] = Field(default_factory=list)
+    summary: str = ""
+    trigger_scene_id: Optional[str] = None
+    created_at: datetime = Field(default_factory=_utc_now)
+
+
+class BoundaryDecision(BaseModel):
+    should_close_episode: bool
+    reason: str
+
+
+class ExtractedMemCell(BaseModel):
+    episode: str
+    facts: list[FactItem] = Field(default_factory=list)
+    foresights: list[ForesightItem] = Field(default_factory=list)
+
+
+class ConsolidatedScene(BaseModel):
+    topic: str
+    updated_summary: str
+
+
+class ConsolidatedProfile(BaseModel):
+    explicit_facts: list[ProfileExplicitFact] = Field(default_factory=list)
+    patterns: list[ProfileImplicitPattern] = Field(default_factory=list)
+    summary: str

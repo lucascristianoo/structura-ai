@@ -1,277 +1,237 @@
 {% extends "base.html" %}
-{% from "partials/macros.html" import breadcrumb, metric_card %}
 
-{% block title %}Visualizador 3D • Structura.AI{% endblock %}
+{% block title %}Structura.AI — Visualizador Estrutural{% endblock %}
 
 {% block content %}
-<div class="ui-page">
-
-  <!-- Page Header -->
-  <div class="ui-page-header">
-    <div>
-      {{ breadcrumb([{'label': 'Início', 'href': '/'}, {'label': 'Visualizador 3D'}]) }}
-      <div class="flex flex-wrap items-center gap-2.5">
-        <h1 class="ui-title">Visualizador 3D e inspetor estrutural</h1>
-        <span class="ui-badge">DXF · IFC4 · OBJ</span>
-      </div>
-      <p class="ui-subtitle">
-        Inspeção web de elementos estruturais, flechas pela NBR 6118 e estimativa de quantitativos SINAPI sem instalação local.
+<!-- FAKE LOGIN SCREEN (shown when no username is saved in session/localStorage) -->
+<section id="login-screen" class="flex-1 flex items-center justify-center p-4 hidden">
+  <div class="ui-card w-full max-w-sm p-6">
+    <div class="mb-5">
+      <span class="ui-eyebrow">Acesso rápido</span>
+      <h1 class="text-base font-semibold text-ink-strong mt-1">Identificação do usuário</h1>
+      <p class="text-xs text-ink-secondary mt-1 leading-relaxed">
+        Informe seu nome de usuário para entrar no painel de visualização e diagnóstico estrutural.
       </p>
     </div>
 
-    <!-- Benchmark Quick Load Buttons -->
-    <div class="flex flex-wrap items-center gap-2">
-      <button type="button" id="btn-load-s1" class="ui-btn ui-btn-secondary">
-        <span class="ui-dot ui-dot-fail"></span>
-        <span>Cenário 1 · Requer ajuste</span>
+    <form id="fake-login-form" class="space-y-4">
+      <div>
+        <label for="login-username-input" class="ui-label">Nome de usuário</label>
+        <input
+          type="text"
+          id="login-username-input"
+          name="username"
+          placeholder="Ex.: Arq. Marina Costa"
+          maxlength="40"
+          required
+          autocomplete="username"
+          class="ui-input py-2"
+        >
+      </div>
+
+      <button type="submit" class="ui-btn ui-btn-primary w-full py-2">
+        <span>Entrar</span>
+        <i data-lucide="arrow-right" class="w-3.5 h-3.5"></i>
       </button>
-      <button type="button" id="btn-load-s2" class="ui-btn ui-btn-secondary">
-        <span class="ui-dot ui-dot-ok"></span>
-        <span>Cenário 2 · Conforme</span>
-      </button>
-      <button type="button" id="btn-open-guide" class="ui-btn ui-btn-ghost">
-        <span>Softwares compatíveis</span>
-      </button>
-    </div>
+    </form>
   </div>
+</section>
 
-  <!-- MAIN WORKSPACE -->
-  <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+<!-- SINGLE-PAGE WORKSPACE (matches wireframe layout) -->
+<div id="viewer-workspace" class="w-full max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-5 flex-1 flex flex-col gap-4 sm:gap-5 hidden">
 
-    <!-- LEFT PANEL: 3D VIEWPORT & SLIDERS (lg:col-span-8) -->
-    <div class="lg:col-span-8 space-y-4">
+  <!-- TOP PANEL: 2D / 3D VISUALIZATION -->
+  <section class="ui-card overflow-hidden flex flex-col">
+    <div class="ui-card-header py-2.5 px-3.5 sm:px-4">
+      <div class="flex flex-wrap items-center gap-2.5 min-w-0">
+        <div class="ui-tab-group" role="tablist" aria-label="Dimensão da visualização">
+          <button type="button" data-view-dim="3d" class="ui-tab is-active">3D</button>
+          <button type="button" data-view-dim="2d" class="ui-tab">2D</button>
+        </div>
 
-      <!-- Viewport Toolbar -->
-      <div class="ui-card px-4 py-2.5 flex flex-wrap items-center justify-between gap-3 text-xs font-mono">
+        <span id="active-file-badge" class="ui-badge truncate max-w-[200px] sm:max-w-xs">
+          Aguardando arquivo
+        </span>
+
+        <!-- Barra de Versionamento por Arquivo (v1 .. vn) do Excalidraw -->
+        <div id="version-bar-container" class="flex items-center gap-1 text-[11px] font-mono" aria-label="Versões do arquivo ativo">
+          <span class="ui-badge text-[10px]">v1</span>
+        </div>
+      </div>
+
+      <!-- Seletor de Formatos de Software & Conversor (Canto Superior Direito) -->
+      <div class="flex flex-wrap items-center gap-2 text-xs font-mono">
+        <div class="flex items-center gap-1.5">
+          <label for="software-format-select" class="text-[10px] text-ink-muted hidden sm:inline">Formato:</label>
+          <select id="software-format-select" class="ui-input py-1 px-2 text-[11px] font-mono w-auto" title="Selecionar formato de software para Text-to-Code ou Conversão">
+            <option value="autocad">AutoCAD (.dxf)</option>
+            <option value="blender">Blender 3D (.py)</option>
+            <option value="ifc">BIM IFC 4 (.ifc)</option>
+            <option value="grasshopper_rhino">Rhino / Grasshopper (.py)</option>
+            <option value="openscad">OpenSCAD (.scad)</option>
+            <option value="landscape_insight">Paisagem Cerrado (GO)</option>
+          </select>
+          <button type="button" id="btn-convert-format" class="ui-btn ui-btn-secondary py-1 px-2 text-[11px] font-mono" title="Converter projeto ativo para o formato selecionado">
+            <span>Converter</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- 3D Controls -->
+      <div id="toolbar-3d-controls" class="flex flex-wrap items-center gap-2 text-xs font-mono">
         <div class="ui-tab-group">
-          <span class="text-ink-muted text-[11px] mr-1">Modo:</span>
           <button type="button" data-shade="shaded" class="ui-tab is-active">Sólido</button>
           <button type="button" data-shade="wireframe" class="ui-tab">Aramado</button>
           <button type="button" data-shade="xray" class="ui-tab">Raio-X</button>
           <button type="button" data-shade="stress" class="ui-tab">Tensões</button>
         </div>
-
-        <div class="flex items-center gap-2">
-          <span class="text-ink-muted text-[11px]">Escala da deformada:</span>
-          <input type="range" id="slider-scale-deflection" min="1" max="50" step="5" value="25" class="w-20">
-          <span id="label-scale-deflection" class="text-ink-strong font-semibold text-[11px] w-7 text-right">25x</span>
-        </div>
-
-        <button type="button" id="btn-reset-cam" class="ui-btn ui-btn-ghost py-1 px-2 text-[11px] font-mono">
+        <button type="button" id="btn-reset-cam" class="ui-btn ui-btn-ghost py-1 px-2 text-[11px] font-mono" title="Centralizar câmera">
           <i data-lucide="rotate-ccw" class="w-3 h-3"></i>
-          <span>Centralizar</span>
+          <span class="hidden sm:inline">Centralizar</span>
         </button>
       </div>
 
-      <!-- Three.js Canvas Container -->
-      <div class="relative w-full h-[480px] rounded-lg overflow-hidden border border-edge bg-surface-inset">
-        <div id="viewer-three-container" class="w-full h-full"></div>
-
-        <!-- Drop Overlay (strictly bounded between top export actions and bottom hint) -->
-        <div id="drop-overlay" class="absolute inset-x-4 top-14 bottom-12 bg-surface-base/75 backdrop-blur-sm flex flex-col items-center justify-center text-center px-4 border border-dashed border-edge-strong rounded-md transition-opacity duration-200 pointer-events-none">
-          <i data-lucide="upload" class="w-6 h-6 text-ink-muted mb-2"></i>
-          <p class="text-xs font-medium text-ink-strong">Selecione um dos cenários acima para inspecionar o modelo</p>
-          <p class="text-[11px] text-ink-muted mt-0.5 font-mono">Compatível com exportação direta para IFC4 e DXF</p>
+      <!-- 2D Controls -->
+      <div id="toolbar-2d-controls" class="hidden flex-wrap items-center gap-2 text-xs font-mono">
+        <div class="ui-tab-group">
+          <button type="button" data-plan-view="blueprint" class="ui-tab is-active">Planta 2D</button>
+          <button type="button" data-plan-view="section" class="ui-tab">Corte ELS</button>
+          <button type="button" id="tab-2d-original" data-plan-view="original" class="ui-tab hidden">Original</button>
         </div>
+      </div>
+    </div>
 
-        <!-- Controls Hint -->
-        <div class="absolute bottom-3 left-3 max-w-[calc(100%-1.5rem)] px-2.5 py-1 rounded bg-surface-card/90 backdrop-blur border border-edge text-[10px] font-mono text-ink-muted pointer-events-none">
+    <!-- Visualization Viewport -->
+    <div id="viewport-drop-area" class="relative w-full h-[310px] sm:h-[370px] lg:h-[390px] bg-surface-inset">
+      <!-- 3D WebGL View -->
+      <div id="viewer-3d-wrapper" class="w-full h-full relative">
+        <div id="viewer-three-container" class="w-full h-full"></div>
+        <div id="hint-3d-controls" class="hidden absolute bottom-2.5 left-2.5 max-w-[calc(100%-1.25rem)] px-2.5 py-1 rounded bg-surface-card/90 backdrop-blur border border-edge text-[10px] font-mono text-ink-muted pointer-events-none">
           Órbita: botão esquerdo · Pan: botão direito · Zoom: scroll
         </div>
-
-        <!-- Export Actions -->
-        <div class="absolute top-3 right-3 flex flex-wrap items-center justify-end gap-2">
-          <button type="button" id="btn-export-current-ifc" class="ui-btn ui-btn-secondary bg-surface-card/95 backdrop-blur">
-            <i data-lucide="download" class="w-3.5 h-3.5"></i>
-            <span>Exportar IFC4</span>
-          </button>
-          <button type="button" id="btn-export-current-dxf" class="ui-btn ui-btn-primary">
-            <i data-lucide="file-code" class="w-3.5 h-3.5"></i>
-            <span>Exportar DXF</span>
-          </button>
-        </div>
       </div>
 
-      <!-- Real-Time Parametric Micro-Sliders -->
-      <section class="ui-card">
-        <div class="ui-card-header">
-          <h2 class="ui-card-title">Ajuste paramétrico rápido</h2>
-          <span class="text-[11px] font-mono text-ink-muted">Recálculo imediato</span>
+      <!-- 2D Technical Drawing / Blueprint View -->
+      <div id="viewer-2d-wrapper" class="hidden w-full h-full overflow-auto flex items-center justify-center p-3 sm:p-5 blueprint-frame">
+        <div id="viewer-2d-content" class="w-full max-w-4xl"></div>
+      </div>
+
+      <!-- Empty State Before File Upload -->
+      <div id="viewport-empty-state" class="absolute inset-0 bg-surface-base/80 backdrop-blur-[2px] flex flex-col items-center justify-center text-center p-6 pointer-events-none transition-opacity duration-200">
+        <div class="w-10 h-10 rounded-lg border border-edge bg-surface-card flex items-center justify-center mb-3 text-ink-muted">
+          <i data-lucide="layers" class="w-5 h-5"></i>
         </div>
-
-        <div class="ui-card-body grid grid-cols-1 sm:grid-cols-3 gap-4 text-xs">
-          <div>
-            <div class="flex justify-between mb-1.5">
-              <label for="viewer-span-slider" class="text-ink-secondary font-medium">Vão livre (L)</label>
-              <span id="slider-span-val" class="font-mono font-semibold text-ink-strong">10.0m</span>
-            </div>
-            <input type="range" id="viewer-span-slider" min="3.0" max="16.0" step="0.5" value="10.0" class="w-full">
-          </div>
-
-          <div>
-            <div class="flex justify-between mb-1.5">
-              <label for="viewer-h-slider" class="text-ink-secondary font-medium">Altura da viga (h)</label>
-              <span id="slider-h-val" class="font-mono font-semibold text-ink-strong">28cm</span>
-            </div>
-            <input type="range" id="viewer-h-slider" min="15.0" max="80.0" step="5.0" value="28.0" class="w-full">
-          </div>
-
-          <div>
-            <div class="flex justify-between mb-1.5">
-              <label for="viewer-cant-slider" class="text-ink-secondary font-medium">Balanço (Lc)</label>
-              <span id="slider-cant-val" class="font-mono font-semibold text-ink-strong">0.0m</span>
-            </div>
-            <input type="range" id="viewer-cant-slider" min="0.0" max="5.0" step="0.5" value="0.0" class="w-full">
-          </div>
-        </div>
-      </section>
-
+        <p class="text-xs sm:text-sm font-medium text-ink-strong">Visualização 2D / 3D</p>
+        <p class="text-[11px] sm:text-xs text-ink-muted mt-1 max-w-md">
+          Carregue um arquivo abaixo para inspecionar o modelo em 2D e 3D e receber o diagnóstico no chat.
+        </p>
+      </div>
     </div>
+  </section>
 
-    <!-- RIGHT PANEL: ELEMENT INSPECTOR & COPILOT (lg:col-span-4) -->
-    <div class="lg:col-span-4 space-y-5">
+  <!-- BOTTOM ROW: FILE IMPORT/EXPORT (LEFT) & CHATBOT (RIGHT) -->
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 sm:gap-5">
 
-      <!-- Element Inspector Card -->
-      <section class="ui-card">
-        <div class="ui-card-header">
-          <h2 class="ui-card-title">Inspetor de elemento</h2>
-          <span id="inspector-badge" class="ui-badge ui-badge-fail">ELS reprovado</span>
+    <!-- BOTTOM LEFT: IMPORT / EXPORT FILES -->
+    <section class="ui-card flex flex-col h-[310px] sm:h-[330px]">
+      <div class="ui-card-header py-2.5 px-4 shrink-0">
+        <h2 class="ui-card-title">Arquivos</h2>
+        <span id="file-status-badge" class="text-[11px] font-mono text-ink-muted">Importar / Exportar</span>
+      </div>
+
+      <div class="p-4 flex-1 flex flex-col gap-3 min-h-0">
+        <!-- Drag & Drop Zone -->
+        <div
+          id="file-dropzone"
+          role="button"
+          tabindex="0"
+          aria-label="Carregar arquivo por clique ou arraste"
+          class="ui-dropzone flex-1 flex flex-col items-center justify-center gap-1.5 px-4 py-3 select-none"
+        >
+          <input
+            type="file"
+            id="file-upload-input"
+            accept="image/*,.pdf,.svg,.dxf,.ifc,.obj,.gltf,.glb,.stl"
+            class="hidden"
+          >
+          <div class="w-9 h-9 rounded-md border border-edge bg-surface-card flex items-center justify-center text-ink-secondary mb-1 pointer-events-none">
+            <i data-lucide="upload" class="w-4 h-4"></i>
+          </div>
+          <p id="dropzone-title" class="text-xs sm:text-sm font-medium text-ink-strong break-all pointer-events-none">
+            Carregar arquivo...
+          </p>
+          <p id="dropzone-subtitle" class="text-[11px] text-ink-secondary pointer-events-none">
+            Drag &amp; Drop ou clique para selecionar
+          </p>
+          <span id="dropzone-formats" class="text-[10px] font-mono text-ink-muted mt-1 pointer-events-none">
+            DXF · IFC4 · OBJ · glTF · STL · SVG · PNG · JPG · PDF
+          </span>
         </div>
 
-        <div class="ui-card-body space-y-3.5 text-xs">
-          <div class="ui-well">
-            <span class="text-[10px] font-mono uppercase text-ink-muted block">Elemento ativo</span>
-            <span id="insp-elem-name" class="text-xs font-semibold text-ink-strong block mt-0.5">Viga Principal V101 (10.0m)</span>
-            <span id="insp-elem-dim" class="text-[11px] font-mono text-ink-secondary block mt-0.5">Seção: 20×28 cm · Concreto C30</span>
-          </div>
+        <div id="upload-feedback" class="hidden text-[11px] font-mono px-2.5 py-1.5 rounded border shrink-0"></div>
 
-          <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2 gap-3">
-            {{ metric_card('Flecha total (ELS)', '48.2 mm', 'Limite: ≤ 40.0mm', 'insp-defl-val', 'insp-defl-lim', 'fail') }}
-            {{ metric_card('Momento fletor', '285.4 kN.m', 'Matriz de rigidez 2D', 'insp-moment-val') }}
-          </div>
+        <!-- Lista de Arquivos Carregados (Excalidraw Multi-File Switcher) -->
+        <div id="loaded-files-list" class="flex flex-wrap items-center gap-1.5 text-[11px] font-mono shrink-0" aria-label="Arquivos carregados"></div>
 
-          <!-- BOM, SINAPI 2026 & Embodied Carbon -->
-          <div class="ui-well space-y-2 font-mono text-[11px]">
-            <div class="flex items-center justify-between text-ink-strong font-semibold pb-1.5 border-b border-edge">
-              <span>Quantitativo e custo</span>
-              <span class="text-ink-muted font-normal">SINAPI 2026</span>
-            </div>
-
-            <div class="flex justify-between">
-              <span class="text-ink-muted">Volume de concreto</span>
-              <span id="insp-vol-conc" class="text-ink-primary font-medium">5.36 m³</span>
-            </div>
-
-            <div class="flex justify-between">
-              <span class="text-ink-muted">Aço CA-50 estimado</span>
-              <span id="insp-steel-kg" class="text-ink-primary font-medium">455.6 kg</span>
-            </div>
-
-            <div class="flex justify-between border-t border-edge pt-1.5">
-              <span class="text-ink-muted">Custo estimado</span>
-              <span id="insp-cost-total" class="text-ink-strong font-semibold">R$ 15.420,00</span>
-            </div>
-
-            <div class="flex justify-between">
-              <span class="text-ink-muted">Emissões (A1–A3)</span>
-              <span id="insp-carbon-val" class="text-ink-primary font-medium">2.544 kg CO₂e</span>
-            </div>
-          </div>
-
-          <!-- Section Optimizer Suggestion -->
-          <div class="ui-note text-xs">
-            <span class="text-[11px] font-mono font-semibold text-ink-strong block mb-1">Pré-dimensionamento sugerido</span>
-            <p id="insp-optisection-text" class="text-ink-secondary leading-relaxed">
-              Para vão de 10 m em concreto C30, recomenda-se seção de <strong>20×60 cm</strong> em concreto armado convencional ou <strong>protensão ativa</strong> mantendo 26 cm de altura.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      <!-- Technical Assistant Widget -->
-      <section class="ui-card">
-        <div class="ui-card-header">
-          <h3 class="ui-card-title">Consulta técnica</h3>
-          <span class="text-[11px] font-mono text-ink-muted">Assistente</span>
-        </div>
-
-        <div class="ui-card-body space-y-3">
-          <div id="copilot-chat-box" class="h-44 overflow-y-auto space-y-2 text-xs p-2.5 rounded-md bg-surface-inset border border-edge">
-            <div class="p-2.5 rounded bg-surface-card border border-edge text-ink-secondary leading-relaxed">
-              <span class="font-mono font-semibold text-ink-strong text-[10px] block mb-0.5">ASSISTENTE TÉCNICO</span>
-              Modelo carregado. Consulte limites de flecha da NBR 6118, relações vão/altura ou alternativas sem vigas aparentes.
-            </div>
-          </div>
-
-          <form id="copilot-form" class="flex gap-2">
-            <input type="text" id="copilot-input" placeholder="Consultar norma, seção ou custo..." class="ui-input">
-            <button type="submit" class="ui-btn ui-btn-primary px-3 shrink-0" aria-label="Enviar consulta">
-              <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+        <!-- Export Controls -->
+        <div class="pt-2.5 border-t border-edge flex flex-wrap items-center justify-between gap-2 shrink-0">
+          <span class="text-[11px] font-mono text-ink-muted">Exportar modelo:</span>
+          <div class="flex flex-wrap items-center gap-1.5">
+            <button type="button" id="btn-export-ifc" disabled class="ui-btn ui-btn-secondary py-1.5 px-2.5 text-[11px] font-mono" title="Importe um arquivo para exportar em IFC4">
+              <i data-lucide="download" class="w-3 h-3"></i>
+              <span>IFC4</span>
             </button>
-          </form>
-        </div>
-      </section>
-
-    </div>
-  </div>
-</div>
-
-<!-- COMPATIBLE LIGHTWEIGHT SOFTWARE GUIDE MODAL -->
-<div id="modal-guide" class="fixed inset-0 z-50 bg-ink-strong/40 dark:bg-black/70 backdrop-blur-sm hidden items-center justify-center p-4">
-  <div class="max-w-xl w-full ui-card shadow-lg">
-    <div class="ui-card-header">
-      <h3 class="ui-card-title">Softwares leves compatíveis (CAD e BIM)</h3>
-      <button type="button" id="btn-close-guide" class="text-ink-muted hover:text-ink-strong transition-colors" aria-label="Fechar">
-        <i data-lucide="x" class="w-4 h-4"></i>
-      </button>
-    </div>
-
-    <div class="ui-card-body space-y-3.5 text-xs text-ink-secondary leading-relaxed">
-      <p>
-        Os arquivos exportados em formato aberto (DXF e IFC4) podem ser auditados sem necessidade de suítes pesadas:
-      </p>
-
-      <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
-        <div class="ui-well">
-          <span class="text-ink-strong font-semibold block">1. Visualizador Web Nativo</span>
-          <span class="text-[11px] font-mono text-ink-muted block mt-0.5">Navegador · Sem instalação</span>
-          <p class="mt-1.5 text-[11px]">
-            Inspeção direta de geometria 3D, deformadas e tensões nesta própria interface.
-          </p>
-        </div>
-
-        <div class="ui-well">
-          <span class="text-ink-strong font-semibold block">2. LibreCAD / QCAD</span>
-          <span class="text-[11px] font-mono text-ink-muted block mt-0.5">2D · Código aberto (~25 MB)</span>
-          <p class="mt-1.5 text-[11px]">
-            Leitura imediata das pranchas e cotas exportadas em padrão DXF.
-          </p>
-        </div>
-
-        <div class="ui-well">
-          <span class="text-ink-strong font-semibold block">3. web-ifc / BIMSurfer</span>
-          <span class="text-[11px] font-mono text-ink-muted block mt-0.5">Web · Padrão IFC4</span>
-          <p class="mt-1.5 text-[11px]">
-            Validação de propriedades BIM (`IfcBeam`, `IfcColumn` e `Pset_StructuraCompliance`).
-          </p>
-        </div>
-
-        <div class="ui-well">
-          <span class="text-ink-strong font-semibold block">4. Autodesk Viewer Web</span>
-          <span class="text-[11px] font-mono text-ink-muted block mt-0.5">Nuvem · Gratuito</span>
-          <p class="mt-1.5 text-[11px]">
-            Conferência de pranchas DWG/DXF e modelos IFC diretamente no navegador.
-          </p>
+            <button type="button" id="btn-export-dxf" disabled class="ui-btn ui-btn-secondary py-1.5 px-2.5 text-[11px] font-mono" title="Importe um arquivo para exportar em DXF">
+              <i data-lucide="file-code" class="w-3 h-3"></i>
+              <span>DXF</span>
+            </button>
+            <button type="button" id="btn-export-report" disabled class="ui-btn ui-btn-primary py-1.5 px-2.5 text-[11px] font-mono" title="Importe um arquivo para exportar o laudo HTML">
+              <i data-lucide="file-text" class="w-3 h-3"></i>
+              <span>Laudo</span>
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </section>
 
-    <div class="px-4 py-3 border-t border-edge flex justify-end">
-      <button type="button" id="btn-guide-ok" class="ui-btn ui-btn-primary">
-        Fechar
-      </button>
-    </div>
+    <!-- BOTTOM RIGHT: CHATBOT (DIAGNOSIS & DEBATE) -->
+    <section class="ui-card flex flex-col h-[310px] sm:h-[330px]">
+      <div class="ui-card-header py-2.5 px-4 shrink-0">
+        <h2 class="ui-card-title">Chat</h2>
+        <span id="chat-status-badge" class="ui-badge">Assistente</span>
+      </div>
+
+      <div class="p-3.5 flex-1 flex flex-col gap-2.5 min-h-0">
+        <div
+          id="copilot-chat-box"
+          class="flex-1 min-h-0 overflow-y-auto space-y-2.5 p-2.5 rounded-md bg-surface-inset/60 border border-edge text-xs"
+        ></div>
+
+        <!-- 3 Blocos de Sugestões de Mensagens do ICP (Padrão Lembry) -->
+        <div id="chat-suggestions-bar" class="grid grid-cols-1 sm:grid-cols-3 gap-1.5 shrink-0" aria-label="Sugestões rápidas de mensagens"></div>
+
+        <form id="copilot-form" class="flex gap-2 shrink-0">
+          <input
+            type="text"
+            id="copilot-input"
+            placeholder="Debater resultados, normas ou alternativas..."
+            autocomplete="off"
+            class="ui-input"
+          >
+          <button
+            type="submit"
+            id="copilot-send-btn"
+            class="ui-btn ui-btn-primary px-3 shrink-0"
+            aria-label="Enviar mensagem"
+          >
+            <i data-lucide="arrow-up" class="w-3.5 h-3.5"></i>
+          </button>
+        </form>
+      </div>
+    </section>
+
   </div>
+
 </div>
 {% endblock %}
 
