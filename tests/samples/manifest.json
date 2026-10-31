@@ -1,130 +1,130 @@
 {
-  "dxf/coordenadas_negativas_8m.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 8.0,
-    "tol": 0.05
-  },
-  "dxf/estresse_3000_entidades.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 4.0,
-    "tol": 0.2
-  },
-  "dxf/linha_80m_ignorada.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "min_beams": 0
-  },
-  "dxf/linhas_sem_layer_12m.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "tol": 0.2
-  },
-  "dxf/planta_lwpolyline_8x5.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 8.0,
-    "min_beams": 4,
-    "tol": 0.15
-  },
-  "dxf/portico_centimetros.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 6.0,
-    "min_beams": 2,
-    "min_columns": 3,
-    "tol": 0.15
-  },
-  "dxf/portico_metros.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 6.0,
-    "min_beams": 2,
-    "min_columns": 3,
-    "tol": 0.15
-  },
-  "dxf/portico_milimetros.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 6.0,
-    "min_beams": 2,
-    "min_columns": 3,
-    "tol": 0.15
-  },
-  "dxf/somente_texto.dxf": {
-    "fallback": true,
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 10.0,
-    "tol": 0.01
-  },
-  "dxf/vazio_valido.dxf": {
-    "fallback": true,
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 10.0,
-    "tol": 0.01
-  },
-  "dxf/versao_R12_7m.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 7.0,
-    "tol": 0.05
-  },
-  "dxf/versao_R2000_7m.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 7.0,
-    "tol": 0.05
-  },
-  "dxf/versao_R2018_7m.dxf": {
-    "format": "dxf",
-    "kind": "ok",
-    "max_span_m": 7.0,
-    "tol": 0.05
-  },
-  "dxf/viga_diagonal_3_4_5.dxf": {
+  "dxf/diagonal_beam_3_4_5.dxf": {
     "format": "dxf",
     "kind": "ok",
     "max_span_m": 5.0,
     "min_beams": 1,
     "tol": 0.05
   },
-  "ifc/estresse_225_pilares_225_vigas.ifc": {
+  "dxf/line_80m_ignored.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "min_beams": 0
+  },
+  "dxf/lines_no_layer_12m.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "tol": 0.2
+  },
+  "dxf/negative_coordinates_8m.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 8.0,
+    "tol": 0.05
+  },
+  "dxf/plan_lwpolyline_8x5.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 8.0,
+    "min_beams": 4,
+    "tol": 0.15
+  },
+  "dxf/portal_frame_centimeters.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 6.0,
+    "min_beams": 2,
+    "min_columns": 3,
+    "tol": 0.15
+  },
+  "dxf/portal_frame_meters.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 6.0,
+    "min_beams": 2,
+    "min_columns": 3,
+    "tol": 0.15
+  },
+  "dxf/portal_frame_millimeters.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 6.0,
+    "min_beams": 2,
+    "min_columns": 3,
+    "tol": 0.15
+  },
+  "dxf/stress_3000_entities.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 4.0,
+    "tol": 0.2
+  },
+  "dxf/text_only.dxf": {
+    "fallback": true,
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 10.0,
+    "tol": 0.01
+  },
+  "dxf/valid_empty.dxf": {
+    "fallback": true,
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 10.0,
+    "tol": 0.01
+  },
+  "dxf/version_R12_7m.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 7.0,
+    "tol": 0.05
+  },
+  "dxf/version_R2000_7m.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 7.0,
+    "tol": 0.05
+  },
+  "dxf/version_R2018_7m.dxf": {
+    "format": "dxf",
+    "kind": "ok",
+    "max_span_m": 7.0,
+    "tol": 0.05
+  },
+  "ifc/columns_only.ifc": {
     "format": "ifc",
     "kind": "ok",
-    "min_beams": 225,
-    "min_columns": 225,
+    "min_beams": 0,
+    "min_columns": 3,
     "schema": "IFC4"
   },
-  "ifc/modelo_vazio.ifc": {
+  "ifc/empty_model.ifc": {
     "format": "ifc",
     "kind": "ok",
     "min_beams": 0,
     "min_columns": 0,
     "schema": "IFC4"
   },
-  "ifc/portico_ifc2x3.ifc": {
+  "ifc/portal_frame_ifc2x3.ifc": {
     "format": "ifc",
     "kind": "ok",
     "min_beams": 4,
     "min_columns": 6,
     "schema": "IFC2X3"
   },
-  "ifc/portico_ifc4.ifc": {
+  "ifc/portal_frame_ifc4.ifc": {
     "format": "ifc",
     "kind": "ok",
     "min_beams": 4,
     "min_columns": 6,
     "schema": "IFC4"
   },
-  "ifc/somente_pilares.ifc": {
+  "ifc/stress_225_columns_225_beams.ifc": {
     "format": "ifc",
     "kind": "ok",
-    "min_beams": 0,
-    "min_columns": 3,
+    "min_beams": 225,
+    "min_columns": 225,
     "schema": "IFC4"
   },
   "image/blueprint_512x256.png": {
@@ -133,176 +133,176 @@
     "kind": "image",
     "width": 512
   },
-  "image/croqui_64x64.png": {
+  "image/sketch_64x64.png": {
     "format": "png",
     "height": 64,
     "kind": "image",
     "width": 64
   },
-  "invalid/binario_aleatorio.dxf": {
+  "invalid/corrupted_stl.stl": {
     "kind": "reject"
   },
-  "invalid/dxf_truncado.dxf": {
+  "invalid/empty.dxf": {
     "kind": "reject"
   },
-  "invalid/extensao_nao_suportada.xyz": {
+  "invalid/empty.ifc": {
     "kind": "reject"
   },
-  "invalid/glb_magic_errado.glb": {
+  "invalid/glb_wrong_magic.glb": {
     "kind": "reject"
   },
-  "invalid/gltf_json_quebrado.gltf": {
+  "invalid/gltf_broken_json.gltf": {
     "kind": "reject"
   },
-  "invalid/header_sem_endsec.ifc": {
+  "invalid/header_without_endsec.ifc": {
     "kind": "reject"
   },
-  "invalid/obj_sem_vertices.obj": {
+  "invalid/obj_no_vertices.obj": {
     "kind": "reject"
   },
-  "invalid/stl_corrompido.stl": {
+  "invalid/plain_text.ifc": {
     "kind": "reject"
   },
-  "invalid/texto_qualquer.ifc": {
+  "invalid/random_binary.dxf": {
     "kind": "reject"
   },
-  "invalid/vazio.dxf": {
+  "invalid/truncated_dxf.dxf": {
     "kind": "reject"
   },
-  "invalid/vazio.ifc": {
+  "invalid/unsupported_extension.xyz": {
     "kind": "reject"
   },
-  "mesh/caixa_12x4x3_cm.glb": {
-    "format": "glb",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_cm.obj": {
-    "format": "obj",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_cm.stl": {
-    "format": "stl",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_m.glb": {
-    "format": "glb",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_m.obj": {
-    "format": "obj",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_m.stl": {
-    "format": "stl",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_mm.glb": {
-    "format": "glb",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_mm.obj": {
-    "format": "obj",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/caixa_12x4x3_mm.stl": {
-    "format": "stl",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/cena_dois_pilares.glb": {
-    "format": "glb",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 16,
-    "tol": 0.1
-  },
-  "mesh/cubo_1m_fallback.obj": {
-    "format": "obj",
-    "kind": "ok",
-    "max_span_m": 8.0,
-    "tol": 0.01
-  },
-  "mesh/esfera_densa_20k_faces.obj": {
-    "format": "obj",
-    "kind": "ok",
-    "max_faces": 6000,
-    "max_span_m": 12.0,
-    "tol": 0.2
-  },
-  "mesh/gltf_cm/caixa_12x4x3.gltf": {
-    "format": "gltf",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/gltf_m/caixa_12x4x3.gltf": {
-    "format": "gltf",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/gltf_mm/caixa_12x4x3.gltf": {
-    "format": "gltf",
-    "kind": "ok",
-    "max_span_m": 12.0,
-    "min_vertices": 8,
-    "tol": 0.05
-  },
-  "mesh/quad_normais_uv.obj": {
-    "format": "obj",
-    "kind": "ok",
-    "max_span_m": 9.0,
-    "min_vertices": 4,
-    "tol": 0.05
-  },
-  "mesh/triangulo_ascii_10m.stl": {
+  "mesh/ascii_triangle_10m.stl": {
     "format": "stl",
     "kind": "ok",
     "max_span_m": 10.0,
     "min_vertices": 3,
     "tol": 0.05
   },
-  "vector/planta_linha_8m.svg": {
-    "format": "svg",
+  "mesh/box_12x4x3_cm.glb": {
+    "format": "glb",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_cm.obj": {
+    "format": "obj",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_cm.stl": {
+    "format": "stl",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_m.glb": {
+    "format": "glb",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_m.obj": {
+    "format": "obj",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_m.stl": {
+    "format": "stl",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_mm.glb": {
+    "format": "glb",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_mm.obj": {
+    "format": "obj",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/box_12x4x3_mm.stl": {
+    "format": "stl",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/cube_1m_fallback.obj": {
+    "format": "obj",
     "kind": "ok",
     "max_span_m": 8.0,
     "tol": 0.01
   },
-  "vector/prancha_minima.pdf": {
+  "mesh/dense_sphere_20k_faces.obj": {
+    "format": "obj",
+    "kind": "ok",
+    "max_faces": 6000,
+    "max_span_m": 12.0,
+    "tol": 0.2
+  },
+  "mesh/gltf_cm/box_12x4x3.gltf": {
+    "format": "gltf",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/gltf_m/box_12x4x3.gltf": {
+    "format": "gltf",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/gltf_mm/box_12x4x3.gltf": {
+    "format": "gltf",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 8,
+    "tol": 0.05
+  },
+  "mesh/quad_normals_uv.obj": {
+    "format": "obj",
+    "kind": "ok",
+    "max_span_m": 9.0,
+    "min_vertices": 4,
+    "tol": 0.05
+  },
+  "mesh/scene_two_columns.glb": {
+    "format": "glb",
+    "kind": "ok",
+    "max_span_m": 12.0,
+    "min_vertices": 16,
+    "tol": 0.1
+  },
+  "vector/minimal_sheet.pdf": {
     "format": "pdf",
     "kind": "ok",
     "max_span_m": 9.5,
     "tol": 0.01
   },
-  "vector/svg_sem_primitivas.svg": {
+  "vector/plan_line_8m.svg": {
+    "format": "svg",
+    "kind": "ok",
+    "max_span_m": 8.0,
+    "tol": 0.01
+  },
+  "vector/svg_no_primitives.svg": {
     "format": "svg",
     "kind": "ok",
     "max_span_m": 9.5,

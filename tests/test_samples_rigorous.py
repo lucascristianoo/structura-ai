@@ -101,8 +101,8 @@ def test_invalid_sample_is_rejected_cleanly(rel):
 
 def test_dxf_unit_scales_agree():
     """O mesmo pórtico em m, cm e mm deve produzir o mesmo vão (invariância de escala)."""
-    spans = [CadIngestor.ingest(SAMPLES / f"dxf/portico_{u}.dxf").max_span_m
-             for u in ("metros", "centimetros", "milimetros")]
+    spans = [CadIngestor.ingest(SAMPLES / f"dxf/portal_frame_{u}.dxf").max_span_m
+             for u in ("meters", "centimeters", "millimeters")]
     assert max(spans) - min(spans) < 0.15, spans
 
 
@@ -111,29 +111,29 @@ def test_mesh_formats_agree():
     for unit in ("m", "cm", "mm"):
         results = [
             CadIngestor.ingest(SAMPLES / rel)
-            for rel in (f"mesh/caixa_12x4x3_{unit}.obj", f"mesh/caixa_12x4x3_{unit}.stl",
-                        f"mesh/caixa_12x4x3_{unit}.glb", f"mesh/gltf_{unit}/caixa_12x4x3.gltf")
+            for rel in (f"mesh/box_12x4x3_{unit}.obj", f"mesh/box_12x4x3_{unit}.stl",
+                        f"mesh/box_12x4x3_{unit}.glb", f"mesh/gltf_{unit}/box_12x4x3.gltf")
         ]
         spans = {round(r.max_span_m, 1) for r in results}
         assert spans == {12.0}, (unit, spans)
 
 
 def test_dxf_ignores_oversized_line():
-    d = CadIngestor.ingest(SAMPLES / "dxf/linha_80m_ignorada.dxf")
+    d = CadIngestor.ingest(SAMPLES / "dxf/line_80m_ignored.dxf")
     assert all(b.span_m <= 50.0 for b in d.beams)
 
 
 def test_ifc_element_counts_exact():
-    d = CadIngestor.ingest(SAMPLES / "ifc/portico_ifc4.ifc")
+    d = CadIngestor.ingest(SAMPLES / "ifc/portal_frame_ifc4.ifc")
     assert (len(d.beams), len(d.columns)) == (4, 6)
-    d = CadIngestor.ingest(SAMPLES / "ifc/estresse_225_pilares_225_vigas.ifc")
+    d = CadIngestor.ingest(SAMPLES / "ifc/stress_225_columns_225_beams.ifc")
     assert len(d.columns) == 225
 
 
 @pytest.mark.parametrize("rel", [
-    "dxf/estresse_3000_entidades.dxf",
-    "ifc/estresse_225_pilares_225_vigas.ifc",
-    "mesh/esfera_densa_20k_faces.obj",
+    "dxf/stress_3000_entities.dxf",
+    "ifc/stress_225_columns_225_beams.ifc",
+    "mesh/dense_sphere_20k_faces.obj",
 ])
 def test_stress_samples_within_time_budget(rel):
     t0 = time.perf_counter()
@@ -154,4 +154,4 @@ def test_image_samples_are_valid_png(rel):
 
 def test_extension_dispatch_rejects_unknown():
     with pytest.raises(ValueError):
-        CadIngestor.ingest(SAMPLES / "invalid/extensao_nao_suportada.xyz")
+        CadIngestor.ingest(SAMPLES / "invalid/unsupported_extension.xyz")

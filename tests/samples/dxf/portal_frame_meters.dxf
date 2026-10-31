@@ -5,7 +5,7 @@ HEADER
   9
 $ACADVER
   1
-AC1015
+AC1024
   9
 $ACADMAINTVER
  70
@@ -14,6 +14,10 @@ $ACADMAINTVER
 $DWGCODEPAGE
   3
 ANSI_1252
+  9
+$LASTSAVEDBY
+  1
+ezdxf
   9
 $INSBASE
  10
@@ -379,6 +383,46 @@ $DIMTMOVE
  70
 0
   9
+$DIMFXL
+ 40
+1.0
+  9
+$DIMFXLON
+ 70
+0
+  9
+$DIMJOGANG
+ 40
+0.785398163397
+  9
+$DIMTFILL
+ 70
+0
+  9
+$DIMTFILLCLR
+ 70
+0
+  9
+$DIMARCSYM
+ 70
+0
+  9
+$DIMLTYPE
+  6
+
+  9
+$DIMLTEX1
+  6
+
+  9
+$DIMLTEX2
+  6
+
+  9
+$DIMTXTDIRECTION
+ 70
+0
+  9
 $LUNITS
  70
 2
@@ -445,7 +489,7 @@ $SKPOLY
   9
 $TDCREATE
  40
-2461345.5788194444
+2461345.5821064813
   9
 $TDUCREATE
  40
@@ -453,7 +497,7 @@ $TDUCREATE
   9
 $TDUPDATE
  40
-2461345.5788194444
+2461345.5821064813
   9
 $TDUUPDATE
  40
@@ -505,7 +549,7 @@ $SPLINESEGS
   9
 $HANDSEED
   5
-38
+3C
   9
 $SURFTAB1
  70
@@ -885,11 +929,11 @@ $PSTYLEMODE
   9
 $FINGERPRINTGUID
   2
-{72407E27-8519-4837-916F-1D1AF20850D0}
+{E1F2A792-6151-4DD8-83E2-599AADB586C9}
   9
 $VERSIONGUID
   2
-{4FEBEC10-770B-4D13-99C4-C4FBB7409F21}
+{8822E3AD-9C7C-440F-884B-94D11C60F8FF}
   9
 $EXTNAMES
 290
@@ -902,6 +946,166 @@ $PSVPSCALE
 $OLESTARTUP
 290
 0
+  9
+$SORTENTS
+280
+127
+  9
+$INDEXCTL
+280
+0
+  9
+$HIDETEXT
+280
+1
+  9
+$XCLIPFRAME
+280
+1
+  9
+$HALOGAP
+280
+0
+  9
+$OBSCOLOR
+ 70
+257
+  9
+$OBSLTYPE
+280
+0
+  9
+$INTERSECTIONDISPLAY
+280
+0
+  9
+$INTERSECTIONCOLOR
+ 70
+257
+  9
+$DIMASSOC
+280
+2
+  9
+$PROJECTNAME
+  1
+
+  9
+$CAMERADISPLAY
+290
+0
+  9
+$LENSLENGTH
+ 40
+50.0
+  9
+$CAMERAHEIGHT
+ 40
+0.0
+  9
+$STEPSPERSEC
+ 40
+24.0
+  9
+$STEPSIZE
+ 40
+100.0
+  9
+$3DDWFPREC
+ 40
+2.0
+  9
+$PSOLWIDTH
+ 40
+0.005
+  9
+$PSOLHEIGHT
+ 40
+0.08
+  9
+$LOFTANG1
+ 40
+1.570796326795
+  9
+$LOFTANG2
+ 40
+1.570796326795
+  9
+$LOFTMAG1
+ 40
+0.0
+  9
+$LOFTMAG2
+ 40
+0.0
+  9
+$LOFTPARAM
+ 70
+7
+  9
+$LOFTNORMALS
+280
+1
+  9
+$LATITUDE
+ 40
+37.795
+  9
+$LONGITUDE
+ 40
+-122.394
+  9
+$NORTHDIRECTION
+ 40
+0.0
+  9
+$TIMEZONE
+ 70
+-8000
+  9
+$LIGHTGLYPHDISPLAY
+280
+1
+  9
+$TILEMODELIGHTSYNCH
+280
+1
+  9
+$CMATERIAL
+347
+20
+  9
+$SOLIDHIST
+280
+0
+  9
+$SHOWHIST
+280
+1
+  9
+$DWFFRAME
+280
+2
+  9
+$DGNFRAME
+280
+2
+  9
+$REALWORLDSCALE
+290
+1
+  9
+$INTERFERECOLOR
+ 62
+256
+  9
+$CSHADOW
+280
+0
+  9
+$SHADOWPLANELOCATION
+ 40
+0.0
   0
 ENDSEC
   0
@@ -918,6 +1122,8 @@ AcDbDictionaryWithDefault
 ObjectDBX Classes
  90
 0
+ 91
+0
 280
 0
 281
@@ -932,6 +1138,8 @@ AcDbSun
 SCENEOE
  90
 1153
+ 91
+0
 280
 0
 281
@@ -946,6 +1154,8 @@ AcDbVisualStyle
 ObjectDBX Classes
  90
 4095
+ 91
+0
 280
 0
 281
@@ -960,6 +1170,8 @@ AcDbMaterial
 ObjectDBX Classes
  90
 1153
+ 91
+0
 280
 0
 281
@@ -974,6 +1186,8 @@ AcDbScale
 ObjectDBX Classes
  90
 1153
+ 91
+0
 280
 0
 281
@@ -988,6 +1202,8 @@ AcDbTableStyle
 ObjectDBX Classes
  90
 4095
+ 91
+0
 280
 0
 281
@@ -1002,6 +1218,8 @@ AcDbMLeaderStyle
 ACDB_MLEADERSTYLE_CLASS
  90
 4095
+ 91
+0
 280
 0
 281
@@ -1015,6 +1233,8 @@ AcDbDictionaryVar
   3
 ObjectDBX Classes
  90
+0
+ 91
 0
 280
 0
@@ -1030,6 +1250,8 @@ AcDbCellStyleMap
 ObjectDBX Classes
  90
 1152
+ 91
+0
 280
 0
 281
@@ -1044,6 +1266,8 @@ AcDbMentalRayRenderSettings
 SCENEOE
  90
 1024
+ 91
+0
 280
 0
 281
@@ -1058,6 +1282,8 @@ AcDbDetailViewStyle
 ObjectDBX Classes
  90
 1025
+ 91
+0
 280
 0
 281
@@ -1072,6 +1298,8 @@ AcDbSectionViewStyle
 ObjectDBX Classes
  90
 1025
+ 91
+0
 280
 0
 281
@@ -1085,6 +1313,24 @@ AcDbRasterVariables
   3
 ISM
  90
+0
+ 91
+0
+280
+0
+281
+0
+  0
+CLASS
+  1
+LAYOUT
+  2
+AcDbLayout
+  3
+ObjectDBX Classes
+ 90
+0
+ 91
 0
 280
 0
@@ -1100,19 +1346,7 @@ AcDbPlaceHolder
 ObjectDBX Classes
  90
 0
-280
-0
-281
-0
-  0
-CLASS
-  1
-LAYOUT
-  2
-AcDbLayout
-  3
-ObjectDBX Classes
- 90
+ 91
 0
 280
 0
@@ -1338,6 +1572,8 @@ Continuous
 -3
 390
 13
+347
+21
   0
 LAYER
   5
@@ -1362,6 +1598,8 @@ Continuous
 -3
 390
 13
+347
+21
   0
 LAYER
   5
@@ -1384,6 +1622,8 @@ Continuous
 -3
 390
 13
+347
+21
   0
 LAYER
   5
@@ -1406,6 +1646,8 @@ Continuous
 -3
 390
 13
+347
+21
   0
 LAYER
   5
@@ -1428,6 +1670,8 @@ Continuous
 -3
 390
 13
+347
+21
   0
 LAYER
   5
@@ -1450,6 +1694,8 @@ Continuous
 -3
 390
 13
+347
+21
   0
 ENDTAB
   0
@@ -1551,7 +1797,7 @@ ACAD
   0
 APPID
   5
-35
+39
 330
 3
 100
@@ -1565,7 +1811,7 @@ HATCHBACKGROUNDCOLOR
   0
 APPID
   5
-36
+3A
 330
 3
 100
@@ -1606,10 +1852,6 @@ AcDbDimStyleTableRecord
 Standard
  70
 0
-  3
-
-  4
-
  40
 1.0
  41
@@ -1628,6 +1870,8 @@ Standard
 0.0
  48
 0.0
+ 49
+2.5
 140
 2.5
 141
@@ -1646,6 +1890,10 @@ Standard
 0.625
 148
 0.0
+ 69
+0
+ 70
+0
  71
 0
  72
@@ -1720,6 +1968,8 @@ Standard
 0
 289
 3
+290
+0
 371
 -2
 372
@@ -1752,6 +2002,12 @@ AcDbBlockTableRecord
 *Model_Space
 340
 1A
+ 70
+0
+280
+1
+281
+0
   0
 BLOCK_RECORD
   5
@@ -1766,6 +2022,12 @@ AcDbBlockTableRecord
 *Paper_Space
 340
 1E
+ 70
+0
+280
+1
+281
+0
   0
 ENDTAB
   0
@@ -1865,7 +2127,7 @@ LINE
 100
 AcDbEntity
   8
-VIGAS
+PILARES
 100
 AcDbLine
  10
@@ -1875,13 +2137,13 @@ AcDbLine
  30
 0.0
  11
-7.0
- 21
 0.0
+ 21
+3.0
  31
 0.0
   0
-TEXT
+LINE
   5
 34
 330
@@ -1889,19 +2151,115 @@ TEXT
 100
 AcDbEntity
   8
-0
+PILARES
+100
+AcDbLine
+ 10
+6.0
+ 20
+0.0
+ 30
+0.0
+ 11
+6.0
+ 21
+3.0
+ 31
+0.0
+  0
+LINE
+  5
+35
+330
+17
+100
+AcDbEntity
+  8
+PILARES
+100
+AcDbLine
+ 10
+10.0
+ 20
+0.0
+ 30
+0.0
+ 11
+10.0
+ 21
+3.0
+ 31
+0.0
+  0
+LINE
+  5
+36
+330
+17
+100
+AcDbEntity
+  8
+VIGAS
+100
+AcDbLine
+ 10
+0.0
+ 20
+3.0
+ 30
+0.0
+ 11
+6.0
+ 21
+3.0
+ 31
+0.0
+  0
+LINE
+  5
+37
+330
+17
+100
+AcDbEntity
+  8
+VIGAS
+100
+AcDbLine
+ 10
+6.0
+ 20
+3.0
+ 30
+0.0
+ 11
+10.0
+ 21
+3.0
+ 31
+0.0
+  0
+TEXT
+  5
+38
+330
+17
+100
+AcDbEntity
+  8
+COTAS
 100
 AcDbText
  10
-1.0
+3.0
  20
-1.0
+3.2
  30
 0.0
  40
 0.2
   1
-Viga згo с \U+6881 \U+2713
+V1 20x40
 100
 AcDbText
   0
@@ -2895,7 +3253,7 @@ CREATED_BY_EZDXF
   3
 WRITTEN_BY_EZDXF
 350
-37
+3B
   0
 DICTIONARYVAR
   5
@@ -2907,11 +3265,11 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-10-31T16:53:30.786853+00:00
+1.4.5 @ 2026-10-31T16:58:14.744572+00:00
   0
 DICTIONARYVAR
   5
-37
+3B
 330
 2D
 100
@@ -2919,7 +3277,7 @@ DictionaryVariables
 280
 0
   1
-1.4.5 @ 2026-10-31T16:53:30.787879+00:00
+1.4.5 @ 2026-10-31T16:58:14.745933+00:00
   0
 ENDSEC
   0
