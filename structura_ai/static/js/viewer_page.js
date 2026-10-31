@@ -225,6 +225,156 @@ document.addEventListener('DOMContentLoaded', () => {
     });
   }
 
+  // 4.1 Gear Button: API Keys Settings & Free POC Test Key Generator
+  const API_KEY_STORAGE = 'structura-api-key';
+  const API_MODEL_STORAGE = 'structura-api-model';
+  const DEFAULT_FREE_TEST_KEY = 'STRUCTURA-FREE-POC-HACKAS2026-GOIAS';
+
+  const apiSettingsBtn = document.getElementById('api-settings-btn');
+  const apiSettingsModal = document.getElementById('api-settings-modal');
+  const apiSettingsCloseBtn = document.getElementById('api-settings-close-btn');
+  const apiSettingsCancelBtn = document.getElementById('api-settings-cancel-btn');
+  const apiSettingsForm = document.getElementById('api-settings-form');
+  const apiKeyInput = document.getElementById('api-key-input');
+  const apiModelSelect = document.getElementById('api-model-select');
+  const btnGenerateFreeKey = document.getElementById('btn-generate-free-key');
+  const btnCopyApiKey = document.getElementById('btn-copy-api-key');
+  const apiSettingsFeedback = document.getElementById('api-settings-feedback');
+  const apiKeyBadge = document.getElementById('api-key-badge');
+  const apiKeyStatusDot = document.getElementById('api-key-status-dot');
+
+  function showApiFeedback(msg, isOk = true) {
+    if (!apiSettingsFeedback) return;
+    apiSettingsFeedback.textContent = msg;
+    apiSettingsFeedback.className = isOk
+      ? 'text-[11px] font-mono px-2.5 py-1.5 rounded border border-accent-emerald/30 bg-accent-emerald/5 text-accent-emerald'
+      : 'text-[11px] font-mono px-2.5 py-1.5 rounded border border-accent-rose/30 bg-accent-rose/5 text-accent-rose';
+  }
+
+  function updateApiStatusBadge(keyVal) {
+    const hasKey = Boolean(keyVal && keyVal.trim());
+    if (apiKeyStatusDot) {
+      apiKeyStatusDot.className = hasKey ? 'ui-dot ui-dot-ok' : 'ui-dot';
+    }
+    if (apiKeyBadge) {
+      if (!hasKey) {
+        apiKeyBadge.textContent = 'Motor Local';
+        apiKeyBadge.className = 'ui-badge text-[10px]';
+      } else if (keyVal.startsWith('AIza')) {
+        apiKeyBadge.textContent = 'Gemini Ativo';
+        apiKeyBadge.className = 'ui-badge ui-badge-ok text-[10px]';
+      } else if (keyVal.startsWith('sk-or-')) {
+        apiKeyBadge.textContent = 'OpenRouter Ativo';
+        apiKeyBadge.className = 'ui-badge ui-badge-ok text-[10px]';
+      } else {
+        apiKeyBadge.textContent = 'Chave POC Ativa';
+        apiKeyBadge.className = 'ui-badge ui-badge-ok text-[10px]';
+      }
+    }
+  }
+
+  async function initApiKeysState() {
+    let savedKey = '';
+    let savedModel = 'gemini-2.5-flash';
+    try {
+      savedKey = localStorage.getItem(API_KEY_STORAGE) || '';
+      savedModel = localStorage.getItem(API_MODEL_STORAGE) || 'gemini-2.5-flash';
+    } catch {}
+
+    if (!savedKey) {
+      savedKey = DEFAULT_FREE_TEST_KEY;
+      try {
+        localStorage.setItem(API_KEY_STORAGE, savedKey);
+      } catch {}
+    }
+
+    if (apiKeyInput) apiKeyInput.value = savedKey;
+    if (apiModelSelect) apiModelSelect.value = savedModel;
+    updateApiStatusBadge(savedKey);
+
+    try {
+      await fetch('/api/settings/keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: savedKey, model: savedModel })
+      });
+    } catch {}
+  }
+
+  function openApiSettingsModal() {
+    if (!apiSettingsModal) return;
+    apiSettingsFeedback?.classList.add('hidden');
+    apiSettingsModal.classList.remove('hidden');
+    setTimeout(() => apiKeyInput?.focus(), 30);
+  }
+
+  function closeApiSettingsModal() {
+    apiSettingsModal?.classList.add('hidden');
+  }
+
+  apiSettingsBtn?.addEventListener('click', openApiSettingsModal);
+  apiSettingsCloseBtn?.addEventListener('click', closeApiSettingsModal);
+  apiSettingsCancelBtn?.addEventListener('click', closeApiSettingsModal);
+  apiSettingsModal?.addEventListener('click', (e) => {
+    if (e.target === apiSettingsModal) closeApiSettingsModal();
+  });
+
+  btnGenerateFreeKey?.addEventListener('click', async () => {
+    try {
+      const res = await fetch('/api/settings/generate-free-key', { method: 'POST' });
+      const data = await res.json();
+      const newKey = data.api_key || DEFAULT_FREE_TEST_KEY;
+      if (apiKeyInput) apiKeyInput.value = newKey;
+      try {
+        localStorage.setItem(API_KEY_STORAGE, newKey);
+      } catch {}
+      updateApiStatusBadge(newKey);
+      showApiFeedback(`Chave gratuita gerada e ativada: ${newKey}`, true);
+    } catch {
+      if (apiKeyInput) apiKeyInput.value = DEFAULT_FREE_TEST_KEY;
+      updateApiStatusBadge(DEFAULT_FREE_TEST_KEY);
+      showApiFeedback(`Chave gratuita ativada: ${DEFAULT_FREE_TEST_KEY}`, true);
+    }
+  });
+
+  btnCopyApiKey?.addEventListener('click', async () => {
+    const val = apiKeyInput?.value?.trim() || DEFAULT_FREE_TEST_KEY;
+    try {
+      await navigator.clipboard.writeText(val);
+      showApiFeedback('Chave copiada para a área de transferência!', true);
+    } catch {
+      apiKeyInput?.select();
+      showApiFeedback('Selecione e copie a chave acima (Ctrl+C).', true);
+    }
+  });
+
+  apiSettingsForm?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const keyVal = apiKeyInput?.value?.trim() || '';
+    const modelVal = apiModelSelect?.value || 'gemini-2.5-flash';
+    try {
+      localStorage.setItem(API_KEY_STORAGE, keyVal);
+      localStorage.setItem(API_MODEL_STORAGE, modelVal);
+    } catch {}
+    updateApiStatusBadge(keyVal);
+
+    try {
+      const res = await fetch('/api/settings/keys', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ api_key: keyVal, model: modelVal })
+      });
+      const data = await res.json();
+      showApiFeedback(data.message || 'Configurações salvas com sucesso!', true);
+      setTimeout(() => closeApiSettingsModal(), 700);
+    } catch {
+      showApiFeedback('Salvo localmente no navegador.', true);
+      setTimeout(() => closeApiSettingsModal(), 700);
+    }
+  });
+
+  initApiKeysState();
+
   // 5. Chat Helpers
   function appendUserMessage(text) {
     if (!chatBox) return;

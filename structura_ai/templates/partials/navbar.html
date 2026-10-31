@@ -11,8 +11,20 @@
       <span class="text-sm font-semibold tracking-tight text-ink-strong">Structura<span class="text-ink-muted font-normal">.ai</span></span>
     </a>
 
-    <!-- Theme Toggle & Logged-in Username -->
-    <div class="flex items-center gap-2.5">
+    <!-- Theme Toggle, API Gear Settings & Logged-in Username -->
+    <div class="flex items-center gap-2">
+      <button
+        type="button"
+        id="api-settings-btn"
+        aria-label="Configurar chaves de API"
+        title="Configurar chaves de API (Gemini / Chave Gratuita POC)"
+        class="h-8 px-2.5 inline-flex items-center justify-center gap-1.5 rounded-md border border-edge-strong bg-surface-card text-xs font-medium text-ink-primary hover:text-ink-strong hover:bg-surface-elevated transition-colors focus:outline-none focus-visible:ring-1 focus-visible:ring-ink-strong shrink-0"
+      >
+        <span id="api-key-status-dot" class="ui-dot ui-dot-ok"></span>
+        <i data-lucide="settings" class="w-3.5 h-3.5"></i>
+        <span class="hidden sm:inline">Chaves API</span>
+      </button>
+
       <button
         type="button"
         id="theme-toggle"
@@ -39,3 +51,92 @@
 
   </div>
 </header>
+
+<!-- MODAL DE ENGRENAGEM: CONFIGURAÇÃO DE CHAVES DE API & GERADOR GRATUITO DE TESTE -->
+<div
+  id="api-settings-modal"
+  role="dialog"
+  aria-modal="true"
+  aria-labelledby="api-settings-title"
+  class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-[2px]"
+>
+  <div class="ui-card w-full max-w-md p-6 space-y-4 shadow-xl">
+    <div class="flex items-start justify-between gap-3">
+      <div>
+        <span class="ui-eyebrow">Configuração de IA</span>
+        <h2 id="api-settings-title" class="text-base font-semibold text-ink-strong mt-1">
+          Chaves de API &amp; Motor de Teste
+        </h2>
+        <p class="text-xs text-ink-secondary mt-1 leading-relaxed">
+          Insira sua chave Google Gemini (<code class="font-mono text-[11px]">AIza...</code>), OpenRouter (<code class="font-mono text-[11px]">sk-or-...</code>) ou gere uma chave gratuita de teste para a POC.
+        </p>
+      </div>
+      <button
+        type="button"
+        id="api-settings-close-btn"
+        aria-label="Fechar configurações"
+        class="ui-btn ui-btn-ghost p-1.5 text-ink-muted hover:text-ink-strong"
+      >
+        <i data-lucide="x" class="w-4 h-4"></i>
+      </button>
+    </div>
+
+    <form id="api-settings-form" class="space-y-3.5">
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label for="api-key-input" class="ui-label mb-0">Chave de API (Gemini / OpenRouter / POC)</label>
+          <span id="api-key-badge" class="ui-badge text-[10px]">Ativa</span>
+        </div>
+        <div class="flex gap-1.5">
+          <input
+            type="text"
+            id="api-key-input"
+            name="api_key"
+            placeholder="AIzaSy... ou STRUCTURA-FREE-POC-..."
+            autocomplete="off"
+            class="ui-input font-mono text-xs py-2 flex-1"
+          >
+          <button
+            type="button"
+            id="btn-copy-api-key"
+            title="Copiar chave"
+            class="ui-btn ui-btn-secondary px-2.5 shrink-0 text-xs font-mono"
+          >
+            Copiar
+          </button>
+        </div>
+      </div>
+
+      <div>
+        <label for="api-model-select" class="ui-label">Modelo Padrão dos Agentes</label>
+        <select id="api-model-select" name="model" class="ui-input font-mono text-xs py-2">
+          <option value="gemini-2.5-flash">gemini-2.5-flash (Google Gemini Free Tier — Recomendado)</option>
+          <option value="gemini-2.0-flash">gemini-2.0-flash (Google Gemini Rápido)</option>
+          <option value="structura-free-poc">structura-free-poc (5 Agentes + Física + RAG Goiás $0)</option>
+        </select>
+      </div>
+
+      <div class="pt-1">
+        <button
+          type="button"
+          id="btn-generate-free-key"
+          class="ui-btn ui-btn-secondary w-full py-2 text-xs font-mono flex items-center justify-center gap-2"
+        >
+          <i data-lucide="key" class="w-3.5 h-3.5"></i>
+          <span>Gerar Chave Gratuita de Teste (POC)</span>
+        </button>
+      </div>
+
+      <div id="api-settings-feedback" class="hidden text-[11px] font-mono px-2.5 py-1.5 rounded border"></div>
+
+      <div class="pt-2 border-t border-edge flex items-center justify-end gap-2">
+        <button type="button" id="api-settings-cancel-btn" class="ui-btn ui-btn-ghost py-1.5 px-3 text-xs">
+          Fechar
+        </button>
+        <button type="submit" class="ui-btn ui-btn-primary py-1.5 px-4 text-xs">
+          <span>Salvar e Ativar</span>
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
