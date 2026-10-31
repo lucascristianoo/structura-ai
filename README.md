@@ -39,6 +39,19 @@ export POSTGRES_URL="postgresql://structura_user:structura_secure_pass_2026@loca
 
 ---
 
+## 🧪 Testes e Samples
+
+```bash
+./test.sh            # gera samples (se necessário) + roda toda a suíte
+./test.sh --samples  # só os testes de samples (rápido)
+./test.sh --regen    # força regerar os samples
+./test.sh --check    # valida o manifest versionado (CI)
+```
+
+- `tests/samples/` contém ~50 arquivos (DXF, IFC, OBJ/STL/GLB/glTF, SVG, PDF, PNG e `invalid/` corrompidos), gerados por `tests/samples/generate_samples.py`; `manifest.json` guarda os valores esperados.
+- `tests/test_samples_rigorous.py` valida vãos, contagens, invariantes, consistência entre formatos/escalas, rejeição de inválidos e desempenho.
+- Bugs conhecidos do parser aparecem como `xfail` estrito (`known_issue` no manifest) e avisam quando forem corrigidos.
+
 ## 🔌 Contrato da API para o Frontend (`/docs`)
 
 ### 1. Arquivos Carregados, Versionamento (`v1..vn`) e Estilo (`AutoCAD` / `Blender`)

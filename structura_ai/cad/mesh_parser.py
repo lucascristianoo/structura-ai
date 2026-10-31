@@ -29,7 +29,9 @@ def parse_mesh_file(file_path: Path | str, project_name: str = "") -> UnifiedPro
 
     # Normalizar para lista de meshes se for Scene
     if isinstance(loaded, trimesh.Scene):
-        meshes = [geom for geom in loaded.geometry.values() if isinstance(geom, trimesh.Trimesh)]
+        # dump() aplica as transformações dos nós do grafo da cena (geometrias instanciadas
+        # em posições distintas) antes de concatenar.
+        meshes = [g for g in loaded.dump() if isinstance(g, trimesh.Trimesh)]
         if meshes:
             combined = trimesh.util.concatenate(meshes)
         else:
@@ -38,6 +40,9 @@ def parse_mesh_file(file_path: Path | str, project_name: str = "") -> UnifiedPro
         combined = loaded
     else:
         raise ValueError(f"Tipo de geometria 3D não suportado: {type(loaded)}")
+
+    if len(combined.vertices) == 0 or len(combined.faces) == 0:
+        raise ValueError(f"Arquivo de malha 3D ({path.suffix}) não contém geometria (vértices/faces) válida")
 
     bounds = combined.bounds
     if bounds is None or len(bounds) < 2:
@@ -53,7 +58,8 @@ def parse_mesh_file(file_path: Path | str, project_name: str = "") -> UnifiedPro
     # Detectar escala (se veio em mm, cm ou m)
     max_d = max(dx, dy)
     scale = 1.0
-    if max_d > 500.0:
+    # Limiar 5000: 10-50 m em cm (1000-5000 un) não deve ser lido como mm.
+    if max_d > 5000.0:
         scale = 0.001
     elif max_d > 50.0:
         scale = 0.01

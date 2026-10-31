@@ -181,15 +181,18 @@ def parse_ifc_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
         )
         beams.append(b_default)
         spans.append(SpanElement(id="S1", name="Vão Principal", start_point=b_default.start_point, end_point=b_default.end_point, length_m=default_span))
-        columns.extend([
-            ColumnElement(id="P1", name="Pilar P1", position=Point3D(x=0.0, y=0.0, z=0.0)),
-            ColumnElement(id="P2", name="Pilar P2", position=Point3D(x=default_span, y=0.0, z=0.0)),
-        ])
-        element_meshes.extend([
-            {"type": "column", "id": "P1", "x": 0.0, "y": 0.0, "z": 1.5, "dx": 0.2, "dy": 0.4, "dz": 3.0, "color": "#64748b"},
-            {"type": "column", "id": "P2", "x": default_span, "y": 0.0, "z": 1.5, "dx": 0.2, "dy": 0.4, "dz": 3.0, "color": "#64748b"},
+        if not columns:  # só fabrica pilares padrão se o modelo não tiver nenhum (evita IDs duplicados)
+            columns.extend([
+                ColumnElement(id="P1", name="Pilar P1", position=Point3D(x=0.0, y=0.0, z=0.0)),
+                ColumnElement(id="P2", name="Pilar P2", position=Point3D(x=default_span, y=0.0, z=0.0)),
+            ])
+            element_meshes.extend([
+                {"type": "column", "id": "P1", "x": 0.0, "y": 0.0, "z": 1.5, "dx": 0.2, "dy": 0.4, "dz": 3.0, "color": "#64748b"},
+                {"type": "column", "id": "P2", "x": default_span, "y": 0.0, "z": 1.5, "dx": 0.2, "dy": 0.4, "dz": 3.0, "color": "#64748b"},
+            ])
+        element_meshes.append(
             {"type": "beam", "id": "V1", "x": default_span / 2.0, "y": 0.0, "z": 3.0, "dx": default_span, "dy": 0.2, "dz": 0.35, "span": default_span, "color": "#38bdf8"},
-        ])
+        )
 
     max_span = max((b.span_m for b in beams), default=8.5)
 

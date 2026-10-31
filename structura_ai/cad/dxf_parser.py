@@ -93,7 +93,9 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
     max_dim = max(dim_x, dim_y)
 
     scale_to_meters = 1.0
-    if max_dim > 500.0:  # Provavelmente em milímetros
+    # Edificações reais: 3-50 m => 300-5000 un em cm, 3000-50000 un em mm.
+    # O limiar de 5000 evita ler 10-50 m em cm (1000-5000 un) como milímetros.
+    if max_dim > 5000.0:  # Provavelmente em milímetros
         scale_to_meters = 0.001
     elif max_dim > 50.0:  # Provavelmente em centímetros
         scale_to_meters = 0.01
