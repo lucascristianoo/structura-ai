@@ -97,11 +97,52 @@ class CadIngestor:
         return ext in cls.SUPPORTED_FORMATS
 
     @classmethod
+    def validate_file_integrity(cls, file_path: Path | str) -> bool:
+        """
+        Pré-validação de integridade física e cabeçalho de arquivos CAD/BIM.
+        Verifica existência, tamanho > 0 e assinaturas mínimas (magic bytes/headers),
+        levantando ValueError explicativo para arquivos corrompidos ou ilegíveis.
+        """
+        path = Path(file_path)
+        if not path.exists():
+            raise ValueError(f"Arquivo não encontrado: {path}")
+        size = path.stat().st_size
+        if size == 0:
+            raise ValueError(f"Arquivo vazio (0 bytes): {path.name}")
+        ext = path.suffix.lower()
+        if ext not in cls.SUPPORTED_FORMATS:
+            raise ValueError(
+                f"Formato '{ext}' não suportado pelo motor CAD/BIM. "
+                f"Formatos aceitos: {', '.join(cls.SUPPORTED_FORMATS.keys())}"
+            )
+
+        try:
+            with open(path, "rb") as f:
+                header = f.read(512)
+        except Exception as e:
+            raise ValueError(f"Erro ao acessar bytes do arquivo {path.name}: {e}")
+
+        if ext == ".dxf":
+            if b"SECTION" not in header and not header.startswith(b"AutoCAD Binary DXF"):
+                text_peek = header.decode("latin1", errors="ignore")
+                if "HEADER" not in text_peek and "0\n" not in text_peek and "0\r\n" not in text_peek:
+                    raise ValueError(f"Arquivo DXF corrompido ou sem cabeçalho válido: {path.name}")
+        elif ext == ".ifc":
+            if b"ISO-10303-21" not in header:
+                raise ValueError(f"Arquivo IFC sem cabeçalho STEP/ISO-10303-21 válido: {path.name}")
+        elif ext == ".glb":
+            if not header.startswith(b"glTF"):
+                raise ValueError(f"Arquivo GLB sem magic bytes 'glTF': {path.name}")
+        return True
+
+    @classmethod
     def ingest(cls, file_path: Path | str, filename: str = "", project_name: str = "") -> UnifiedProjectData:
         path = Path(file_path)
         actual_name = filename or path.name
         ext = Path(actual_name).suffix.lower()
         proj_title = project_name or Path(actual_name).stem.replace("_", " ").title()
+
+        cls.validate_file_integrity(path)
 
         if ext == ".dxf":
             return parse_dxf_file(path, project_name=proj_title)

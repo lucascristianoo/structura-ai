@@ -204,6 +204,52 @@ def parse_ifc_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
 
     max_span = max((b.span_m for b in beams), default=8.5)
 
+    # Extração de classe de resistência fck do concreto a partir de IfcMaterial e Psets
+    extracted_fck = None
+    try:
+        materials = model.by_type("IfcMaterial") if hasattr(model, "by_type") else []
+        for mat in materials:
+            name = (getattr(mat, "Name", "") or "").upper()
+            match_c = re.search(r'\bC(\d{2})\b', name)
+            if match_c:
+                val = float(match_c.group(1))
+                if 15.0 <= val <= 100.0:
+                    extracted_fck = val
+                    break
+            match_fck = re.search(r'FCK[\s:=_]*(\d+)', name)
+            if match_fck:
+                val = float(match_fck.group(1))
+                if 15.0 <= val <= 100.0:
+                    extracted_fck = val
+                    break
+
+        if extracted_fck is None:
+            for elem in list(raw_beams) + list(raw_columns):
+                psets = ifcopenshell.util.element.get_psets(elem)
+                for pset_name, pset_data in psets.items():
+                    for prop_key, prop_val in pset_data.items():
+                        k_upper = prop_key.upper()
+                        if "FCK" in k_upper or "COMPRESSIVESTRENGTH" in k_upper:
+                            try:
+                                v = float(prop_val)
+                                if v > 1000.0:
+                                    v /= 1e6
+                                elif v > 100.0:
+                                    v /= 1000.0
+                                if 15.0 <= v <= 120.0:
+                                    extracted_fck = v
+                                    break
+                            except (ValueError, TypeError):
+                                pass
+                    if extracted_fck is not None:
+                        break
+                if extracted_fck is not None:
+                    break
+    except Exception:
+        pass
+
+    final_fck_mpa = extracted_fck if extracted_fck is not None else 30.0
+
     mesh_3d = Mesh3DData(
         element_meshes=element_meshes,
         bounding_box={"min_x": 0.0, "max_x": max_span, "min_y": 0.0, "max_y": 6.0, "height_z": 3.5}
@@ -221,7 +267,7 @@ def parse_ifc_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
         max_cantilever_m=0.0,
         suggested_beam_width_cm=20.0,
         suggested_beam_height_cm=round(max(25.0, max_span * 2.8), 1),
-        suggested_fck_mpa=30.0,
+        suggested_fck_mpa=round(final_fck_mpa, 1),
         estimated_dead_load_kn_m=24.0,
         estimated_live_load_kn_m=4.0,
         mesh_3d=mesh_3d,
@@ -230,5 +276,7 @@ def parse_ifc_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
             "total_ifc_columns": len(raw_columns),
             "total_ifc_slabs": len(raw_slabs),
             "schema": model.schema if hasattr(model, 'schema') else "IFC4",
+            "extracted_fck_mpa": extracted_fck,
+            "fck_source": "IFC_EXTRACTED" if extracted_fck is not None else "FALLBACK_DEFAULT",
         }
     )

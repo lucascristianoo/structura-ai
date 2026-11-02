@@ -6,7 +6,7 @@ está dentro do envelope de pré-dimensionamento gravitacional preliminar
 ou se exige bloqueio por estabilidade global de 2ª ordem, vento dinâmico ou protensão.
 """
 from dataclasses import dataclass, field
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 
 
 @dataclass
@@ -47,6 +47,8 @@ class ScopeGuard:
         total_height_m: float = 3.0,
         num_storeys: int = 1,
         is_indirect_support: bool = False,
+        beam_height_cm: Optional[float] = None,
+        cantilever_height_cm: Optional[float] = None,
     ) -> ScopeAuditResult:
         span = float(max_span_m or 0.0)
         cant = float(max_cantilever_m or 0.0)
@@ -114,7 +116,47 @@ class ScopeGuard:
                 ],
             )
 
-        # 4. Enquadramento Padrão Seguro
+        # 4. Trava de Flexibilidade Geométrica Excessiva (NBR 6118:2023 item 15.6)
+        if beam_height_cm is not None and beam_height_cm > 0:
+            h_m = float(beam_height_cm) / 100.0
+            slenderness_span = span / h_m if h_m > 0 else 0
+            if slenderness_span > 20.0:
+                return ScopeAuditResult(
+                    is_within_scope=True,
+                    scope_category="EXCESSIVE_BEAM_FLEXIBILITY",
+                    severity="WARNING",
+                    title=f"Flexibilidade Geométrica Excessiva de Viga (L/h = {slenderness_span:.1f} > 20)",
+                    description=(
+                        f"A relação vão/altura da viga (L/h = {slenderness_span:.1f}) excede o limite prático de rigidez "
+                        f"da NBR 6118:2023 item 15.6 (máx L/h = 20 para vigas biapoiadas). Elementos muito esbeltos estão "
+                        f"sujeitos a deformações excessivas diferidas no tempo, vibrações induzidas por passos e trincas."
+                    ),
+                    required_engineer_actions=[
+                        "Aumentar a altura útil da viga para manter L/h <= 15 a 20.",
+                        "Verificar estados limites de vibração e deformação em serviço (ELS).",
+                    ],
+                )
+
+        if cantilever_height_cm is not None and cantilever_height_cm > 0 and cant > 0:
+            hc_m = float(cantilever_height_cm) / 100.0
+            slenderness_cant = cant / hc_m if hc_m > 0 else 0
+            if slenderness_cant > 7.0:
+                return ScopeAuditResult(
+                    is_within_scope=True,
+                    scope_category="EXCESSIVE_CANTILEVER_FLEXIBILITY",
+                    severity="WARNING",
+                    title=f"Flexibilidade Excessiva em Balanço (Lc/h = {slenderness_cant:.1f} > 7)",
+                    description=(
+                        f"A relação balanço/altura (Lc/h = {slenderness_cant:.1f}) excede a recomendação prática "
+                        f"da NBR 6118 (máx Lc/h = 7). Balanços esbeltos são altamente suscetíveis a flechas diferidas "
+                        f"por fluência e amplificação dinâmica."
+                    ),
+                    required_engineer_actions=[
+                        "Aumentar a altura da viga no engaste do balanço para manter Lc/h <= 7.",
+                    ],
+                )
+
+        # 5. Enquadramento Padrão Seguro
         return ScopeAuditResult(
             is_within_scope=True,
             scope_category="STANDARD_LOW_RISE",

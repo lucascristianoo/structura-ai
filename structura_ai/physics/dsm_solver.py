@@ -222,9 +222,10 @@ class DSMSolver:
             float((2.0 * ei_beam / l_span) * (th1 + 2.0 * th2 - 3.0 * delta_v / l_span) + (q * (l_span ** 2)) / 12.0),
             2
         )
-        # Maximum positive midspan moment M_pos ~= q*L^2/8 - (M1 + M2)/2
+        # Maximum positive midspan moment M_pos ~= q*L^2/8 - (|M1| + |M2|)/2
+        # Correctly accounts for opposite rotation sign conventions between left and right nodes
         m_midspan_knm = round(
-            float((q * (l_span ** 2) / 8.0) - abs(m_node1_knm + m_node2_knm) / 2.0),
+            max(0.0, float((q * (l_span ** 2) / 8.0) - (abs(m_node1_knm) + abs(m_node2_knm)) / 2.0)),
             2
         )
 
@@ -324,4 +325,137 @@ class DSMSolver:
                 "long_beam_load_kn_m": round(q_eq_long_kn_m, 2),
                 "short_beam_load_kn_m": round(q_eq_short_kn_m, 2),
             },
+        }
+
+    @classmethod
+    def solve_continuous_beam(
+        cls,
+        spans_m: List[float],
+        distributed_loads_kn_m: List[float],
+        beam_width_cm: float = 20.0,
+        beam_height_cm: float = 40.0,
+        column_height_m: float = 3.2,
+        column_section_cm: float = 20.0,
+        concrete_fck_mpa: float = 30.0,
+        column_base_fixed: bool = True,
+    ) -> Dict[str, Any]:
+        """
+        Solves an N-span continuous beam over columns using the Matrix Displacement / Slope-Deflection Method.
+        Complies with ABNT NBR 6118:2023 item 14.6.4.3 by incorporating the elastic rotational
+        stiffness of intermediate supporting columns (k_theta = 4EI/L or 3EI/L).
+        """
+        if not spans_m:
+            spans_m = [6.0, 6.0]
+        num_spans = len(spans_m)
+        if len(distributed_loads_kn_m) < num_spans:
+            last_q = distributed_loads_kn_m[-1] if distributed_loads_kn_m else 25.0
+            distributed_loads_kn_m = list(distributed_loads_kn_m) + [last_q] * (num_spans - len(distributed_loads_kn_m))
+
+        safe_fck = min(max(float(concrete_fck_mpa or 20.0), 15.0), 90.0)
+        e_gpa = 5600.0 * math.sqrt(safe_fck) / 1000.0
+        e_kpa = e_gpa * 1e6
+
+        bw = max(float(beam_width_cm or 20.0) / 100.0, 0.12)
+        bh = max(float(beam_height_cm or 40.0) / 100.0, 0.15)
+        col_w = max(float(column_section_cm or 20.0) / 100.0, 0.14)
+        col_h = max(float(column_height_m or 3.0), 1.0)
+
+        i_beam = (bw * (bh ** 3)) / 12.0
+        ei_beam = e_kpa * i_beam
+
+        i_col = (col_w * (col_w ** 3)) / 12.0
+        ei_col = e_kpa * i_col
+
+        # Intermediate column rotational restraint k_theta per NBR 6118 item 14.6.4.3
+        col_factor = 4.0 if column_base_fixed else 3.0
+        k_theta_col = (col_factor * ei_col) / col_h
+
+        num_joints = num_spans + 1
+        k_matrix = np.zeros((num_joints, num_joints), dtype=float)
+        f_ext = np.zeros(num_joints, dtype=float)
+
+        # Assemble rotational stiffness matrix and equivalent nodal loads
+        for i in range(num_spans):
+            l_i = max(float(spans_m[i]), 0.5)
+            q_i = float(distributed_loads_kn_m[i])
+
+            k_span = ei_beam / l_i
+            k_matrix[i, i] += 4.0 * k_span
+            k_matrix[i, i + 1] += 2.0 * k_span
+            k_matrix[i + 1, i] += 2.0 * k_span
+            k_matrix[i + 1, i + 1] += 4.0 * k_span
+
+            fem_l = - (q_i * (l_i ** 2)) / 12.0
+            fem_r = (q_i * (l_i ** 2)) / 12.0
+
+            f_ext[i] -= fem_l
+            f_ext[i + 1] -= fem_r
+
+        # Add column rotational stiffness to intermediate joints (1 to num_joints - 2)
+        # and half stiffness to end columns
+        for j in range(num_joints):
+            if j == 0 or j == num_joints - 1:
+                k_matrix[j, j] += k_theta_col * 0.5
+            else:
+                k_matrix[j, j] += k_theta_col
+
+        try:
+            rotations = np.linalg.solve(k_matrix, f_ext)
+        except np.linalg.LinAlgError:
+            rotations = np.linalg.lstsq(k_matrix, f_ext, rcond=None)[0]
+
+        spans_results = []
+        reactions_kn = [0.0] * num_joints
+        support_moments_knm = [0.0] * num_joints
+
+        for i in range(num_spans):
+            l_i = max(float(spans_m[i]), 0.5)
+            q_i = float(distributed_loads_kn_m[i])
+            th_left = rotations[i]
+            th_right = rotations[i + 1]
+
+            fem_l = - (q_i * (l_i ** 2)) / 12.0
+            fem_r = (q_i * (l_i ** 2)) / 12.0
+
+            m_l = fem_l + (2.0 * ei_beam / l_i) * (2.0 * th_left + th_right)
+            m_r = fem_r + (2.0 * ei_beam / l_i) * (th_left + 2.0 * th_right)
+
+            m_pos = max(0.0, (q_i * (l_i ** 2) / 8.0) - (abs(m_l) + abs(m_r)) / 2.0)
+
+            v_l = (q_i * l_i / 2.0) + (m_l + m_r) / l_i
+            v_r = (q_i * l_i / 2.0) - (m_l + m_r) / l_i
+
+            reactions_kn[i] += abs(v_l)
+            reactions_kn[i + 1] += abs(v_r)
+
+            delta_fixed = (5.0 * q_i * (l_i ** 4)) / (384.0 * ei_beam)
+            delta_rot = ((th_left - th_right) * l_i) / 8.0
+            deflection_mm = round(max(0.0, abs(delta_fixed - delta_rot)) * 1000.0, 2)
+
+            spans_results.append({
+                "span_index": i,
+                "span_length_m": round(l_i, 2),
+                "load_kn_m": round(q_i, 2),
+                "moment_left_knm": round(abs(m_l), 2),
+                "moment_midspan_knm": round(m_pos, 2),
+                "moment_right_knm": round(abs(m_r), 2),
+                "max_deflection_mm": deflection_mm,
+            })
+
+            if abs(m_l) > abs(support_moments_knm[i]):
+                support_moments_knm[i] = round(abs(m_l), 2)
+            if abs(m_r) > abs(support_moments_knm[i + 1]):
+                support_moments_knm[i + 1] = round(abs(m_r), 2)
+
+        return {
+            "solver": "Direct Stiffness Method (DSM) Continuous Beam with Column Rotational Restraint",
+            "standard_reference": "ABNT NBR 6118:2023 item 14.6.4.3",
+            "num_spans": num_spans,
+            "degrees_of_freedom": int(num_joints),
+            "intermediate_column_rotational_stiffness_knm_rad": round(k_theta_col, 1),
+            "support_moments_knm": support_moments_knm,
+            "midspan_moments_knm": [s["moment_midspan_knm"] for s in spans_results],
+            "reactions_kn": [round(r, 1) for r in reactions_kn],
+            "spans_detail": spans_results,
+            "joint_rotations_rad": [round(float(th), 6) for th in rotations],
         }

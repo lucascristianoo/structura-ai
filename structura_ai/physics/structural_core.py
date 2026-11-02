@@ -29,7 +29,8 @@ class StructuralCoreEngine:
         live_load_kpa: float = 2.5,
         concrete_fck_mpa: float = 30.0,
         tributary_width_m: float = 4.0,
-        category: str = "Residencial"
+        category: str = "Residencial",
+        has_fragile_masonry: bool = False,
     ) -> Dict[str, Any]:
         """
         Executes complete structural mechanics evaluation.
@@ -103,9 +104,14 @@ class StructuralCoreEngine:
         # Total long-term deflection including creep (fluência do concreto alpha_f)
         total_deflection_mm = round(immediate_deflection_m * (1.0 + creep_factor) * 1000.0, 1)
 
-        # Allowable deflection limit (NBR 6118: L / 250)
+        # Allowable deflection limit (NBR 6118:2023 Tabela 13.2)
+        # 1. Aceitabilidade sensorial visual: L / 250
         allowable_deflection_mm = round(DeflectionLimits.visual_sag_limit_mm(span_length_m), 1)
         deflection_ratio = round(total_deflection_mm / max(allowable_deflection_mm, 0.1), 2)
+
+        # 2. Prevenção de danos a elementos não-estruturais / alvenarias: L / 350
+        allowable_masonry_mm = round((span_length_m / 350.0) * 1000.0, 1)
+        masonry_deflection_ok = total_deflection_mm <= allowable_masonry_mm
 
         # Recommended minimum structural depth (rule of thumb: L / 12 to L / 15)
         recommended_h_min_cm = round((span_length_m / 13.0) * 100.0, 0)
@@ -119,11 +125,54 @@ class StructuralCoreEngine:
             "razao": deflection_ratio
         }
 
+        checklist["flecha_alvenaria_l350"] = {
+            "status": "PASS" if masonry_deflection_ok else ("FAIL" if has_fragile_masonry else "WARNING"),
+            "valor_calculado_mm": total_deflection_mm,
+            "limite_nbr6118_mm": allowable_masonry_mm,
+            "razao": round(total_deflection_mm / max(allowable_masonry_mm, 0.1), 2),
+            "descricao": "Limite NBR 6118:2023 Tabela 13.2 para prevenção de danos a alvenarias sob a viga",
+        }
+
         if not beam_deflection_ok:
             failures.append(
                 f"Flecha excessiva no vão principal de {span_length_m:.1f}m: deformação total de {total_deflection_mm}mm "
                 f"supera o limite normativo NBR 6118 de {allowable_deflection_mm}mm (excesso de {round((deflection_ratio - 1)*100)}%). "
                 f"Altura da viga ({beam_height_cm:.0f}cm) insuficiente para o vão (recomendado mínimo {recommended_h_min_cm:.0f}cm)."
+            )
+        elif has_fragile_masonry and not masonry_deflection_ok:
+            failures.append(
+                f"Flecha no vão principal ({total_deflection_mm}mm) excede o limite normativo NBR 6118 para alvenarias frágeis "
+                f"({allowable_masonry_mm}mm), com risco de trincas nas paredes sob a viga."
+            )
+
+        # -------------------------------------------------------------
+        # SHEAR & CRUSHING VERIFICATION (NBR 6118:2023 Modelo I)
+        # -------------------------------------------------------------
+        d_m = 0.9 * h_m
+        fcd_kpa = (concrete_fck_mpa / 1.4) * 1000.0
+        alpha_v1 = 1.0 - (concrete_fck_mpa / 250.0)
+        v_rd2_kn = 0.27 * alpha_v1 * fcd_kpa * bw_m * d_m
+
+        fctm_mpa = 0.3 * (concrete_fck_mpa ** (2.0 / 3.0)) if concrete_fck_mpa <= 50.0 else 2.12 * math.log(1.0 + 0.11 * concrete_fck_mpa)
+        fctk_inf_kpa = 0.7 * fctm_mpa * 1000.0
+        fctd_kpa = fctk_inf_kpa / 1.4
+        v_c0_kn = 0.6 * fctd_kpa * bw_m * d_m
+
+        shear_diagonal_ok = shear_kn <= v_rd2_kn
+        checklist["cisalhamento_esmagamento_biela"] = {
+            "status": "PASS" if shear_diagonal_ok else "FAIL",
+            "v_sd_kn": round(shear_kn, 1),
+            "v_rd2_kn": round(v_rd2_kn, 1),
+            "v_c0_kn": round(v_c0_kn, 1),
+            "razao_biela": round(shear_kn / max(v_rd2_kn, 0.1), 2),
+            "necessita_estribos_calculados": shear_kn > v_c0_kn,
+        }
+
+        if not shear_diagonal_ok:
+            failures.append(
+                f"Ruptura por esmagamento da biela de compressão do concreto (Cisalhamento ELU): "
+                f"V_Sd = {shear_kn:.1f} kN supera V_Rd2 = {v_rd2_kn:.1f} kN per NBR 6118:2023 item 17.4.2.1. "
+                f"Necessário aumentar a seção transversal da viga ou a classe de resistência fck."
             )
 
         # -------------------------------------------------------------
@@ -277,7 +326,19 @@ class StructuralCoreEngine:
             total_height_m=column_height_m,
             num_storeys=1,
             is_indirect_support=False,
+            beam_height_cm=beam_height_cm,
+            cantilever_height_cm=beam_height_cm if cantilever_length_m > 0 else None,
         )
+
+        # Se ScopeGuard emitir HARD_BLOCK, veta a viabilidade física imediatamente
+        if scope_audit.severity == "HARD_BLOCK":
+            is_viable = False
+            compliance_level = "Bloqueio de Escopo - Projeto Fora do Envelope 2D"
+            if not any("Bloqueio de Escopo" in f for f in failures):
+                failures.append(f"Bloqueio de Escopo: {scope_audit.title} - {scope_audit.description}")
+            diagnosis_text = (
+                f"PROJETO BLOQUEADO PELO SCOPE GUARD: {scope_audit.title}. {scope_audit.description}"
+            )
 
         return {
             "is_physically_viable": is_viable,
@@ -287,7 +348,7 @@ class StructuralCoreEngine:
             "allowable_deflection_mm": allowable_deflection_mm,
             "deflection_ratio": deflection_ratio,
             "max_bending_moment_knm": round(max_moment_knm, 1),
-            "shear_utilization_ratio": round(shear_kn / max((bw_m * h_m * 1000.0 * 0.25 * math.sqrt(concrete_fck_mpa)), 1.0), 2),
+            "shear_utilization_ratio": round(shear_kn / max(v_rd2_kn, 0.1), 2),
             "critical_column_buckling_ratio": buckling_utilization,
             "cantilever_stability_factor": cantilever_stability_factor,
             "failure_reasons": failures,

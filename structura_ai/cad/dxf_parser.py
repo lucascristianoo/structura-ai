@@ -18,10 +18,11 @@ from structura_ai.cad.models import (
 )
 
 
-def _extract_entities_recursive(entity_iterable, parent_layer=None, depth=0):
+def _extract_entities_recursive(entity_iterable, parent_layer=None, depth=0, is_inside_column_block=False):
     """
     Desempacota recursivamente entidades de modelspace e blocos INSERT virtuais.
     Herda camada da referência de inserção caso a entidade interna esteja no layer '0'.
+    Rastreia se a entidade provém de um bloco de pilar para evitar duplicação em quinas.
     """
     if depth > 4:
         return
@@ -33,16 +34,21 @@ def _extract_entities_recursive(entity_iterable, parent_layer=None, depth=0):
         dtype = entity.dxftype()
 
         if dtype == "INSERT":
-            # Bloco de desenho: registra o ponto de inserção e desempacota entidades filhas
             block_name = (getattr(entity.dxf, 'name', '') or '').upper()
-            yield ("INSERT", entity, eff_layer, block_name)
+            is_col = any(k in eff_layer or k in block_name for k in ["PILAR", "COLUMN", "COL"])
+            yield ("INSERT", entity, eff_layer, block_name, is_inside_column_block)
             try:
                 virtuals = list(entity.virtual_entities())
-                yield from _extract_entities_recursive(virtuals, parent_layer=eff_layer, depth=depth + 1)
+                yield from _extract_entities_recursive(
+                    virtuals,
+                    parent_layer=eff_layer,
+                    depth=depth + 1,
+                    is_inside_column_block=(is_inside_column_block or is_col)
+                )
             except Exception:
                 pass
         else:
-            yield (dtype, entity, eff_layer, "")
+            yield (dtype, entity, eff_layer, "", is_inside_column_block)
 
 
 def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProjectData:
@@ -63,7 +69,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
     all_points = []
     explicit_insert_columns = []
 
-    for dtype, entity, layer_name, block_name in _extract_entities_recursive(msp):
+    for dtype, entity, layer_name, block_name, is_col_sub in _extract_entities_recursive(msp):
         if dtype == "INSERT":
             # Se o próprio bloco ou sua layer indicar pilar, registrar coordenada de inserção
             is_col = any(k in layer_name or k in block_name for k in ["PILAR", "COLUMN", "COL"])
@@ -83,6 +89,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
                 "layer": layer_name,
                 "start": (float(start.x), float(start.y), float(start.z if hasattr(start, 'z') else 0.0)),
                 "end": (float(end.x), float(end.y), float(end.z if hasattr(end, 'z') else 0.0)),
+                "is_inside_column_block": is_col_sub,
             })
             all_points.extend([(float(start.x), float(start.y)), (float(end.x), float(end.y))])
 
@@ -92,10 +99,48 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
                 p1, p2 = pts[i], pts[i + 1]
                 lines_raw.append({
                     "layer": layer_name,
-                    "start": (float(p1[0]), float(p1[1]), 0.0),
-                    "end": (float(p2[0]), float(p2[1]), 0.0),
+                    "start": (float(p1[0]), float(p1[1]), float(p1[2] if len(p1) > 2 else 0.0)),
+                    "end": (float(p2[0]), float(p2[1]), float(p2[2] if len(p2) > 2 else 0.0)),
+                    "is_inside_column_block": is_col_sub,
                 })
                 all_points.extend([(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))])
+            if getattr(entity, 'is_closed', False) and len(pts) > 2:
+                lines_raw.append({
+                    "layer": layer_name,
+                    "start": (float(pts[-1][0]), float(pts[-1][1]), float(pts[-1][2] if len(pts[-1]) > 2 else 0.0)),
+                    "end": (float(pts[0][0]), float(pts[0][1]), float(pts[0][2] if len(pts[0]) > 2 else 0.0)),
+                    "is_inside_column_block": is_col_sub,
+                })
+
+        elif dtype == "POLYLINE":
+            # Suporte a polilinhas 3D e polilinhas pesadas clássicas per NBR / AutoCAD
+            try:
+                pts = [v.dxf.location for v in entity.vertices]
+            except Exception:
+                try:
+                    pts = list(entity.points())
+                except Exception:
+                    pts = []
+            for i in range(len(pts) - 1):
+                p1, p2 = pts[i], pts[i + 1]
+                z1 = float(p1[2]) if len(p1) > 2 else 0.0
+                z2 = float(p2[2]) if len(p2) > 2 else 0.0
+                lines_raw.append({
+                    "layer": layer_name,
+                    "start": (float(p1[0]), float(p1[1]), z1),
+                    "end": (float(p2[0]), float(p2[1]), z2),
+                    "is_inside_column_block": is_col_sub,
+                })
+                all_points.extend([(float(p1[0]), float(p1[1])), (float(p2[0]), float(p2[1]))])
+            if getattr(entity, 'is_closed', False) and len(pts) > 2:
+                z_last = float(pts[-1][2]) if len(pts[-1]) > 2 else 0.0
+                z_first = float(pts[0][2]) if len(pts[0]) > 2 else 0.0
+                lines_raw.append({
+                    "layer": layer_name,
+                    "start": (float(pts[-1][0]), float(pts[-1][1]), z_last),
+                    "end": (float(pts[0][0]), float(pts[0][1]), z_first),
+                    "is_inside_column_block": is_col_sub,
+                })
 
         elif dtype in ("TEXT", "MTEXT"):
             insert = entity.dxf.insert if hasattr(entity.dxf, 'insert') else (0, 0, 0)
@@ -232,47 +277,63 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
             )
             col_idx += 1
 
+    has_any_structural_beam_layer = any(
+        any(k in l["layer"] for k in ["VIGA", "BEAM", "ESTRUT", "STRUCT", "FRAME"])
+        for l in lines_raw
+    )
+
     for line in lines_raw:
         x1 = (line["start"][0] - min_x) * scale_to_meters
         y1 = (line["start"][1] - min_y) * scale_to_meters
+        z1 = float(line["start"][2] if len(line["start"]) > 2 else 0.0) * scale_to_meters
         x2 = (line["end"][0] - min_x) * scale_to_meters
         y2 = (line["end"][1] - min_y) * scale_to_meters
-        length = math.hypot(x2 - x1, y2 - y1)
+        z2 = float(line["end"][2] if len(line["end"]) > 2 else 0.0) * scale_to_meters
+        length = math.hypot(x2 - x1, y2 - y1, z2 - z1)
 
         layer = line["layer"]
         is_structural = any(k in layer for k in ["VIGA", "BEAM", "ESTRUT", "STRUCT", "FRAME"])
         is_column_layer = any(k in layer for k in ["PILAR", "COLUMN", "COL"])
+        is_non_structural = any(k in layer for k in ["MOBIL", "MESA", "TEXT", "MTEXT", "DIM", "COTA", "HATCH", "ESQUADRIA", "PORTA", "JANELA", "VEICULO", "ARVORE"])
+        is_col_sub = line.get("is_inside_column_block", False)
 
         scaled_lines.append({
             "x1": round(x1, 3),
             "y1": round(y1, 3),
+            "z1": round(z1, 3),
             "x2": round(x2, 3),
             "y2": round(y2, 3),
+            "z2": round(z2, 3),
             "length": round(length, 3),
             "layer": layer,
             "is_structural": is_structural,
         })
 
-        if is_column_layer:
+        if is_column_layer and not is_col_sub:
             k = (round(x1, 1), round(y1, 1))
             if k not in columns_map:
                 columns_map[k] = ColumnElement(
                     id=f"P{col_idx}",
                     name=f"Pilar P{col_idx}",
-                    position=Point3D(x=round(x1, 2), y=round(y1, 2), z=0.0),
+                    position=Point3D(x=round(x1, 2), y=round(y1, 2), z=round(z1, 2)),
                     section_width_cm=20.0,
                     section_height_cm=40.0,
                     height_m=3.0,
                 )
                 col_idx += 1
 
-        if (is_structural or length >= 3.0) and length <= 50.0:
+        if has_any_structural_beam_layer:
+            is_beam_candidate = is_structural
+        else:
+            is_beam_candidate = (not is_non_structural) and (length >= 3.0)
+
+        if is_beam_candidate and length <= 50.0:
             beam_id = f"V{beam_idx}"
             b = BeamElement(
                 id=beam_id,
                 name=f"Viga {beam_id}",
-                start_point=Point3D(x=round(x1, 2), y=round(y1, 2), z=3.0),
-                end_point=Point3D(x=round(x2, 2), y=round(y2, 2), z=3.0),
+                start_point=Point3D(x=round(x1, 2), y=round(y1, 2), z=round(z1, 2) if z1 != 0.0 else 3.0),
+                end_point=Point3D(x=round(x2, 2), y=round(y2, 2), z=round(z2, 2) if z2 != 0.0 else 3.0),
                 span_m=round(length, 2),
                 width_cm=20.0,
                 height_cm=30.0,
@@ -330,7 +391,7 @@ def parse_dxf_file(file_path: Path | str, project_name: str = "") -> UnifiedProj
     for b in beams:
         cx = (b.start_point.x + b.end_point.x) / 2.0
         cy = (b.start_point.y + b.end_point.y) / 2.0
-        cz = 3.0 - (b.height_cm / 200.0)
+        cz = ((b.start_point.z + b.end_point.z) / 2.0) - (b.height_cm / 200.0)
         dx = abs(b.end_point.x - b.start_point.x) or (b.width_cm / 100.0)
         dy = abs(b.end_point.y - b.start_point.y) or (b.width_cm / 100.0)
         element_meshes.append({

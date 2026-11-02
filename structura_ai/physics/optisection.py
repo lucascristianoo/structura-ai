@@ -70,14 +70,38 @@ class OptiSectionEngine:
             i_eff = 0.50 * i_gross
             ei = e_kpa * i_eff
 
-            # Total long term deflection (fluência = 2.0)
-            deflection_m = (2.5 * q_ser * (l_m ** 4)) / (384.0 * ei) * 3.0
+            # Total long term deflection (fluência unificada alpha_f = 1.30, total 2.30x per NBR 6118:2023 item 17.3.2.1.2)
+            deflection_m = (2.5 * q_ser * (l_m ** 4)) / (384.0 * ei) * 2.30
             deflection_mm = deflection_m * 1000.0
 
-            # Shear check: V_rd2 (esmagamento da biela)
+            # Shear checks per NBR 6118:2023 Modelo I
+            # 1. Esmagamento da biela de compressão (V_Rd2)
             v_sd = q_elu * l_m / 2.0
             v_rd2 = 0.27 * (1.0 - safe_fck / 250.0) * fcd_kpa * bw_m * (bh_m * 0.9)
             shear_ok = v_sd <= v_rd2
+
+            # 2. Parcela resistida pelo concreto sem estribos calculados (V_c0 / V_Rd1)
+            fctm_mpa = 0.3 * (safe_fck ** (2.0 / 3.0)) if safe_fck <= 50.0 else 2.12 * math.log(1.0 + 0.11 * safe_fck)
+            fctk_inf_kpa = 0.7 * fctm_mpa * 1000.0
+            fctd_kpa = fctk_inf_kpa / 1.4
+            v_c0 = 0.6 * fctd_kpa * bw_m * (bh_m * 0.9)
+            requires_calc_stirrups = v_sd > v_c0
+
+            # NBR 6118:2023 Tabela 17.3 e item 17.3.5.2.1: Taxa mínima de armadura longitudinal
+            # rho_min = 0.15% para C20 a C30, escalonado com fctm para concretos de alta resistência
+            rho_min = max(0.0015, round((0.0015 * fctm_mpa / (0.3 * (30.0 ** (2.0 / 3.0)))), 5))
+            as_min_cm2 = round(rho_min * bw_cm * bh_cm, 2)
+
+            # Estimativa de armadura longitudinal de flexão (CA-50, fyd = 43.48 kN/cm2)
+            d_cm = max(bh_cm - 4.0, 5.0)
+            m_sd_knm = (q_elu * (l_m ** 2)) / 10.0
+            fyd_kn_cm2 = 50.0 / 1.15
+            as_calc_cm2 = (m_sd_knm * 100.0) / (fyd_kn_cm2 * 0.9 * d_cm)
+            as_req_cm2 = round(max(as_calc_cm2, as_min_cm2), 2)
+
+            # NBR 6118:2023 item 17.3.5.2.3: Armadura de pele para vigas com h > 60 cm (0.10% Ac por face)
+            has_skin_rebar = bh_cm > 60.0
+            skin_rebar_cm2_face = round(0.0010 * bw_cm * bh_cm, 2) if has_skin_rebar else 0.0
 
             is_ok = (deflection_mm <= allowable_deflection_mm) and shear_ok
 
@@ -94,6 +118,13 @@ class OptiSectionEngine:
                 "shear_ratio": round(v_sd / max(v_rd2, 1.0), 2),
                 "volume_m3": round(volume_m3, 2),
                 "estimated_cost_brl": round(est_cost_brl, 2),
+                "min_rebar_cm2": as_min_cm2,
+                "required_rebar_cm2": as_req_cm2,
+                "requires_skin_rebar": has_skin_rebar,
+                "skin_rebar_cm2_face": skin_rebar_cm2_face,
+                "requires_calculated_stirrups": requires_calc_stirrups,
+                "shear_concrete_capacity_vc0_kn": round(v_c0, 1),
+                "diagonal_compression_vrd2_kn": round(v_rd2, 1),
                 "status": "PASS" if is_ok else "FAIL",
             }
             if is_ok:
@@ -144,6 +175,7 @@ class OptiSectionEngine:
             "optimal_concrete_slim": slimmest_rc,
             "optimal_steel_w_profile": best_steel,
             "total_compliant_rc_sections_found": len(compliant_concrete),
+            "compliant_concrete_sections": compliant_concrete,
             "recommendation_summary": (
                 f"Para o vão de {l_m:.1f}m, a seção de concreto mais econômica é {best_economic_rc['section'] if best_economic_rc else 'Sob Medida'}, "
                 f"atendendo à NBR 6118 com flecha de {best_economic_rc['deflection_mm'] if best_economic_rc else '-'}mm. "
